@@ -1,0 +1,143 @@
+\documentclass[onecolumn, draftclsnofoot, 10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{multicol}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% \overfullrule=2in
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			}
+\def \CapstoneTeamNumber{		30}
+\def \GroupMemberOne{			Kenneth Steinfeldt}
+\def \GroupMemberTwo{			Christopher Pham}
+\def \GroupMemberThree{			Corwin Perren}
+\def \CapstoneProjectName{		OSU Robotics Club\\Mars Rover Ground Station}
+\def \CapstoneSponsorCompany{	OSU Robotics Club}
+\def \CapstoneSponsorPerson{	Nick McComb}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+			 }
+			
+\newcommand{\NameSigPair}[1]{
+  \par
+  \makebox[2.75in][r]{#1} 
+  \hfill
+  \makebox[3.25in]{
+      \makebox[2.25in]{\hrulefill} 
+      \hfill
+      \makebox[.75in]{\hrulefill}
+  }
+  \par\vspace{-12pt} 
+  \textit{
+      \tiny\noindent
+      \makebox[2.75in]{} 
+      \hfill
+      \makebox[3.25in]{
+          \makebox[2.25in][r]{Signature} 
+          \hfill
+          \makebox[.75in][r]{Date}
+      }
+  }
+}
+% 3. If the document is not to be signed, uncomment the command below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+	\pagenumbering{gobble}
+	\begin{singlespace}
+		% 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        \begin{minipage}{7in}
+			\centering
+			\hspace*{-.7in}
+			$\vcenter{\hbox{\includegraphics[height=4cm]{Oregon_State_College_of_Engineering_Logo}}}$
+			\hspace*{.2in}
+			$\vcenter{\hbox{\includegraphics[height=2.5cm]{OSURCLogoOrange}}}$
+		\end{minipage}
+
+		\par\vspace{.35in}
+		\centering
+		\scshape{
+			\huge CS Capstone \DocType \par
+			{\large\today}\par
+			\vspace{.5in}
+			\textbf{\Huge\CapstoneProjectName}\par
+			\vfill
+			{\large Prepared for}\par
+			\Huge \CapstoneSponsorCompany\par
+			\vspace{5pt}
+			{\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+			{\large Prepared by }\par
+			Group\CapstoneTeamNumber\par
+			% 5. comment out the line below this one if you do not wish to name your team
+			% \CapstoneTeamName\par 
+			\vspace{5pt}
+			{\Large
+				\NameSigPair{\GroupMemberOne}\par
+				\NameSigPair{\GroupMemberTwo}\par
+				\NameSigPair{\GroupMemberThree}\par
+			}
+			\vspace{20pt}
+		}
+		\begin{abstract}
+			% 6. Fill in your abstract    
+            This project involves the creation of the user interface and associated back-end systems needed to control the OSU Robotics Club's Mars Rover.
+            The club's Rover implements numerous control and sensor systems, all of which require ground station software to facilitate quick and easy use of the 
+            Rover during timed competitions.
+            The ground station software will send the Rover control information received via Joystick input or GUI interaction, as well as process and interpret
+            status data and multiple, concurrent video streams. 
+            An integrated mapping system will allow the Rover to run autonomously using predefined way-points. 
+            More complex readouts will dynamically show critical system components, such as a live view of arm joint positions and compass showing current 
+            heading and markers for way-points and points of interest. 
+		\end{abstract}
+	\end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. now you write!
+\section{Problem Description}\par
+The OSU Robotics Club Mars Rover Ground Station is the primary point of contact between the operating user and the Rover itself.
+In order for the Mars Rover team to be successful during competition the software must be easy to use and free from crashes and major errors.
+Users will control the Rover through a combination of two USB joysticks as well as a keyboard and mouse, across two 24" 1080p monitors.
+With this interface, users will need the ability to see and record the one or more video streams being sent back from the Rover as well as the GPS position of the Rover on a map of the competition area.
+\par
+Readouts on this software will need to display status information such as accessory connection states, GPS heading and speed, drive motor power, battery and system voltages, network latency, radio signal strength, and science data. 
+USB joysticks will allow users to drive the Rover as well as control secondary systems such as the arm and main-navigation camera gimbals. 
+Due to the competition environment this software will need to be able to handle potential network dropouts, large spikes in network latency, or frequent packet loss. 
+As testing of the Rover itself is the single largest priority, rapid prototyping and development of this software is desired.
+Additionally, the ground station software must be written keeping in mind that future Rover software teams will likely reuse and modify the code for future iterations of the robot.
+Ideally, even incomplete versions of the software will need to be available to test specific components of the Rover during its assembly phase. 
+When properly functioning, this software will need to allow a trained user to effectively and efficiently use the Rover to complete competition tasks.
+
+\section{Proposed Solution}
+In order to meet the goals of this project, the team's proposed solution will be to design the ground station software using Python 3, the application framework "QT" through use of the PyQt5 library, and a yet to be determined version of Robot Operating System (ROS). 
+Since rapid prototyping will be needed, Python will allow our team to more quickly develop and test prototypes while also making it easier for future members of Rover software teams to understand what was written. 
+The use of the QT framework will greatly simplify the creation of a sleek user interface and allow the team to make quick and easy adjustments to the layout in the future. 
+By using ROS, we will also be able to accelerate the design time by using the ROS topic subscription and broadcasting services built into the framework. 
+This feature in particular will let us avoid creating custom command control packets that would be hard to reuse without major modifications for future years, as well as allow the Rover to natively accept these commands without the need for an interpreter node.
+
+\section{Performance Metrics}
+The primary metric for whether the software has met the criteria for the project will be if the team president, a team officer, and at least three other Rover team members personally use the ground station software to control the rover and sign-off that it is adequately responsive, intuitive to use, and does not crash even under unideal conditions such as partial message loss or high latency. 
+For these tests, unideal conditions will be simulated via purposeful improper placement of Rover radios.
+Additionally, there will be empirical measurement of software traits. 
+Examples off these measurements include video stream frame rates, maximum latency values for GUI element updates, and maximum latency for control input to rover response.
+
+\end{document}
