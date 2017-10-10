@@ -1,0 +1,8 @@
+\contentsline {section}{\numberline {1}Overview}{2}{section.1}
+\contentsline {section}{\numberline {2}Logistics}{2}{section.2}
+\contentsline {section}{\numberline {3}Software}{2}{section.3}
+\contentsline {subsection}{\numberline {3.1}Requirements}{2}{subsection.3.1}
+\contentsline {subsubsection}{\numberline {3.1.1}GUI}{2}{subsubsection.3.1.1}
+\contentsline {section}{\numberline {4}Hardware}{3}{section.4}
+\contentsline {section}{\numberline {5}Suggested Solution}{3}{section.5}
+\contentsline {section}{\numberline {6}Performance Metrics}{3}{section.6}
