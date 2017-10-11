@@ -1,14 +1,14 @@
-#H1 CAPSTONE DOCUMENTS
+# CAPSTONE DOCUMENTS
 This folder will contain all documents for the cs capstone team.
 
-#H2 Team Members:
+## Team Members:
 * Chris Pham
 * Ken Steinfeldt
 * Corwin Perren
 
-#H2 TA:
+## TA:
 * Andrew Emmott
 
-#H2 Instructors:
+## Instructors:
 * Kevin McGrath
 * Kirsten Winters
