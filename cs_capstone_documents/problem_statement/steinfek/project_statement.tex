@@ -1,0 +1,145 @@
+\documentclass[onecolumn, draftclsnofoot, 10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			}
+\def \CapstoneTeamNumber{		30}
+\def \GroupMemberOne{			Kenneth Steinfeldt}
+\def \GroupMemberTwo{			Christopher Pham}
+\def \GroupMemberThree{			Corwin Perren}
+\def \CapstoneProjectName{		OSU Robotics Club\\Mars Rover Ground Station}
+\def \CapstoneSponsorCompany{	OSU Robotics Club}
+\def \CapstoneSponsorPerson{	Nick McComb}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{		Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfill		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+	\pagenumbering{gobble}
+	\begin{singlespace}
+		\begin{minipage}{7in}
+			\centering
+			\hspace*{-.7in}
+			$\vcenter{\hbox{\includegraphics[height=4cm]{Oregon_State_College_of_Engineering_Logo}}}$
+			\hspace*{.2in}
+			$\vcenter{\hbox{\includegraphics[height=2.5cm]{OSURCLogoOrange}}}$
+		\end{minipage}
+		%     	\begin{center}
+		%     	\includegraphics[height=4cm]{Oregon_State_College_of_Engineering_Logo}
+		%         \hfill
+		%         \includegraphics[height=2cm]{OSURCLogoOrange}  
+		%         \end{center}
+
+		% 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+
+		\par\vspace{.25in}
+		\centering
+		\scshape{
+			\huge CS Capstone \DocType \par
+			{\large\today}\par
+			\vspace{.5in}
+			\textbf{\Huge\CapstoneProjectName}\par
+			\vfill
+			{\large Prepared for}\par
+			\Huge \CapstoneSponsorCompany\par
+			\vspace{5pt}
+			{\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+			{\large Prepared by }\par
+			Group\CapstoneTeamNumber\par
+			% 5. comment out the line below this one if you do not wish to name your team
+			% \CapstoneTeamName\par 
+			\vspace{5pt}
+			{\Large
+				\NameSigPair{\GroupMemberOne}\par
+				\NameSigPair{\GroupMemberTwo}\par
+				\NameSigPair{\GroupMemberThree}\par
+			}
+			\vspace{20pt}
+		}
+		\begin{abstract}
+			% 6. Fill in your abstract
+			For this project our group will design and create the ground station software for the Oregon State University Robotics Club.
+			When the Mars rover embarks on its mission it will require a ground control station that will direct and monitor the rover through the mission.
+			In addition to directing the rover the control station will also monitor various aspects of the rover.
+			These include a video feed, a navigational map, an accurate compass indicator, waypoint editing and placement, core system status, arm joint position, etc.
+
+			In order to achieve this we will be using the Python 3 language following the PEP8 standard.
+			The software will use the Robot Operating System (ROS) framework to monitor the rover and the Python QT framework to power the user interface.
+			The Ground Control Station will communicate to the rover via a remote ethernet link that can dynamically adjust bandwidth according to necessity.
+			When complete the Control Station will allow the user to fully control and monitor the Mars Rover remotely through the variety of challenges and obstacles laid before it at the University Mars Rover Challenge in Hanksville, Utah.
+
+		\end{abstract}
+	\end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. now you write!
+\section{introduction}\par
+	The Oregon State University Robotics Club will be competing in the University Mars Rover Challenge held in Hanksville, Utah, May 31 - June 2, 2018.
+	The rover must be a standalone, off the grid, mobile platform.
+	In order to accomplish this task a ground station is required in order to fully monitor and operate the mobile rover as it navigates the obstacles of the competition.
+	The following document lays out how our group will design and write the software that will accomplish this task.
+
+\section{competition requirements}
+	In order to compete, the rover must be controlled from a central, remote command and control station.
+	This ground control station is required for course traversal as control station to rover line of sight will be blocked throughout the course.
+	There are several tasks for the rover to compete in, and for each task the rover may be outfitted.
+	However, no matter the task, the rover must be controlled by the same ground control station.
+
+\section{requirements}
+\subsection{programming}
+	The software must be written in Python 3.6 following the PEP 8 standard.
+	The GUI must be written using QT and the PyQT5 framework.
+	The software must interact with the rover's Robot Operation System (ROS) framework in order to handle the transmission of: control, status information, and video feed over a remote ethernet connection.
+	Bandwidth must be dynamic in order to adjust to varying environmental constraints, this should be both automatic and manual.
+
+\subsection{graphic user interface}
+	The GUI will cover 2 monitors running at 1080p resolution.
+	The left monitor will display the following: \begin{itemize}
+														 \item selectable video display
+														 \item main navigational map
+														 \item compass
+														 \item IMU status
+														 \item waypoint indicators
+														 \item arm position
+														 \item science data
+														 \item logging information
+\end{itemize}
+
+	The right monitor will display the following: \begin{itemize}
+													  \item primary video stream
+													  \item video tools, such as record to disk
+\end{itemize}
+\subsection{Hardware}
+	The software will running on an Intel NUC device running Ubuntu 16.04 LTS able to drive the two required 1080p monitors.
+	The primary control interface will be two USB joysticks.
+	A keyboard and mouse will be connected to the NUC and usable.
+	A remote ethernet network connection will be provided via 2 Ubiquiti Rocket M2 radios.
+	The base station will be self-contained for easy deployment.
+
+\end{document}
