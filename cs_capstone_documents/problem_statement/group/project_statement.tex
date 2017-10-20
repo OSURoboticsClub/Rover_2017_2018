@@ -115,18 +115,17 @@
 % 8. now you write!
 \section{Problem Description}\par
 For this project, the Mars Rover Team of the OSU Robotics Club is striving to build a ground station that will serve as the primary point of contact between the operating user and the rover itself.
-In order for the Mars Rover team to be successful during competition the software must be easy to use and free from crashes and major errors that may impede progress and the competition.
+In order for the Mars Rover team to be successful during competition the software must be easy to use and free from crashes and major errors that may impede progress in the competition.
 This project is going to be completely rebuilt from from the ground up instead of using a pre-made solution, such as last year's code or an open source repository.
-The competition is the NASA University Mars Rover Challenge and will be held at Hanksville, Utah during the weekend of May 31st to June 2nd 2018 in hilly areas of the Mojave desert.
+The competition is the University Mars Rover Challenge and will be held at Hanksville, Utah during the weekend of May 31st to June 2nd 2018 in hilly areas of the Mojave desert.
 Not only does the ground station software need to fit the needs of the client, but more importantly, it needs to fit the needs of the members of the Mars Rover Team as they will also be using this software. 
 Both the client and the club ask that the project be written in the Python programming language with the GUI (Graphical User Interface) framework QT.
 \subsection{Requests}
 \begin{itemize}
 \item Users will control the Rover through a combination of two USB joysticks as well as a keyboard and mouse.
-\item USB joysticks will allow users to drive the Rover as well as control secondary systems such as the arm and main-navigation camera gimbals(controls). 
-\item The users will view what the rover will sees using two 24 inch HD monitors: one as a main viewing screen and the other as a selection screen. 
-With this interface, users will need the ability to see and record
-the one or more video streams being sent back from the Rover, GPS position of the Rover on a map of the competition area, and readouts of the rover.
+\item USB joysticks will allow users to drive the Rover as well as control secondary systems such as the arm and main-navigation camera positioning. 
+\item The users will view what the rover will sees using two 24 inch HD monitors: one as a main viewing screen and the other as a selection and statuses screen. 
+With this interface, users will need the ability to see and record the one or more video streams being sent back from the Rover, GPS position of the Rover on a map of the competition area, and readouts of the rover systems.
 \item Readouts on this software will need to display status information such as accessory connection states, GPS heading and speed, drive motor power, battery and system voltages, network latency, radio signal strength, and science data. 
 \item Due to the competition environment this software will need to be able to handle potential network issues, large spikes in network latency, or frequent packet loss. 
 As testing of the Rover itself is the single largest priority, rapid prototyping and development of this software is desired.
@@ -138,7 +137,7 @@ When properly functioning, this software will need to allow a trained user to ef
 
 \section{Proposed Solution}
 \subsection{Frameworks}
-In order to meet the goals of this project, the client has proposed a solution to design the ground station software using Python 3, the application framework "QT" through use of the PyQt5 library. Running on Linux (Ubuntu 16.04) and a yet to be determined version of Robot Operating System (ROS).
+In order to meet the goals of this project, the client has proposed a solution to design the ground station software using Python 3, the application framework "QT" through use of the PyQt5 library. Running on Linux (Ubuntu 16.04) and Robot Operating System (ROS) version "Kinetic".
 \subsection{Rapid Prototyping}
 Since rapid prototyping will be needed, Python will allow our team to more quickly develop and test prototypes while also making it easier for future members of Rover software teams to understand, and contribute to, what was written. 
 The use of the QT framework will also help with rapid prototyping by greatly simplifying the creation of an interface and allowing the team to make quick and easy adjustments to its layout in the future. 
