@@ -114,36 +114,42 @@
 
 % 8. now you write!
 \section{Problem Description}\par
-For this project, the Mars Rover Team of the OSU Robotics Club is looking build a ground station that will the be primary point of contact between the operating user and the rover itself.
+For this project, the Mars Rover Team of the OSU Robotics Club is striving to build a ground station that will serve as the primary point of contact between the operating user and the rover itself.
 In order for the Mars Rover team to be successful during competition the software must be easy to use and free from crashes and major errors that may impede progress and the competition.
-This project is going to be completely rebuilt from scratch instead of using a pre-made solution like last year's code or an open source repository.
-The competition is will be at Hanksville, Utah during the weekend of May 31st to June 2nd 2018 in the Mojave desert with hilly areas.
-The software being built for them needs to fit the needs of the client, but more importantly for the members of the Mars Rover Team that are going to be using this software too. Our client and club asked for the project to be made in the Python language and using the GUI (Graphical User Interface) framework of QT.
+This project is going to be completely rebuilt from from the ground up instead of using a pre-made solution, such as last year's code or an open source repository.
+The competition is the NASA University Mars Rover Challenge and will be held at Hanksville, Utah during the weekend of May 31st to June 2nd 2018 in hilly areas of the Mojave desert.
+Not only does the ground station software need to fit the needs of the client, but more importantly, it needs to fit the needs of the members of the Mars Rover Team as they will also be using this software. 
+Both the client and the club ask that the project be written in the Python programming language with the GUI (Graphical User Interface) framework QT.
 \subsection{Requests}
-Users will control the Rover through a combination of two USB joysticks as well as a keyboard and mouse.
-USB joysticks will allow users to drive the Rover as well as control secondary systems such as the arm and main-navigation camera gimbals(controls). 
-The users will view what the rover will sees using two 24” HD monitors: one as a main viewing screen and the other as a selection screen. 
+\begin{itemize}
+\item Users will control the Rover through a combination of two USB joysticks as well as a keyboard and mouse.
+\item USB joysticks will allow users to drive the Rover as well as control secondary systems such as the arm and main-navigation camera gimbals(controls). 
+\item The users will view what the rover will sees using two 24 inch HD monitors: one as a main viewing screen and the other as a selection screen. 
 With this interface, users will need the ability to see and record
 the one or more video streams being sent back from the Rover, GPS position of the Rover on a map of the competition area, and readouts of the rover.
-Readouts on this software will need to display status information such as accessory connection states, GPS heading and speed, drive motor power, battery and system voltages, network latency, radio signal strength, and science data. 
-Due to the competition environment this software will need to be able to handle potential network issues, large spikes in network latency, or frequent packet loss. 
+\item Readouts on this software will need to display status information such as accessory connection states, GPS heading and speed, drive motor power, battery and system voltages, network latency, radio signal strength, and science data. 
+\item Due to the competition environment this software will need to be able to handle potential network issues, large spikes in network latency, or frequent packet loss. 
 As testing of the Rover itself is the single largest priority, rapid prototyping and development of this software is desired.
+\end{itemize}
 Additionally, the ground station software must be written keeping in mind that future Rover software teams will likely reuse and modify the code for future iterations of the robot.
 Ideally, even incomplete versions of the software will need to be available to test specific components of the Rover during its assembly phase. 
 When properly functioning, this software will need to allow a trained user to effectively and efficiently use the Rover to complete competition tasks.
 
 
 \section{Proposed Solution}
-In order to meet the goals of this project, the client proposed a solution to design the ground station software using Python 3, the application framework "QT" through use of the PyQt5 library, using Linux (Ubuntu 16.04) and a yet to be determined version of Robot Operating System (ROS).
-Since rapid prototyping will be needed, Python will allow our team to more quickly develop and test prototypes while also making it easier for future members of Rover software teams to understand what was written. 
-The use of the QT framework will greatly simplify the creation of an interface and allow the team to make quick and easy adjustments to the layout in the future. 
-By using ROS, we will also be able to accelerate the design time by using the ROS topic subscription and broadcasting services built into the framework. 
-This feature in particular will let us avoid creating custom command control packets that would be hard to reuse without major modifications for future years, as well as allow the Rover to natively accept these commands without the need for an interpreter node.
+\subsection{Frameworks}
+In order to meet the goals of this project, the client has proposed a solution to design the ground station software using Python 3, the application framework "QT" through use of the PyQt5 library. Running on Linux (Ubuntu 16.04) and a yet to be determined version of Robot Operating System (ROS).
+\subsection{Rapid Prototyping}
+Since rapid prototyping will be needed, Python will allow our team to more quickly develop and test prototypes while also making it easier for future members of Rover software teams to understand, and contribute to, what was written. 
+The use of the QT framework will also help with rapid prototyping by greatly simplifying the creation of an interface and allowing the team to make quick and easy adjustments to its layout in the future. 
+\subsection{Robot Operating System}
+By using ROS, we will also be able to accelerate the design time by using the robust ROS topic subscription and broadcasting services already built into the framework. 
+This feature in particular will let us avoid creating custom command control packets that would be hard to reuse without major modifications for future years, as well as allow the Rover to natively accept these commands without the need for any sort of interpreter node.
 
 \section{Performance Metrics}
 The primary metric for whether the software has met the criteria for the project will be if the team president, a team officer, and at least three other Rover team members personally use the ground station software to control the rover and sign-off that it is adequately responsive, intuitive to use, and does not crash even under unideal conditions such as partial message loss or high latency. 
 For these tests, unideal conditions will be simulated via purposeful improper placement of Rover radios.
 Additionally, there will be empirical measurement of software traits. 
 Examples of these measurements include video stream frame rates, maximum latency values for GUI element updates, and maximum latency for control input to rover response.
-The time requirements we need to fulfill will be finishing the requirements before Engineering Expo which is May 18, 2018. The hard deadline will be May 30st, 2018, the day before the Mars Rover competition. 
+The time requirements we need to fulfill will be finishing the requirements before Engineering Expo which is May 18, 2018. The hard deadline will be May 30st, 2018, the day before the ground control station will compete in the Mars Rover competition. 
 \end{document}
