@@ -1,0 +1,409 @@
+\documentclass[onecolumn, draftclsnofoot, 10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{multicol}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% \overfullrule=2in
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			Ground Station Software Team}
+\def \CapstoneTeamNumber{		30}
+\def \GroupMemberOne{			Kenneth Steinfeldt}
+\def \GroupMemberTwo{			Christopher Pham}
+\def \GroupMemberThree{			Corwin Perren}
+\def \CapstoneProjectName{		OSU Robotics Club\\Mars Rover Ground Station}
+\def \CapstoneSponsorCompany{	OSU Robotics Club}
+\def \CapstoneSponsorPerson{	Nick McComb}
+
+
+
+%Personal \newcommands
+
+\newcommand{\functRequ}[4]{
+\item #1%
+\par
+\begin{itemize}
+\item \textit{Description:} #2.%
+\item \textit{Rationale:} #3.%
+\item \textit{Dependencies:} #4%
+\end{itemize}
+}
+
+
+
+
+
+
+
+
+
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%Problem Statement
+				Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+			 }
+			
+\newcommand{\NameSigPair}[1]{
+  \par
+  \makebox[2.75in][r]{#1} 
+  \hfill
+  \makebox[3.25in]{
+      \makebox[2.25in]{\hrulefill} 
+      \hfill
+      \makebox[.75in]{\hrulefill}
+  }
+  \par\vspace{-12pt} 
+  \textit{
+      \tiny\noindent
+      \makebox[2.75in]{} 
+      \hfill
+      \makebox[3.25in]{
+          \makebox[2.25in][r]{Signature} 
+          \hfill
+          \makebox[.75in][r]{Date}
+      }
+  }
+}
+% 3. If the document is not to be signed, uncomment the command below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+	\pagenumbering{gobble}
+	\begin{singlespace}
+		% 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        \begin{minipage}{7in}
+			\centering
+			\hspace*{-.7in}
+			$\vcenter{\hbox{\includegraphics[height=4cm]{Oregon_State_College_of_Engineering_Logo}}}$
+			\hspace*{.2in}
+			$\vcenter{\hbox{\includegraphics[height=2.5cm]{OSURCLogoOrange}}}$
+		\end{minipage}
+
+		\par\vspace{.35in}
+		\centering
+		\scshape{
+			\huge CS Capstone \DocType \par
+			{\large\today}\par
+			\vspace{.5in}
+			\textbf{\Huge\CapstoneProjectName}\par
+			\vfill
+			{\large Prepared for}\par
+			\Huge \CapstoneSponsorCompany\par
+			\vspace{5pt}
+			{\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+			{\large Prepared by }\par
+			Group\CapstoneTeamNumber\par
+			% 5. comment out the line below this one if you do not wish to name your team
+			\CapstoneTeamName\par 
+			\vspace{5pt}
+			{\Large
+				\NameSigPair{\GroupMemberOne}\par
+				\NameSigPair{\GroupMemberTwo}\par
+				\NameSigPair{\GroupMemberThree}\par
+			}
+			\vspace{20pt}
+            \begin{abstract}
+			% 6. Fill in your abstract
+            % NEW ABSTRACT HERE!!!!!!!!!!!!!!
+
+		\end{abstract}
+		}
+	\end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+\clearpage
+
+% 8. now you write!
+% \section{General Notes for Writing This Document}
+% \begin{itemize}
+% \item Needs a Gantt chart at the end
+% \item Should be a full listing of the tasks to be completed
+% \item NO HOW QUESTIONS, ONLY WHAT
+% \item User stories
+% \item Make a separate section for stretch goals
+% \end{itemize}
+\section{Introduction}
+\subsection{Purpose}
+The purpose of this document is to formally define the characteristics of the software to be implemented. 
+These requirements can then be used to determine if the software is complete once the project is done, while also serving as a reference during.
+\subsection{Scope}
+We will be creating the "Mars Rover Ground Station" software package. 
+This software will allow Rover team members to interact with the Oregon State University Robotics Club's Mars Rover for the purpose of a competition taking place in Utah during June of 2018. 
+The software will provide Rover systems monitoring as well as control of drive and arm systems. 
+During competition, the software will be run on a remote base station operated out of the Mars Desert Research Station or the back of a truck, allowing users to tele-operate the Rover during manned controlled mission, or to monitor progress during autonomous missions. 
+Properly functioning and fully featured ground station software will be a major factor in the success of the Mars Rover during this competition.
+\subsection{Definitions / Acronyms / Abbreviations}
+\begin{itemize}
+\item ROS - Robot Operating System
+\item PyQT - Python Graphical User Interface framework
+\item GPS - Global Positioning Satellite 
+\item User - Person operating rover from ground control station
+\item GUI - Graphical User Interface
+\item RTT - Round-trip Time, the length of time for a signal to be sent plus the length of the time it takes for an acknowledgement of the signal to be received.
+\item Bogie - The individual wheels on the Rover, each with the ability to be driven independently.
+\item IMU - Inertial Measurement Unit
+\end{itemize}
+\subsection{Overview}
+The remainder of this document consists of 4 sections and will describe the requirements that must be met in order for this project to be considered fully complete. The next section gives a description of the process. 
+
+The fourth section describes the ground control software's functions, user characteristics, constraints, and assumptions and dependencies. 
+The fifth section describes the specific requirements that must be met for the process to be a success.
+Finally, stretch goals in the sixth section will describe hopeful, but not mandatory goals for the software.
+
+\section{Description}
+\subsection{Product Perspective}
+This project interacts with and requires the Robotics Club's Mars Rover robotics vehicle in order to be useful.
+If the Rover is not connected, the software will still be able to launch, but will not perform any useful functions until it has established a connection to the Rover.
+In order to accomplish interaction with the rover, the ground station software will use ROS for primary functionality and feedback from the rover.
+\section{Product Functions}
+The ground control software will primarily accomplish two tasks:
+\begin{itemize}
+\item Provide Rover control to the user
+Direct rover control will be accomplished with two joysticks.
+\item Enable and present rover feedback to the user
+The rover will send health and status information to the ground control station.
+\end{itemize}
+\subsection{User Characteristic}
+Users of the Rover Ground Station software will comprise of Rover team leads and members. These members will be partially to extremely well versed on the capabilities of the Rover.
+
+\subsubsection{User Stories}
+\begin{itemize}
+\item User should be able to vary bandwidth as needed
+\item User should be able view ground station UI on two 1080p monitors
+\item User should be able to add way-points
+\item User should be able to remove way-points
+\item User should be able to edit way-points
+\item User should be able to change the order of way-points
+\item User should be able to control the Rover by joysticks
+\item User should be able to select video streams
+\item User should be able to view the pitch, yaw, roll of the Rover
+\item User should be able to switch off and on autonomy
+\item User should be able to tell that autonomy is enabled
+\item User should be able to tell that the rover has reached the location after autonomy is enabled
+\item User should be able to view how the arm is bent
+\item User should be able to control the arm
+\item User should be able to view live logs from the Rover
+\item User should be able to set the Rover speed limit
+\item User should be able to view the CPU usage
+\item User should be able to view the memory usage
+\item User should be able to view the drive usage
+\item User should be able to see the speed of the Rover
+\item User should be able to see how accurate the GPS positioning is
+\item User should be able to see what heading the Rover is at
+\item User should be able to see the maximum throughput of the network
+\item User should be able to see the current latency
+\item User should be able to confirm connected devices
+\end{itemize}
+\subsection{Constraints}
+Due to the nature of the Mars Rover project, there are multiple hardware and software constraints to ensure that the Ground Station software can properly communicate with the Rover. 
+Additionally, the following constraints will help ensure future re-usability of the finalized software, which is a key goal of the Mars Rover team. 
+\par
+The software language allowed is the primary constraint for this project. 
+Python 3 is required by the Mars Rover team as it maintains consistency with the software written on the Rover itself. 
+The team also requires Python as it more easily allows future team members to reverse engineer code to be reused in future projects.
+\par
+Use of the QT application framework is another constraint placed by the Rover team in order to facilitate rapid prototyping of the user interface for this project. 
+It will also allow for faster and easier modification both by future members of the team, and during competition as that has previously been necessary.
+\par
+The Rover internally uses ROS to handle routing and interpreting control and status information as well as video data, so this project must also use ROS so that it may interface with that data.
+\par
+At a hardware level, the Rover team will be providing an Intel NUC desktop computer running Ubuntu 16.04 that the Ground Station software will need to be able to run on.
+They will also provide two HD monitors, two USB joysticks, as well as a keyboard and mouse that will be used to view and interact with the software.
+\subsection{Assumptions / Dependencies}
+\section{Specific Requirements}
+\subsection{User Interfaces}
+Upon initial launch, the application should be in full-screen mode across both of the monitors. 
+The left-hand screen will show navigation, Rover status, and miscellaneous Rover controls. 
+The right hand monitor will show the three live video streams from the Rover. 
+In the case that the software is started without a Rover to connect to, the software will display as-such and show placeholder information until such a connection is made.
+
+\subsection{Functional Requirements}
+\subsubsection{Statuses}
+\begin{enumerate}
+\functRequ{Rover Connection Status}
+{This indicator will show a binary state of whether or not the Rover is currently connected}
+{The Rover must be connected in order for most of the software aspects to function. 
+It is also useful to tell when full network dropouts happen}
+{None}
+
+\functRequ{Joystick Connection Statuses}
+{Status indicators will visually show binary states as to whether each of the two joysticks are currently connected}
+{Both joysticks must be properly connected to drive the Rover}
+{Rover Connection Status}
+
+\functRequ{Rover Battery Status}
+{This indicator will show a percentage of the battery running the Rover}
+{The User should know how much battery is left to be able to determine remaining runtime and to diagnose other Rover errors}
+{Rover Connection Status}
+
+\functRequ{Rover Voltage Statuses}
+{These indicators will show the major power rail voltages for the Rover}
+{The User can use this information to diagnose faulty hardware and to determine cause if Rover systems become non-responsive}
+{Rover Connection Status}
+  
+\functRequ{Bogie Connection Statuses}
+{These indicators will show whether each of the six bogies are connected to the Rover}
+{This will let drivers of the Rover know if a wheel has failed, which is a common occurrence}
+{Rover Connection Status}
+
+\functRequ{Arm Connection Status}
+{This indicator will be a binary state of weather or not the mechanical arm is connected or not}
+{This will show the User that they will be able to control the arm}
+{Rover Connection Status}
+
+\functRequ{Camera Presence Status}
+{This indicator will show which cameras are connected via grid system}
+{The User can use such system to verify if a camera is functional when connected or not}
+{Rover Connection Status}
+
+\functRequ{IMU Status}
+{This will indicate the pitch, yaw, and roll}
+{This can be used by the User to navigate terrain}
+{Rover Connection Status}
+
+\functRequ{Map Visualizer}
+{This will display the map around the Rover or of some input location}
+{This can be used to see terrain maps of the area}
+{Rover Connection Status}
+
+\functRequ{Rover Computer Status}
+{This indicator will show the current CPU, memory, and disk usage}
+{This can be used to ensure the Rover processing computer is not overloaded.
+It can also show potential software failures while serving as a useful indication that the connection to the Rover is stable}
+{Rover Connection Status}
+
+\functRequ{Current Radio Signal Strength}
+{This indicator will display the strength of the connection}
+{The User can use this to determine if they need to push more power to the receiver or reduce it for power reductions}
+{Rover Connection Status}
+  
+\functRequ{Rover Network Potential Throughput}
+{This indicator will show how many bits it may transfer through the connection}
+{The User can use the information to control other data sources}
+{Rover Connection Status, Current Radio Signal Strength}
+
+\functRequ{Rover RTT}
+{This indicator will show how long in milliseconds the delay is}
+{The User should know how long it might take for a sent input so interact with the rover}{Rover Connection Status}
+
+\functRequ{Rover Speed Limit}
+{This slider controls the speed limit from the motors from 100\% to 0\%}
+{????????????????????????????????????????}
+{Rover Connection Status, Rover Bogie Status}
+\end{enumerate}
+
+\subsubsection{Navigation}
+\begin{enumerate}
+\functRequ{GPS Status}
+{This can poll that the GPS is available}
+{This is needed to check to see if GPS is working and functioning}
+{Rover Connection Status}
+
+\functRequ{Rover Speed Reading}
+{This indicator shows how fast the Rover is moving}
+{This can be used to show the Rover's current speed}
+{Rover Connection Status, GPS Status}
+
+\functRequ{Rover Heading}
+{This indicator will show what bearing the Rover is at currently}
+{The user can use that to determine which way the map should be orientated}
+{Rover Connection Status, GPS Status}
+
+\functRequ{GPS Satellites Connected}
+{This indicator will show how many GPS satellites the module can access}
+{?????????????????????????????????????????????????????????????????}
+{Rover Connection Status, GPS Status}
+
+\functRequ{GPS Accuracy}
+{This indicator will how correct the GPS is}
+{This is used for autonomy mode and correctness of coordinates}
+{Rover Connection Status, GPS Status, GPS Satellites Connected}
+
+\functRequ{Way-point Placement}
+{Place way-points on a map, by GPS location, or by current Rover location to add a way-point to the queue system}
+{This is used for autonomy mode and pathing}
+{Rover Connection Status, GPS Status, GPS Satellites Connected, Map Visualizer}
+
+\functRequ{Way-point Editing}
+{Edit any way-point}
+{Can be used to change any placed way-points}
+{Rover Connection Status, GPS Status, GPS Satellites Connected, Way-point Placement, Map Visualizer}
+
+\functRequ{Way-point Re-Ordering}
+{Change the order of way-points}
+{Used to change directions of the Rover}
+{Rover Connection Status, GPS Status, GPS Satellites Connected, Way-point Placement, Map Visualizer}
+
+\functRequ{Way-Point Printing}
+{Displays the queue of way-points onto a map}
+{Shows the path that the Rover should be taking}
+{Rover Connection Status, GPS Status, GPS Satellites Connected, Way-point Placement, Map Visualizer}
+
+\end{enumerate}
+\subsubsection{Autonomy}
+\begin{enumerate}
+\functRequ{Autonomy Switch}
+{A switch to toggle the autonomy of the Rover}
+{This is to switch from User controlled to AI controlled Rover movement}
+{Rover Connection Status}
+
+\functRequ{Autonomy Overlay}
+{An overlay for the video stream to display that the Rover is running in autonomy mode}
+{This is used to show that the system is not controlled by a User}
+{Rover Connection Status, Autonomy Switch}
+
+\functRequ{Autonomy Indicator}
+{An alert or indicator for when the Rover has reached its final way-point or stopped}
+{This is used for the competition}
+{Rover Connection Status, Autonomy Switch, Way-point Placement}
+\end{enumerate}
+\subsubsection{Camera Controls}
+
+
+\subsubsection{Video Streams}
+\begin{enumerate}
+
+\functRequ{Video Stream Bit-rate}
+{This indicator will show the quality of the video stream(s)}
+{The User would want to know what the bit-rate is to determine if the video stream quality should decrease or increase}
+{Rover Connection Status, Rover RTT}
+
+\end{enumerate}
+\subsubsection{Logging}
+\begin{enumerate}
+
+\functRequ{Access to Log Files}
+{From the software, the User should be able to view live logs}
+{The User might want to access this stream to see any data that might help them troubleshoot}
+{Rover Connection Status}
+
+\functRequ{Display Data Collection Sensors}
+{Show data from the scientific or biological sensors attached to the rover}
+{Used for competition}
+{Rover Connection Status}
+
+\functRequ{Get Started Document}
+{A document describing general details on how to start and reuse software and design guidelines}
+{This will be useful for the Mars Rover team in future years}
+{EVERYTHING}
+\end{enumerate}
+
+\section{Stretch Goals}
+\begin{itemize}
+\item Rover arm 3d visualization
+\item 
+\end{itemize}
+\end{document}
