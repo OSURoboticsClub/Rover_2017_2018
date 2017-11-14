@@ -1,0 +1,288 @@
+\documentclass[onecolumn, draftclsnofoot, 10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{multicol}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% \overfullrule=2in
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			}
+\def \CapstoneTeamNumber{		30}
+\def \GroupMemberOne{			Kenneth Steinfeldt}
+\def \GroupMemberTwo{			Christopher Pham}
+\def \GroupMemberThree{			Corwin Perren}
+\def \CapstoneProjectName{		OSU Robotics Club\\Mars Rover Ground Station}
+\def \CapstoneSponsorCompany{	OSU Robotics Club}
+\def \CapstoneSponsorPerson{	Nick McComb}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+			 }
+			
+\newcommand{\NameSigPair}[1]{
+  \par
+  \makebox[2.75in][r]{#1} 
+  \hfill
+  \makebox[3.25in]{
+      \makebox[2.25in]{\hrulefill} 
+      \hfill
+      \makebox[.75in]{\hrulefill}
+  }
+  \par\vspace{-12pt} 
+  \textit{
+      \tiny\noindent
+      \makebox[2.75in]{} 
+      \hfill
+      \makebox[3.25in]{
+          \makebox[2.25in][r]{Signature} 
+          \hfill
+          \makebox[.75in][r]{Date}
+      }
+  }
+}
+% 3. If the document is not to be signed, uncomment the command below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+	\pagenumbering{gobble}
+	\begin{singlespace}
+		% 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        \begin{minipage}{7in}
+			\centering
+			\hspace*{-.7in}
+			$\vcenter{\hbox{\includegraphics[height=4cm]{Oregon_State_College_of_Engineering_Logo}}}$
+			\hspace*{.2in}
+			$\vcenter{\hbox{\includegraphics[height=2.5cm]{OSURCLogoOrange}}}$
+		\end{minipage}
+
+		\par\vspace{.35in}
+		\centering
+		\scshape{
+			\huge CS Capstone \DocType \par
+			{\large\today}\par
+			\vspace{.5in}
+			\textbf{\Huge\CapstoneProjectName}\par
+			\vfill
+			{\large Prepared for}\par
+			\Huge \CapstoneSponsorCompany\par
+			\vspace{5pt}
+			{\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+			{\large Prepared by }\par
+			Group\CapstoneTeamNumber\par
+			% 5. comment out the line below this one if you do not wish to name your team
+			% \CapstoneTeamName\par 
+			\vspace{5pt}
+			{\Large
+				\NameSigPair{\GroupMemberOne}\par
+				\NameSigPair{\GroupMemberTwo}\par
+				\NameSigPair{\GroupMemberThree}\par
+			}
+			\vspace{20pt}
+		}
+		\begin{abstract}
+			% 6. Fill in your abstract    
+            In order to successfully compete in the Mars Rover competition, the ground station software must run from an actual ground station.
+            This means that the ground control software must run on hardware that will make up the physical ground control station before it can be delivered to the robotics club.
+            In order to accomplish this we must determine various levels of technology.
+            In this document I research different solutions that can be used for this purpose.
+            The technologies discussed in this document are the host operating system, the computing hardware that will make up the host, and how that hardware will be physically packaged for quick deployment at the competition.
+            
+		\end{abstract}
+	\end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. now you write!
+\section{Operating System}\par
+
+\subsection{Overview}
+The ground control software must run from a central host in order to be controlled by the operator.
+Therefore, an operating system must be chosen on which the software will run.
+This is an important technology decision as it is integral to the foundation of the software, and will likely be unchanged by future robotics team developers.
+This section describes the research and process behind deciding the best operating system on which to run the ground control software.
+
+\subsection{Criteria}
+The chosen operating system must meet several points of criteria.
+It should be well supported in robotics in order to ease development work, ensure robust software, and enable future developers.
+It should be acquired at minimum cost in order to best allocate robotics resources now and in the future.
+There should be a reasonable expectation that development on the operating system is familiar to this team as well as future teams doing development work on the ground control software.
+
+\subsection{Linux}
+Going into this research Linux was the preferred choice for this technology.
+Linux meets all basic criteria for this choice.
+\begin{itemize}
+\item 
+Linux is the primary choice of operating systems in robotics. 
+Because of this it is best supported by the community and will offer developers the greatest amount of support going forward.
+Of note, the Robot Operating System (ROS), which is the foremost robotics operating system and academically supported, only runs on the Linux operating system.
+Furthermore, ROS is technology under review by this team, for this project.
+The use of ROS would require that Linux be chosen.
+
+\item 
+All robotics team developers are students of Oregon State University, and as such have been routinely exposed to developing on Linux.
+Computer science students of OSU are required to develop on Linux for a majority of their programming courses.
+Because of this there is a reasonable expectation that all developers, future and present, will be familiar with Linux development.
+It is true that this team is most familiar with Linux development.
+In fact, it is likely that a large majority of these developers are more familiar with Linux development than development on any other operating system.
+We expect that this familiarity will greatly increase the quality of the software as well as the pace at which this software can be built and maintained.
+
+\item
+Linux is famously free and open sourced.
+This means that procurement of this operating system is exceedingly easy and cost free.
+This is greatly beneficial to the team as resources are limited.
+In acquiring this technology freely, the robotics team is free to allocate more resources to other parts of the project, such as the rover itself, or other ground station costs.
+
+\item
+Linux is notoriously light-weight and modifiable. 
+
+\end{itemize}
+
+
+\subsection{MacOS}
+MacOS is Apple's Unix operating system designed for Apple computers.
+MacOS meets some but not all base criteria for this choice.
+
+\begin{itemize}
+\item 
+MacOS is a Unix operating system, and as such shares many traits and tools with Linux.
+Because of this ROS runs and is supported on MacOS.
+
+\item
+Because of its similarity to Linux, it is also fair to say that there is a reasonable expectation that developers, present and future, will be familiar with the development environment it provides.
+Therefore it is reasonable to expect that MacOS can provide a stable, robust foundation on which the ground station can be built.
+
+\item
+Unfortunately, MacOS is only legally permitted to be run on Apple hardware.
+This requirement causes significant additional cost to the project and restricts development environment for anyone working on the ground station.
+
+\end{itemize}
+
+\subsection{Windows}
+Microsoft Windows is the most popular PC operating system in the world.
+It is vastly different from Linux in both design and philosophy and represents a significant choice for this project.
+
+\begin{itemize}
+\item 
+ROS is not supported on the Windows platform, which means that selecting the Windows operating system restricts us greatly.
+Moreover, Windows generally does not have the support of the general robotics environment in academics.
+Finding a Windows specific solution could be a significant hindrance to this team.
+
+\item
+The standard path through computer science at OSU does not include much, if any, development experience on the Windows platform.
+Therefore it is not reasonable to expect that current or incoming developers will be able to meaningfully impact the project without a significant, upfront, learning curve.
+It is also fair to say that the unfamiliarity of developing on Windows and the rapid deployment model that this project will take will create a more mistake prone environment that will likely lead to less robust and reliable software.
+
+\item
+Windows is a licensed operating system that runs on nearly all PCs.
+However, a license can be procured through the University at no cost.
+Windows would not be a significant monetary burden if selected.
+
+\end{itemize}
+
+\subsection{Summary}
+Clearly each operating system has different traits and attributes.
+MacOS and Linux some both Unix operating systems and share many ideas and offer a similar environment.
+Windows is a drastic change from the previously mentioned two, but is the world's most popular PC operating system, and is professionally supported.
+
+\subsection{Conclusion}
+Linux is the clear choice here as it offers the project everything that is needed in an operating system and affords the greatest amount of flexibility on future choices.
+Linux is also the most familiar operating system to the developers and can be modified as needed in order to meet the exact definitions required for the project.
+
+\section{Computing Hardware}
+\subsection{Overview}
+As the ground station controls the rover, it must be a self-contained computer.
+This affords us a few choices.
+This team can choose to install the ground station software on either a laptop, an Intel NUC mini-PC, or a full-sized workstation PC.
+It is important to note that the ground station must be transported a significant distance to the competition and must be setup and torn down quickly.
+
+\subsection{Criteria}
+The computing hardware for the project must fulfill specific requirements.
+It must have enough processing power to drive the software.
+It must be small and portable.
+It must not incur a significant cost.
+
+\subsection{Laptop}
+A laptop may seem like the most obvious choice and offers many advantages.
+They are already designed to be portable and offer enough computing power for the base station.
+They can be developed on just the same as any other computer.
+To use a laptop, one will have to be purchased, causing significant cost to the project.
+
+\subsection{Intel NUC}
+An Intel NUC is a miniature computer designed for similar use cases as this.
+It provides more than enough computing power and its small size will afford easy transportation and setup.
+The client prefers the use of an Intel NUC is providing one for the project.
+
+\subsection{Full-Sized PC}
+A full-sized PC offers significant processing power but at the cost of size.
+Transporting and setting up one of these will be laborious and slow.
+The extra computing power afforded by a full workstation is unnecessary and wasted on the task.
+A workstation such as this will have to be purchased, causing significant cost to the project.
+
+\subsection{Summary}
+All three options can adequately fill the need of the project.
+A laptop is more portable and as powerful as a NUC, and a workstation is significantly more powerful than both.
+However, this nature of the project requires that the most efficient choice be made.
+
+\subsection{Conclusion}
+While a laptop may represent the most desirable choice, it is not the most efficient choice to complete the task.
+An Intel NUC is being provided to the group at no cost, and it has been indicated by the client that this is the preferred hardware choice.
+the NUC provides more than enough computing power than is required with almost the same portability as a laptop.
+
+\section{Quick-Deploy Package}
+
+\subsection{Overview}
+Transportation and set up are important to the Mars Rover competition, as it is a timed trial.
+In order to be successful, a packaging solution must be thoroughly considered.
+For example, does a solution have to be created, or does a solution already exist that can be purchase?
+Should the packaging be totally self contained or require external set up materials?
+
+\subsection{Criteria}
+The ground station will have to easily transported and unpacked.
+The competition is in the desert and reliability is paramount is it is also important that the transportation solution is adequate to protect the equipment while in transit and also in use.
+Also required is that the ground station must be setup with software launched in 2 minutes or less.
+
+\subsection{Self-Contained Case}
+This case contains all equipment necessary for the ground station to function, already connected, missing only power.
+Logistically this is the nicest solution, however, such a case will require some customization from the team.
+Also the equipment will have to be carried approximately 50 feet from the transportation vehicle to the setup location, so it cannot be too heavy.
+
+\subsection{Separately Packaged Components}
+In this solution, all components of the station are packed individually and will have to be connected and powered separately once transported to the setup location.
+In contrast to the self contained case, this does not require any modification or customization, which means it is less resource intensive.
+However, moving the station from the transport vehicle to the setup location will require more than a single trip.
+This can introduce error as the client's rover team moves quickly to meet the two minute deadline.
+
+\subsection{Pre-Packed Backpack}
+Unlike the previous two solutions, in this case all necessary components are fit into a backpack or case, but not connected.
+This allows for a single trip to unload the vehicle, but still requires that each component is connected and powered on in two minutes.
+Again this could lead to errors or troubleshooting in the two minutes allowed for setup.
+
+\subsection{Summary}
+Each solution carries pros and cons.
+In this decision the team must determine how much value to impose on time.
+Is two minutes enough time for a full setup?
+
+\subsection{Conclusion}
+Though it is more resource heavy, it is better to have the entire ground station pre-connected in a hard case.
+This solution will cost both time and money, but will greatly increase the chance of success for the Mars Rover team during the competition.
+Moreover the solution can be reused in years to come, which is an important condition from our client.
+
+\end{document}
