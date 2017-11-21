@@ -6,6 +6,9 @@
 \usepackage{setspace}
 \usepackage{multicol}
 
+\usepackage[numbers]{natbib}
+\bibliographystyle{IEEEtranN}
+
 \usepackage{geometry}
 \geometry{textheight=9.5in, textwidth=7in}
 
@@ -104,15 +107,15 @@
 \clearpage
 % My stuff here
 \section{Personal Role}
-My role in on the Mars Rover Ground Station team will primarily be as a programmer writing code to interface with the team's Mars Rover. 
+My role on the Mars Rover Ground Station team will primarily be as a programmer writing code to interface with the team's Mars Rover. 
 As part of this interfacing, the software I help write will allow for remote control of the Rover, the showing of video streams broadcast from the Rover, and the showing of Rover status and mapping information.
 An additional role I will have will be as a bridge between the rest of our capstone team and the Mars Rover group, as needed.
-In the past, I've both been a member of the Mars Rover team and the electrical team lead, so my knowledge of the competition as well as those in charge of the Rover team will help facilitate easy communication.
+In the past, I have both been a member of the Mars Rover team and the electrical team lead, so my knowledge of the competition as well as those in charge of the Rover team will help facilitate easy communication.
 \section{Goals}
 The goals of the rest of this document are to cover three separate technological aspects of the Mars Rover Ground Station that have multiple viable solutions. Evaluation of three of these options will then culminate in choosing one of one to be used on the Ground Station.
-These first technology to be looked at will be the robotics framework the software will be interfacing with. As the Mars Rover is a complicated robot, choosing the right option here will affect how difficult it will be to interface with the Rover systems.
-The second technology will cover the radio system options the Ground Station could use to communicate to and from the Rover. Selection of this system will determine how much and how fast data can be transmitted between the Ground Station and Rover, both of which are major factors in how usable the Rover is during competition.
-The final technology will be the options for USB joysticks that are what will be used to drive the Rover remotely using this Ground Station software.
+The first technology to be looked at will be the robotics framework the software will be interfacing with. As the Mars Rover is a complicated robot, choosing the right option here will affect how difficult it will be to interface with the Rover's systems.
+The second technology will cover the radio system options the Ground Station could use to communicate with the Rover. Selection of this system will determine how much and how fast data can be transmitted between the Ground Station and Rover, both of which are major factors in how usable the Rover is during competition.
+The final technology will be the options for USB joysticks that will be used to drive the Rover remotely using this Ground Station software.
 
 % Robotics Frameworks
 \section{Robotics Frameworks}
@@ -166,8 +169,9 @@ This option still requires a significant amount of custom node development.
 \subsubsection{Robot Operating System (ROS)}
 ROS is the most popular robotics framework in the world, and it shows in terms of the complete package it provides. 
 Nodes can be found, both official and unofficial, for most features the Robotics Club's Mars Rover might need.
-If those nodes are not complete, they often provide a great 
 This includes localization and mapping, computer-vision, obstacle avoidance, motion planning, arm and drive system nodes, and and robust messaging framework.
+For any nodes that are not complete, they often provide a great starting point so we would at least not be starting from scratch.
+
 
 \begin{itemize}
 \item \textit{Feature Coverage}: Excellent coverage.
@@ -191,18 +195,17 @@ The community and resource availability for the custom solution is essentially n
 Lastly, when it comes to development time ROS appears to win in this category. The combination of many pre-built nodes plus excellent documentation and community support helps make development much speedier than other options. MRPT is next best, with at least a starting framework to begin with and build off of. The custom solution would be a nightmare in terms of development time and would likely not be complete before competition.
 
 \subsection{Conclusion}
-For the choice of a robotics framework it is easy to see that there is a clear winner, and that winner is ROS. 
-ROS is better in every single category than MRPT or a custom solution.
-ROS has been actively developed for ten years and this shows in its mature and robust nodes and documentation that should allow the Rover team and our Ground Station software team to more quickly develop the application.
+For the choice of a robotics framework ROS definitely seem to be most fully-featured and quickest to implement framework and wins out in every single category compared to MRPT or a custom solution.
+Additionally, the fact that ROS has been actively developed for ten years shows in its mature and robust nodes and documentation that should allow the Rover team and our Ground Station software team to more quickly develop the desired application.
 
 % Radio Systems
 \section{Radio System}
 \subsection{Overview}
-During the University Rover Challenge competition, most of the events that take place are remote control events where are user must remotely operate their Rover from a remote base station. During both the remotely operated and autonomous events, data will need to be sent back and forth between the Rover and its base station. As such, the radios used make a huge difference in how well the Rover performs. Here, we'll look into a few different options for radio systems.
+During the University Rover Challenge competition, most of the events that take place are remote control events where the user must remotely operate their Rover from a remote base station. During both the remotely operated and autonomous events, data will need to be sent back and forth between the Rover and its base station. As such, the radios used make a huge difference in how well the Rover performs. Here, we'll look into a few different options for radio systems.
 
 \subsection{Criteria}
 \begin{itemize}
-\item \textit{Cost}: The radio must be as low cost as possible while providing good performance.
+\item \textit{Cost}: The radio must be as low cost as possible while still providing all needed functions.
 \item \textit{URC Radio Rules}: The radio must meet the URC competition radio requirements.
 \item \textit{Data Throughput}: The radio must allow for high enough data throughput to allow for comfortable remote driving of the Rover.
 \item \textit{Range}: The radio must be able to reach at least 1km away per URC requirements.
@@ -210,7 +213,7 @@ During the University Rover Challenge competition, most of the events that take 
 
 \subsection{Potential Options}
 \subsubsection{RockBLOCK Mk2 Iridium SatComm}
-This satellite modem would allow for remote communications to and from the Rover anywhere where the Rover has line of sight to the open sky.
+This satellite modem would allow for remote communications with the Rover anywhere the Rover has line of sight to the open sky. While more difficult to come by, and more difficult to interface with, these radios would near guarantee consistent communication between the Rover and ground station due to the open nature of the Utah desert where the competition will take place.
 
 \begin{itemize}
 \item \textit{Cost}: The radio is expensive at \$250, and also has costs per message.
@@ -221,32 +224,34 @@ This satellite modem would allow for remote communications to and from the Rover
 
 \subsubsection{LoRa 433MHz Radio}
 These small serial radios are cheap and easy to use, but have low power output and require an amateur radio license to operate.
+These radios are quite easy to acquire and provide a simple abstract serial-over-radio interface that is easy to use.
 
 \begin{itemize}
 \item \textit{Cost}: The radio is incredibly cheap at \$20 each.
 \item \textit{URC Radio Rules}: This radio would meet URC requirements with prior approval and licensing.
 \item \textit{Data Throughput}: The data throughput of this radio would be quite slow at 19.2 kbaud per second, but enough to drive the Rover and receive status messages.
-\item \textit{Range}: Line of sight these radios are rated for 2km.
+\item \textit{Range}: Line of sight these radios are rated at 2km.
 \end{itemize}
 
 \subsubsection{Ubiquity Rocket M2}
-The Rocket M2 radios are 2.4GHz long-range WiFi radios that provide a remote ethernet link between two stations.
+The Rocket M2 radios are 2.4GHz long-range WiFi radios that provide a remote Ethernet link between two stations. These radios are reasonably easy to come by, and while requiring some networking knowlege to set up, provides a simple-to-use interface that natively will integrate with Robotics Frameworks such as ROS.
 
 \begin{itemize}
 \item \textit{Cost}: The radio is expensive at \$250 each.
-\item \textit{URC Radio Rules}: This radio would meet URC requirements as it's on the pre-approved list.
+\item \textit{URC Radio Rules}: This radio meets URC requirements as it is on the pre-approved radios list.
 \item \textit{Data Throughput}: The data throughput of these radios are up to 100MBit per second, enough to do control and status data as well as Rover video.
 \item \textit{Range}: Line of sight, these radios have been tested at up to 1.25km by Rover team members.
 \end{itemize}
 
 \subsection{Discussion}
-From a cost perspective, the LoRa radios definitely win out at a mere \$20. The Rocket M2 and RockBLOCK are matched in price, but barring being beyond the range limit of the M2 radios, the RockBLOCK is not a very good contender in terms of throughput for price.
+From a cost perspective, the LoRa radios definitely win out at a mere \$20. 
+The Rocket M2 and RockBLOCK are matched in price, but barring being beyond the range limit of the M2 radios, the RockBLOCK is not a very good contender in terms of throughput for price.
 
 All of these radios are valid by URC competition rules, although both the satellite radio and LoRa radio would require express prior permission from the URC judges.
 
 In terms of data throughput, the Rocket M2 is an easy winner, especially when considering the fact that it's fast enough to also send video data over rather than having to have a second radio for video transmission. The LoRa radio would be reasonable if only control and status information was being sent, but the satellite RockBLOCK would basically be useless for remote operation. To use the RockBLOCK you'd have to send the Rover way-points and let the Rover drive on its own.
 
-Range-wise the satellite modem is the best option, but honestly very overkill for what the requirements of the competition are. LoRa is the next best option with 2km line of sight, but it is worth noting that the M2 radios also have a range greater than what is needed during competition.
+Range-wise the satellite modem is the best option, but overkill for what the requirements of the competition are. LoRa is the next best option with 2km line of sight, but it is worth noting that the M2 radios also have a range greater than what is needed during competition.
 
 \subsection{Conclusion}
 Not surprisingly the RockBLOCK is not a reasonable option for this project. However, both the LoRa and M2 radios have enough data throughput and range to make it through the competition happily. With this in mind, the Rocket M2 radios are the optimal radio to use. While they are expensive at \$250, they have enough bandwidth to transmit video data as well as control data meaning the team can save the costs of a secondary radio system for video.
@@ -259,7 +264,7 @@ The ground station software's primary function is to allow for remote control of
 \subsection{Criteria}
 \begin{itemize}
 \item \textit{Cost}: Due to cost restrictions imposed by the competition rules, keeping the cost as low as possible is a priority.
-\item \textit{Control Feature Set}: The joystick chosen should have pitch, roll, a four position hat, at least five buttons, and a throttle slider.
+\item \textit{Control Feature Set}: The joystick chosen should have pitch, roll, a four position hat stick, at least five buttons, and a throttle slider.
 \item \textit{Ambidextrous Grip}: As two joysticks will be bought, one to use with the left hand and one with the right, it must be one capable of being used with either hand from the factory.
 \item \textit{Reviews}: User reviews for the joystick must imply that the joystick is well-made and is unlikely to fail during competition.
 \end{itemize}
@@ -267,7 +272,7 @@ The ground station software's primary function is to allow for remote control of
 \subsection{Potential Options}
 \subsubsection{Logitech Saitek X52}
 The Saitek X52 Flight Control joystick has a large airplane style throttle control as well as a normal ambidextrous joystick.
-The throttle unit and joystick are separate pieces that are connected via a cable.
+The throttle unit and joystick are separate pieces that are connected via a cable. \cite{x52}
 
 \begin{itemize}
 \item \textit{Cost}: Expensive at \$142.
@@ -277,7 +282,7 @@ The throttle unit and joystick are separate pieces that are connected via a cabl
 \end{itemize}
 
 \subsubsection{Logitech Saitek Evo}
-The Saitek Evo joystick is a simple single-piece unit that has nine buttons, an 8-way POV hat, and a single throttle control. This is a pretty generic joystick.
+The Saitek Evo joystick is a simple single-piece unit that has nine buttons, an 8-way POV hat, and a single throttle control. This is a pretty generic joystick. \cite{evo}
 
 \begin{itemize}
 \item \textit{Cost}: Very cheap at \$45.
@@ -287,7 +292,7 @@ The Saitek Evo joystick is a simple single-piece unit that has nine buttons, an 
 \end{itemize}
 
 \subsubsection{Hercules Thrustmaster T16000M}
-The Hercules Thrustmaster T16000M is a plain looking, but fully featured joystick with 16 buttons, one 8-way POV hat, a throttle slider, and a special hall-effect axis sensor system that provides greater precision than standard analog joysticks.
+The Hercules Thrustmaster T16000M is a plain looking, but fully featured joystick with 16 buttons, one 8-way POV hat, a throttle slider, and a special hall-effect axis sensor system that provides greater precision than standard analog joysticks. \cite{thrustmaster}
 
 \begin{itemize}
 \item \textit{Cost}: Low-mid cost at \$65.
@@ -306,9 +311,6 @@ When reviews are factored in, the Thrustmaster is well-regarded whereas the othe
 \subsection{Conclusion}
 Once you combine the excellent reviews with the reasonably cheap costs of the Thrustmaster T16000M, it comes out as the clear winner for the joystick category. It is definitely the best performance per dollar. The Saitek Evo is a close second, but the the X52 should not even be considered as an option.
 
-%https://www.amazon.com/Hercules-2960706-Thrustmaster-T-16000M-Flight/dp/B001S0RTU0\\
-%https://www.amazon.com/Saitek-102989-Cyborg-Evo-Joystick/dp/B0000AW9P1\\
-%https://www.amazon.com/Logitech-Saitek-Flight-Control-System/dp/B01LY285ZH/ref=pd_day0_147_4?_encoding=UTF8&psc=1\refRID=050PFE0S4QS28T91V2J7
 \section{References}
-*Need to add references*
+\bibliography{bibliography}
 \end{document}
