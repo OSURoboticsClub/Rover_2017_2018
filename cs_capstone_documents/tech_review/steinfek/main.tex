@@ -5,6 +5,8 @@
 \usepackage{url}
 \usepackage{setspace}
 \usepackage{multicol}
+\usepackage[numbers]{natbib}
+\bibliographystyle{IEEEtranN}
 
 \usepackage{geometry}
 \geometry{textheight=9.5in, textwidth=7in}
@@ -86,8 +88,6 @@
 			\vspace{5pt}
 			{\Large
 				\NameSigPair{\GroupMemberOne}\par
-				\NameSigPair{\GroupMemberTwo}\par
-				\NameSigPair{\GroupMemberThree}\par
 			}
 			\vspace{20pt}
 		}
@@ -132,7 +132,7 @@ Linux meets all basic criteria for this choice.
 \item 
 Linux is the primary choice of operating systems in robotics. 
 Because of this it is best supported by the community and will offer developers the greatest amount of support going forward.
-Of note, the Robot Operating System (ROS), which is the foremost robotics operating system and academically supported, only runs on the Linux operating system.
+Of note, the Robot Operating System (ROS) \cite{rossupport}, which is the foremost robotics operating system and academically supported, only runs on the Linux operating system.
 Furthermore, ROS is technology under review by this team, for this project.
 The use of ROS would require that Linux be chosen.
 
@@ -151,7 +151,7 @@ This is greatly beneficial to the team as resources are limited.
 In acquiring this technology freely, the robotics team is free to allocate more resources to other parts of the project, such as the rover itself, or other ground station costs.
 
 \item
-Linux is notoriously light-weight and modifiable. 
+Linux is famously light-weight and modifiable, allowing for a less powerful hardware solution.
 
 \end{itemize}
 
@@ -162,8 +162,8 @@ MacOS meets some but not all base criteria for this choice.
 
 \begin{itemize}
 \item 
-MacOS is a Unix operating system, and as such shares many traits and tools with Linux.
-Because of this ROS runs and is supported on MacOS.
+MacOS is a Unix operating system \cite{macunix}, and as such shares many traits and tools with Linux.
+Because of this ROS runs and is supported on MacOS \cite{rossupport}.
 
 \item
 Because of its similarity to Linux, it is also fair to say that there is a reasonable expectation that developers, present and future, will be familiar with the development environment it provides.
@@ -181,14 +181,14 @@ It is vastly different from Linux in both design and philosophy and represents a
 
 \begin{itemize}
 \item 
-ROS is not supported on the Windows platform, which means that selecting the Windows operating system restricts us greatly.
+ROS is not supported on the Windows platform \cite{rossupport}, which means that selecting the Windows operating system restricts us greatly.
 Moreover, Windows generally does not have the support of the general robotics environment in academics.
 Finding a Windows specific solution could be a significant hindrance to this team.
 
 \item
 The standard path through computer science at OSU does not include much, if any, development experience on the Windows platform.
 Therefore it is not reasonable to expect that current or incoming developers will be able to meaningfully impact the project without a significant, upfront, learning curve.
-It is also fair to say that the unfamiliarity of developing on Windows and the rapid deployment model that this project will take will create a more mistake prone environment that will likely lead to less robust and reliable software.
+It is also fair to say that the unfamiliarity of developing on Windows and the rapid deployment model that this project will take is likely to create a more mistake prone environment that will likely lead to less robust and reliable software.
 
 \item
 Windows is a licensed operating system that runs on nearly all PCs.
@@ -199,7 +199,7 @@ Windows would not be a significant monetary burden if selected.
 
 \subsection{Summary}
 Clearly each operating system has different traits and attributes.
-MacOS and Linux some both Unix operating systems and share many ideas and offer a similar environment.
+MacOS and Linux are both Unix operating systems and share many ideas and offer a similar environment.
 Windows is a drastic change from the previously mentioned two, but is the world's most popular PC operating system, and is professionally supported.
 
 \subsection{Conclusion}
@@ -216,8 +216,9 @@ It is important to note that the ground station must be transported a significan
 \subsection{Criteria}
 The computing hardware for the project must fulfill specific requirements.
 It must have enough processing power to drive the software.
-It must be small and portable.
+It must be small, portable, and easy to setup.
 It must not incur a significant cost.
+Due to the nature of the ground control software, all three of these requirements must be met.
 
 \subsection{Laptop}
 A laptop may seem like the most obvious choice and offers many advantages.
@@ -228,7 +229,7 @@ To use a laptop, one will have to be purchased, causing significant cost to the 
 \subsection{Intel NUC}
 An Intel NUC is a miniature computer designed for similar use cases as this.
 It provides more than enough computing power and its small size will afford easy transportation and setup.
-The client prefers the use of an Intel NUC is providing one for the project.
+The client prefers the use of an Intel NUC and is providing one for the project.
 
 \subsection{Full-Sized PC}
 A full-sized PC offers significant processing power but at the cost of size.
@@ -261,8 +262,8 @@ Also required is that the ground station must be setup with software launched in
 
 \subsection{Self-Contained Case}
 This case contains all equipment necessary for the ground station to function, already connected, missing only power.
-Logistically this is the nicest solution, however, such a case will require some customization from the team.
-Also the equipment will have to be carried approximately 50 feet from the transportation vehicle to the setup location, so it cannot be too heavy.
+Logistically this is the nicest solution, however, such a case will require some customization from the team, as such a case has not yet been found ready-made.
+Also the equipment will have to be carried approximately 50 feet from the transportation vehicle to the setup location, so it cannot be too heavy to be carried.
 
 \subsection{Separately Packaged Components}
 In this solution, all components of the station are packed individually and will have to be connected and powered separately once transported to the setup location.
@@ -270,10 +271,11 @@ In contrast to the self contained case, this does not require any modification o
 However, moving the station from the transport vehicle to the setup location will require more than a single trip.
 This can introduce error as the client's rover team moves quickly to meet the two minute deadline.
 
-\subsection{Pre-Packed Backpack}
+\subsection{Pre-Packed Case}
 Unlike the previous two solutions, in this case all necessary components are fit into a backpack or case, but not connected.
+This is different from the previous option because components are packaged together as opposed to separately, but are not connected.
 This allows for a single trip to unload the vehicle, but still requires that each component is connected and powered on in two minutes.
-Again this could lead to errors or troubleshooting in the two minutes allowed for setup.
+Again this could lead to errors or troubleshooting in the two minutes allowed for setup, but may prove to be more feasible than the fully contained and connected ground station.
 
 \subsection{Summary}
 Each solution carries pros and cons.
@@ -284,5 +286,8 @@ Is two minutes enough time for a full setup?
 Though it is more resource heavy, it is better to have the entire ground station pre-connected in a hard case.
 This solution will cost both time and money, but will greatly increase the chance of success for the Mars Rover team during the competition.
 Moreover the solution can be reused in years to come, which is an important condition from our client.
+Packaging the ground station together unconnected provides the second most favorable option.
 
+\newpage
+\bibliography{mybib.bib}
 \end{document}
