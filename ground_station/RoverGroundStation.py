@@ -82,7 +82,7 @@ class VideoTest(QtCore.QThread):
                 self.pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(self.cv_image))
                 self.image_ready_signal.emit()
                 #print "doin stuff"
-            self.msleep(10)
+            self.msleep(20)
         # TODO: Thread ending message here
 
     def __on_image_update_ready(self):
@@ -176,7 +176,7 @@ class GroundStation(QtCore.QObject):
 
         # Start ROSCORE
         self.video_test = VideoTest(self.right_screen.primary_video_label, sub_path="/cam1/usb_cam1/image_raw/compressed")
-        self.video_test_1 = VideoTest(self.right_screen.secondary_video_label, (640, 360), sub_path="/cam2/usb_cam2/image_raw//compressed")
+        self.video_test_1 = VideoTest(self.right_screen.secondary_video_label, (640, 360), sub_path="/cam2/usb_cam2/image_raw/compressed")
         self.video_test_2 = VideoTest(self.right_screen.tertiary_video_label, (640, 360), sub_path="/zed/right/image_raw_color/compressed")
         self.drive_test = DriveTest()
 
