@@ -1,0 +1,61 @@
+\subsection{Assumptions}
+From the descriptions and restrictions provided by the client, there are a few things that we need to assume to assure that the software is working correctly. 
+The software is going to assume that the software/OS on the rover is going to be ROS Kinetic on Ubuntu 16.04. 
+The rover will have all of its components working correctly such as GPS and drive systems.
+The rover needs to correctly interact with the data that is provided by the station. 
+The rover needs to be connected to the correct network as the rover.
+
+
+\subsection{General Constraints}
+\begin{itemize}
+\item \textit{Time Frame:} The software must be completed on or before May 31st, 2018.
+\item \textit{URC Requirements:} The software must not violate any rules provided by the competition host. \cite{urc_competition_rules}
+\end{itemize}
+
+
+\subsection{System Environment}
+\begin{itemize}
+\item Hardware
+  \begin{itemize}
+  \item 1 x Intel NUC
+  \item 2 x 24" 1080p Monitors
+  \item 1 x Keyboard
+  \item 1 x Mouse
+  \item 1-2 x USB Joystick
+  \item 1 x SpaceMouse Pro
+  \item 1 x Ubiquiti Rocket M2 Wireless Router
+  \end{itemize}
+\item Software / OS / Libraries
+  \begin{itemize}
+  \item Ubuntu 16.04 LTS
+  \item ROS Kinetic
+  \item Python 2.7
+  \item Additional Python Libraries
+    \begin{itemize}
+    \item PyQt5
+    \item inputs
+    \item PyGame
+    \item spnav
+    \item cv2
+    \item Pillow
+    \item qimage2ndarray
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Stakeholder Concerns}
+\subsubsection{Reliability}
+The ground control software must be as reliable as possible.
+The rover operator must be able to complete all competition tasks.
+If unable to do so, the software cannot be considered a success.
+\subsubsection{Robustness}
+The Mars Rover Competition requires that the rover operate successfully in a variety of environments.
+For example, it is expected that as the rover advances through the course, range and obstacles will negatively effect the latency and bandwidth of the wireless Ethernet connection used to communicate with the rover.
+In the above example, the rover must be able to downgrade the video feed in order to accommodate the lower communication abilities of the rover.
+\subsubsection{Rapid Prototyping}
+In order to fulfill the necessary reliability and robustness requirements of the client, the team must be able to rapidly prototype the software.
+Rapid prototyping allows the team to maximize testing time.
+\subsubsection{Documentation}
+The client has requested that documentation be a primary concern of the project.
+The ground control software will be used as a foundation for future rover competitions, therefore it is important that the software is easy to use and the code is easy to understand.

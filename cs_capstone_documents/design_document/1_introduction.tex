@@ -1,0 +1,45 @@
+\subsection{Purpose}
+The purpose of this software design document is to cover the design for the Oregon State University Mars Rover Team's ground station software.
+It will cover the details about how the software will function, how we will implement that functionality, and the reasoning behind design decision choices that were made.
+The ground station software for the Mars Rover project is the single point of contact between the team-built competition Rover and the users operating or viewing the rover.
+
+
+\subsection{Scope}
+This project will consist of a software package running from a remote control base station in order to remotely operate a competition-ready robot built by the Oregon State Robotics Club's Mars Rover team.
+The project must be completed by May 31st 2018 in order to be ready for the University Rover Challenge taking place in Hanksville, Utah.
+The controlling software must be able to do at minimum, the following: 
+
+\begin{itemize}
+\item Provide the capability to remotely drive the Rover via joysticks connected to the ground station computer.
+\item Allow for viewing of up to three video feeds from the Rover, and be able to change what video streams are viewed.
+\item Via a user input device, allow for manipulation of the Rover arm.
+\item Provide visual feedback about the state of the joint positions of the arm as it is being moved.
+\item Show the user a map of the competition area, allowing the user to zoom, view the Rover's location, and place navigation and landmark way-points.
+\item Allow the user to add way-points and then place the Rover in autonomous mode, wherein the Rover will drive under its own control along the way-points provided.
+\item Upon completion of an autonomous path, provide an easy to read notification that the navigation is complete.
+\item Provide a myriad of status information about the Rover's current condition including, but not limited to, the following:
+  \begin{itemize}
+  \item Connection statuses
+  \item Rover Sub-system connection statuses
+  \item On-board sensor readings
+  \item Battery charge level
+  \item System Errors
+  \end{itemize}
+\item Include documentation allowing for easy reuse of the software for future Rover competition years.
+\end{itemize}
+
+Additionally, the client has requested a document be written providing a starting guide on how to re-use the finalized software package for future Rover teams to ease development in future years.
+
+
+\subsection{Context}
+Each year the Mars Rover software team writes ground station software from scratch in order to meet the changing requirements of both the Rover itself and competition rule changes.
+As this software is the main point of contact between the users and the Rover, the success of the team during competition often hinges on how well this software performs.
+In the past, lack of modularity and abstraction has made re-use of the ground station code near impossible.
+
+
+\subsection{Summary}
+This rest of this document will provide the details about how our team will implement the ground station software for the Mars Rover team.
+We will start by covering design considerations such as the environment our software will be running in, as well as the specific concerns of our stakeholder. 
+Immediately following will be a breakdown of the individual software components we will be writing.
+These will include descriptions of what, how, and why we will be writing each component the way we are.
+The document ends with a visual breakdown of the software UI, and rationale for why each component looks the way it does.

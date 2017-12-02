@@ -1,0 +1,33 @@
+\subsection{Mapping System - NOT AT WORD COUNT 410/500}
+\subsubsection{Overview}
+The mapping sub-system will handle the storing and loading of maps of the competition area as well as plotting important landmarks as provided by the user.
+
+\subsubsection{Design Concerns}
+\begin{itemize}
+\item \textit{Offline Use:} As this software will primarily be used in environments where there are no Internet connections, the mapping sub-system will need to be able to store local maps of the desired competition areas in advance.
+\item \textit{Zoom Options:} During competition, the user may desire to zoom in or out on any particular area. 
+The software will have to accommodate this by either digitally zooming into an the desired area, or by loading newer high-resolution images at a adjusted zoom level.
+\item \textit{Location Services:} The mapping system must accurately show where the rover is on the map so that the operator is able to keep track of it.
+Furthermore the mapping must also allow the setting of waypoints.
+These waypoints allow the operator to set a location that the rover will travel to once set.
+\item \textit{Reliability:} The mapping system will be one of the most used aspects of the ground station software as it will be used for properly navigating the Rover to competition way-points. 
+If the mapping system fails, it may be near impossible for the user to determine where the Rover should be driven.
+\item \textit{Responsiveness:} Outside of the drive and video sub-systems, the mapping system will be one of the most frequently updated and used features on the ground station software.
+In order for it to be useful to the user the map updates must be fast and responsive so that the user is not spending valuable competition time waiting for the map to load.
+\end{itemize}
+
+\subsubsection{Design Elements}
+\begin{itemize}
+\item The mapping system will load satellite imagery of the desired area via the Google Maps API.
+\item The Google Maps tiles will be cached so they can be used offline.
+\item Individual image tiles will be stitched together into one large image to be shown in the GUI using either OpenCV or Pillow.
+\item The map will have icons and/or numbers overlaid on the map image corresponding to the Rover location, navigation way-points, and landmark way-points.
+\item The aforementioned markers will be accurate on the map based on their GPS positions.
+\item The map will show a trail of the Rover's previous driving path that fades away over time.
+\item The map will have a faint grid showing latitudinal and longitudinal divisions.
+\end{itemize}
+
+\subsubsection{Design Rationale}
+The choice of the Google Maps API allows us to use the most up-to-date and readily available maps of the competition area easily.
+OpenCV and Pillow are both fast and well-documented frameworks for dealing with image data, and are especially good at fast image stitching.
+The other design aspects of the mapping system should make the map view easy and intuitive to use, meaning less training will be necessary before a user will understand it.
