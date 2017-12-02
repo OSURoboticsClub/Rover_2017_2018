@@ -1,16 +1,26 @@
-\subsection{Statuses Coordinator - NOT AT WORD COUNT XXX/500}
+\subsection{Statuses Coordinator}
 \subsubsection{Overview}
-Includes compass and speed stuff.....
+The statuses coordinator will be tasked with handling all the miscellaneous messages being sent to the ground station from the Rover.
+It will take in these messages and route them to GUI elements for display.
+This will include information such as Rover battery level, raw GPS data for the mapping sub-system, and whether sub-components of the Rover are connected, such as the arm.
 
 \subsubsection{Design Concerns}
 \begin{itemize}
-\item \textit{REPLACE:} REPLACE
-
+\item \textit{Minimal Overhead:} As most of these messages are non-critical, it is important for this coordinator to keep its resource usage low so that the processing power is available for other ground station functions.
+\item \textit{Fast Navigational Updates:} Since navigational updates will be part of these messages, it will be important for these messages to be prioritized for updates to GUI elements such as the compass and speed indicators.
+\item \textit{Adequate Warnings:} It will be important that this coordinator provides noticeable warnings, potentially through methods such as flashing indicators, when there are problems with Rover systems that it has received a message about.
+Depending on the warning, a low battery for example, it could be the difference between the Rover winning or losing a competition event.
 \end{itemize}
 
 \subsubsection{Design Elements}
 \begin{itemize}
-\item REPLACE
+\item The statuses coordinator will take in Rover status messages via ROS topics using "rospy".
+\item The statuses coordinator will update any necessary GUI elements such as QLabel with their pertinent formatted information as received via the ROS messages.
+\item The statuses coordinator will prioritize any updates to GPS and navigation messages so that the user can more easily drive the Rover.
+\item The statuses coordinator will brightly flash GUI elements that it feels the user needs to pay attention to, and allow the user to cancel the warning by clicking on the GUI element.
 \end{itemize}
 
 \subsubsection{Design Rationale}
+By using ROS topics to handle messages from the Rover to the GUI, our team is able to spend that time working on quickly showing these updates instead of creating custom network message protocols.
+Prioritizing updates to the navigation GUI elements when performing updates will help the user driving the Rover more reliably understand what the Rover is doing movement-wise, which is more important than secondarily important messages such as battery voltage.
+By flashing GUI elements in bright colors, and allowing users to cancel these warnings, we are bringing the proper amount of attention to messages that need it while not being obnoxious and having these warning continue indefinitely.

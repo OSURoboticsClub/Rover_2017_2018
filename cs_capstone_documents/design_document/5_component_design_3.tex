@@ -1,4 +1,4 @@
-\subsection{Mapping System - NOT AT WORD COUNT 410/500}
+\subsection{Mapping System}
 \subsubsection{Overview}
 The mapping sub-system will handle the storing and loading of maps of the competition area as well as plotting important landmarks as provided by the user.
 
@@ -8,8 +8,8 @@ The mapping sub-system will handle the storing and loading of maps of the compet
 \item \textit{Zoom Options:} During competition, the user may desire to zoom in or out on any particular area. 
 The software will have to accommodate this by either digitally zooming into an the desired area, or by loading newer high-resolution images at a adjusted zoom level.
 \item \textit{Location Services:} The mapping system must accurately show where the rover is on the map so that the operator is able to keep track of it.
-Furthermore the mapping must also allow the setting of waypoints.
-These waypoints allow the operator to set a location that the rover will travel to once set.
+Furthermore the mapping must also allow the setting of way-points.
+These way-points allow the operator to set a location that the rover will travel to once set.
 \item \textit{Reliability:} The mapping system will be one of the most used aspects of the ground station software as it will be used for properly navigating the Rover to competition way-points. 
 If the mapping system fails, it may be near impossible for the user to determine where the Rover should be driven.
 \item \textit{Responsiveness:} Outside of the drive and video sub-systems, the mapping system will be one of the most frequently updated and used features on the ground station software.
@@ -29,5 +29,6 @@ In order for it to be useful to the user the map updates must be fast and respon
 
 \subsubsection{Design Rationale}
 The choice of the Google Maps API allows us to use the most up-to-date and readily available maps of the competition area easily.
+Google Maps has some restrictions placed upon it's use in robots, but do not apply to this system.
 OpenCV and Pillow are both fast and well-documented frameworks for dealing with image data, and are especially good at fast image stitching.
 The other design aspects of the mapping system should make the map view easy and intuitive to use, meaning less training will be necessary before a user will understand it.

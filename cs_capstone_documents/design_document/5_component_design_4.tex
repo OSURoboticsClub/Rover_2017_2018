@@ -1,15 +1,25 @@
-\subsection{Way-points Coordinator - NOT AT WORD COUNT XXX/500}
+\subsection{Way-points Coordinator}
 \subsubsection{Overview}
+The way-point coordinator will handle the storing, editing, and displaying of the way-points that the user will be placing for the rover.
 
 \subsubsection{Design Concerns}
 \begin{itemize}
-\item \textit{REPLACE:} REPLACE
-
+\item \textit{Accuracy:} As the coordinator will be controlling the rover when a user is not presently using the HID's. The accuracy is important to reach some points correctly and within a certain distance.
+\item \textit{Queue Order:} As the coordinator is sending out the values to the drive coordinators, if the order of way-points are off, an incorrect path might be taken.
+\item \textit{Queue Editing:} The way-point coordinator needs some way of editing values to allow for user mistakes. Humans are imperfect and might enter something wrong or have done something wrong and might need to fix it.
+\item \textit{Queue Deletion:} Users might need to remove a way-point from a queue to allow for more user flexibility and sudden changes to the system.
 \end{itemize}
 
 \subsubsection{Design Elements}
 \begin{itemize}
-\item REPLACE
+\item The system will access the Mapping system to control and place any way-points.
+\item The system will likely be built using a linked-list of nodes that contain information for the rover.
+\item Adding a way-point to the queue can be like clicking on the visual map in the program or entering GPS coordinates via pop-up or input space in the GUI
+\item Editing a way-point could be clicking on the way-point and then editing the values that are displayed.
+\item Deleting a way-point might be clicking a visual list of points and then confirming the action.
 \end{itemize}
 
 \subsubsection{Design Rationale}
+The design of this coordinator revolves around the idea of a linked list version of a queue.
+The rover must be traveling in the order of way-points created.
+This is important for the competition in May where way-points are used to control the rover in a few events.

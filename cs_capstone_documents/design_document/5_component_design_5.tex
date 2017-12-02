@@ -1,12 +1,26 @@
-\subsection{Arm Visualizer - OF COURSE NOT AT WORD COUNT X/500}
+\subsection{Arm Visualizer}
 \subsubsection{Overview}
-The ground control software will allow for the visualization of rover arm movement, allowing the operator to see the actuation of the rover arm while controling it.
+The arm visualizer will allow the user to quickly and easily view and understand where the joints on the Mars Rover arm are at any given time.
+As the arm is moved, these visual indicators will update to show the new arm positions.
 
 \subsubsection{Design Concerns}
-Talk about what this section needs to do, establish it's boundaries from a system development standpoint.
+\begin{itemize}
+\item \textit{Viewing Simplicity:} The indicators need to be visually displayed in such a way that the user instinctively understands what the data means.
+\item \textit{Responsiveness:} In order to be useful, the indicators will need to update quickly.
+During competition, the user will use these indicators to position the arm, and major delays in updating these will make them unpleasant to use.
+\item \textit{Clutter:} As there are many competition events where the arm will not be needed, these visualizations should be able to be disabled so that there is not unnecessary clutter and information on-screen when it is not needed.
+\end{itemize}
 
 \subsubsection{Design Elements}
-Talk about what the system will encompass, from a programming standpoint.
+\begin{itemize}
+\item The arm visualizer will take in position information via a ROS topic using "rospy".
+\item The arm visualizer will, in the initial version, show this information in native QT GUI elements such as a QGraphicsView or QPixmap embedded in a QLabel.
+\item The arm visualizer will black out the unneeded visual elements when the arm is not presently attached to the Rover.
+\item In the event there is spare time, the previous visualizations will be replaced with a 3D visualization of the Rover through ROS' RVIZ tool, where the position changes accurately correspond to movement changes on the model. 
+\item If the previous option is not attainable, the visualizer will attempt to be replaced with a custom OpenGL widget containing the 3D view of the Rover arm, and like previously, will update the model to match the current arm position.
+\end{itemize}
 
 \subsubsection{Design Rationale}
-Talk about why the system should be designed the way described.
+By taking in position information through ROS topics with "rospy", we will be able to avoid having to write a custom network message system to provide and interpret this data from the Rover, which would have been a tedious and error prone process.
+Using native QT widgets, at least for the initial version, will mean that we can more quickly get the pertinent information into a display format that can be understood. 
+The QGraphics view widget in particular will let us draw a scene in a painting environment, and then manipulate the scene to show a arrow moving around a circle for example, with relative ease.

@@ -1,15 +1,27 @@
-\subsection{Arm Coordinator - NOT AT WORD COUNT XXX/500}
+\subsection{Arm Coordinator}
 \subsubsection{Overview}
+This sub-system will handle taking in raw SpaceNav mouse control information and transforming them into usable arm control commands.
+This will also handle the interpretation of button presses on the SpaceNav mouse to control GUI functions, for example, panning the map around.
 
 \subsubsection{Design Concerns}
 \begin{itemize}
-\item \textit{REPLACE:} REPLACE
-
+\item \textit{Reliability:} This node must be incredibly reliable.
+If it runs off and sends continuous arm commands, for example, the physical Rover arm will also be out of control.
+\item \textit{Speed:} As this node is what is sending arm commands, any major processing delays here will make controlling the Rover arm a choppy and unpleasant experience.
+\item \textit{Pause State Responsiveness:} When the pause button is pressed on the joystick, the Rover will need to stop all movement quickly.
 \end{itemize}
 
 \subsubsection{Design Elements}
 \begin{itemize}
-\item REPLACE
+\item The coordinator will take in SpaveNav control information via QSignals.
+\item The coordinator will send Rover arm commands via a ROS topic using "rospy".
+\item The coordinator will stop sending arm commands when it detect a joystick button press putting it in the paused state.
+It will then start sending commands again when brought out of the pause state.
 \end{itemize}
 
 \subsubsection{Design Rationale}
+The use of QT's QSignals for receiving of the SpaceNav control commands will help alleviate inter-thread communication design time, allowing our team to focus on the more important aspects of the coordinator.
+Sending drive commands via the rospy package allows us to natively integrate with the ROS control stack.
+This is ideal because it allows the Rover Software team to use native arm movement and motion planning packages to control the Rover arm, and the ground station software will fit the expected protocols that those packages use.
+By having the arm coordinator node handle stopping sending control command to the Rover, we can guarantee that the arm won't continue moving if commands stop getting sent, such as in the pause state.
+If the Rover itself had to determine whether to move or not via a sent pause command, the arm could potentially still move if that external pause command were lost.
