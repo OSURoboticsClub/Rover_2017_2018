@@ -1,29 +1,29 @@
 \subsection{Drive Coordinator}
 \subsubsection{Overview}
-This sub-system will handle taking in raw joystick/s control information, and transforming them into usable drive control commands.
+This sub-system will handle taking in raw joystick(s) control information, and transforming them into usable drive control commands.
 This will also handle the interpretation of button presses on the joystick to control GUI functions, or for example, artificially limiting the Rover max speed via the current state of the joystick throttle lever.
 
 \subsubsection{Design Concerns}
 \begin{itemize}
 \item \textit{Reliability:} This node must be incredibly reliable.
 If the software runs off and sends continuous drive commands, for example, the physical Rover will be driving out of control.
-\item \textit{Speed:} As this node is what is sending drive commands, any major processing delays here will make driving the Rover a choppy, unresponsive and unpleasant experience.
+\item \textit{Speed:} As this node is what is sending drive commands, any major processing delays here will make driving the Rover a choppy, unresponsive, and unpleasant experience.
 \item \textit{Pause State Responsiveness:} When the pause button is pressed, the Rover will need to stop all movement quickly.
 \end{itemize}
 
 \subsubsection{Design Elements}
 \begin{itemize}
 \item The coordinator will take in joystick control information via QSignals.
-\item The coordinator will send Rover drive commands via a ROS topic using "rospy".
+\item The coordinator will send Rover drive commands via a ROS topic using \texttt{rospy}.
 \item The coordinator will artificially limit the max drive speed sent to the Rover through limiting with the throttle lever on the joystick.
-\item The coordinator will stop sending drive commands when it detect a joystick button press putting it in the paused state.
+\item The coordinator will stop sending drive commands when it detects a joystick button press putting it in the paused state.
 It will then start sending commands again when brought out of the pause state.
-\item If two joysticks to drive, instead of one, the coordinator will calculate the joystick differential to determine and send the correct drive command. 
+\item If using two joysticks to drive, instead of one, the coordinator will calculate the joystick differential to determine and send the correct drive command. 
 \end{itemize}
 
 \subsubsection{Design Rationale}
 The use of QT's QSignals for receiving of the joystick control commands will help alleviate inter-thread communication design time, allowing our team to focus on the more important aspects of the coordinator.
-Sending drive commands via the rospy package allows us to natively integrate with the ROS control stack.
+Sending drive commands via the \texttt{rospy} package allows us to natively integrate with the ROS control stack.
 This is ideal because it allows the Rover Software team to use native navigation and motion planning packages to control the Rover, and the ground station software will fit the expected protocols that those packages use.
 By having the drive coordinator handle limiting the max speed allowed to be sent to the Rover, we can guarantee that the Rover will never drive faster than intended.
 If we had instead made the coordinator send two commands, one with the drive command, and one that was a speed limit, there is the possibility that the speed limit command could get lost in transit to the Rover.

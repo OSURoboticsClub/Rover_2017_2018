@@ -14,8 +14,8 @@ Depending on the warning, a low battery for example, it could be the difference 
 
 \subsubsection{Design Elements}
 \begin{itemize}
-\item The statuses coordinator will take in Rover status messages via ROS topics using "rospy".
-\item The statuses coordinator will update any necessary GUI elements such as QLabel with their pertinent formatted information as received via the ROS messages.
+\item The statuses coordinator will take in Rover status messages via ROS topics using \texttt{rospy}.
+\item The statuses coordinator will update any necessary GUI elements such as QLabels with their pertinent formatted information as received via the ROS messages.
 \item The statuses coordinator will prioritize any updates to GPS and navigation messages so that the user can more easily drive the Rover.
 \item The statuses coordinator will brightly flash GUI elements that it feels the user needs to pay attention to, and allow the user to cancel the warning by clicking on the GUI element.
 \end{itemize}

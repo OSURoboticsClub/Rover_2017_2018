@@ -1,21 +1,21 @@
 \subsection{Video Coordinator}
 \subsubsection{Overview}
 The video coordinator will handle taking in video stream data from the Rover, and displaying that data on the GUI.
-It will also handling telling the video what resolution and potentially bit-rate the ground station would like from a particular camera.
+It will also handling telling the Rover what resolution and potentially bit-rate the ground station would like from a particular camera.
 Lastly, it will handle switching which video streams are showed in each of the three video display areas on the GUI, including the ability to switch off the secondary/tertiary displays.
 
 \subsubsection{Design Concerns}
 \begin{itemize}
-\item \textit{Reliability:} The live video stream are a necessity to be able to remotely operate the Rover for most competition events. 
+\item \textit{Reliability:} The live video streams are a necessity to be able to remotely operate the Rover for most competition events. 
 If the video streams are not functioning, the Rover will do very poorly in competition.
 \item \textit{Processing Time:} As the video streams will be used the drive the Rover remotely, processing delays should be kept to an absolute minimum so that the driving experience feels more fluid.
 \item \textit{Resolution Change Detection:} The user should not have to manually change resolutions if a video that was on the primary video window is switched to the secondary or tertiary window.
-This does not apply if the user override the resolution settings in order to get smoother video during times of poor radio reception.
+This does not apply if the user overrides the resolution settings in order to get smoother video during times of poor radio reception.
 \end{itemize}
 
 \subsubsection{Design Elements}
 \begin{itemize}
-\item The video coordinator will use "rospy" to retrieve compressed video data streams from the Rover.
+\item The video coordinator will use \texttt{rospy} to retrieve compressed video data streams from the Rover.
 \item The video coordinator will format the video data in a way that it can be displayed on a QLabel as an embedded QPixmap.
 \item The video coordinator will automatically send resolution adjustment commands to the Rover over a ROS topic as the video streams are switched between the primary and secondary/tertiary video windows.
 \item The video coordinator will automatically handle adjusting the video data so it can be properly shown in the QLabel, even after a resolution adjustment.
@@ -23,7 +23,7 @@ This does not apply if the user override the resolution settings in order to get
 \end{itemize}
 
 \subsubsection{Design Rationale}
-By using ROS' built-in compressed video streams, and the accompanying rospy libraries for interpreting this video data, our team can focus on the logistics of showing these videos on the GUI.
+By using ROS' built-in compressed video streams, and the accompanying \texttt{rospy} libraries for interpreting this video data, our team can focus on the logistics of showing these videos on the GUI.
 By handling automatic resolution adjustment, we are simplifying the tasks the user will have to perform during competition.
 The automatic adjustments also help alleviate unnecessary network bandwidth for streams that would not benefit from the higher resolution. 
-This will both lower latency and allow the Rover to have to process less data, which are both positives in a remote, battery-powered environment.
+Automatic adjustments will both lower latency and allow the Rover to have to process less data, which are both positives in a remote, battery-powered environment.

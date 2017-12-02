@@ -1,9 +1,9 @@
 \subsection{Assumptions}
-From the descriptions and restrictions provided by the client, there are a few things that we need to assume to assure that the software is working correctly. 
-The software is going to assume that the software/OS on the rover is going to be ROS Kinetic on Ubuntu 16.04. 
+From the descriptions and restrictions provided by the client, there are a few things that we need to assume to assure that the software will function correctly. 
+Our team is going to assume that the software/OS on the rover is going to be a combination of ROS Kinetic on Ubuntu 16.04. 
 The rover will have all of its components working correctly such as GPS and drive systems.
 The rover needs to correctly interact with the data that is provided by the station. 
-The rover needs to be connected to the correct network as the rover.
+The rover needs to be connected to the same network as the rover.
 
 
 \subsection{General Constraints}
@@ -47,12 +47,12 @@ The rover needs to be connected to the correct network as the rover.
 \subsection{Stakeholder Concerns}
 \subsubsection{Reliability}
 The ground control software must be as reliable as possible.
-The rover operator must be able to complete all competition tasks.
+The rover operator must be able to complete all competition tasks, assuming all hardware on the Rover is functioning properly.
 If unable to do so, the software cannot be considered a success.
 \subsubsection{Robustness}
-The Mars Rover Competition requires that the rover operate successfully in a variety of environments.
+The University Rover Challenge requires that the rover operate successfully in a variety of environments.
 For example, it is expected that as the rover advances through the course, range and obstacles will negatively effect the latency and bandwidth of the wireless Ethernet connection used to communicate with the rover.
-In the above example, the rover must be able to downgrade the video feed in order to accommodate the lower communication abilities of the rover.
+In the above example, the rover must be able to downgrade the video feed in order to accommodate the lowered communication abilities of the rover.
 \subsubsection{Rapid Prototyping}
 In order to fulfill the necessary reliability and robustness requirements of the client, the team must be able to rapidly prototype the software.
 Rapid prototyping allows the team to maximize testing time.

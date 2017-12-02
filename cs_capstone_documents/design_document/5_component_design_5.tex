@@ -13,7 +13,7 @@ During competition, the user will use these indicators to position the arm, and 
 
 \subsubsection{Design Elements}
 \begin{itemize}
-\item The arm visualizer will take in position information via a ROS topic using "rospy".
+\item The arm visualizer will take in position information via a ROS topic using \texttt{rospy}.
 \item The arm visualizer will, in the initial version, show this information in native QT GUI elements such as a QGraphicsView or QPixmap embedded in a QLabel.
 \item The arm visualizer will black out the unneeded visual elements when the arm is not presently attached to the Rover.
 \item In the event there is spare time, the previous visualizations will be replaced with a 3D visualization of the Rover through ROS' RVIZ tool, where the position changes accurately correspond to movement changes on the model. 
@@ -21,6 +21,6 @@ During competition, the user will use these indicators to position the arm, and 
 \end{itemize}
 
 \subsubsection{Design Rationale}
-By taking in position information through ROS topics with "rospy", we will be able to avoid having to write a custom network message system to provide and interpret this data from the Rover, which would have been a tedious and error prone process.
+By taking in position information through ROS topics with \texttt{rospy}, we will be able to avoid having to write a custom network message system to provide and interpret this data from the Rover, which would have been a tedious and error prone process.
 Using native QT widgets, at least for the initial version, will mean that we can more quickly get the pertinent information into a display format that can be understood. 
 The QGraphics view widget in particular will let us draw a scene in a painting environment, and then manipulate the scene to show a arrow moving around a circle for example, with relative ease.

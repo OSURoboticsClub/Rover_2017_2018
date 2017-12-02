@@ -1,6 +1,6 @@
 \subsection{Human Interface Device Integration}
 \subsubsection{Overview}
-During use of this ground station software, the user will need to be able to interact with a joystick and SpaceNav mouse to control ground station software elements, to drive the Rover, and to manipulate the Rover arm.
+During use of this ground station software, the user will need to be able to interact with a joystick(s) and SpaceNav mouse to control ground station software elements, to drive the Rover, and to manipulate the Rover arm.
 The systems that integrate with these HID devices will be some of the most active parts of the ground station software.
 
 \subsubsection{Design Concerns}
@@ -13,7 +13,7 @@ Additionally, these input devices may change completely if they are determined t
 
 \subsubsection{Design Elements}
 \begin{itemize}
-\item The HID integrators will use the "inputs" or "pygame" libraries for joysticks or the "spnav" library for the SpaceNav mouse.
+\item The HID integrators will use the \texttt{inputs} or \texttt{pygame} libraries for joysticks or the \texttt{spnav} library for the SpaceNav mouse.
 \item Each integrator will be housed within a QThread class that will monitor the state of the HID devices and poll the devices for changes.
 \item Upon a device change, the class will broadcast the updates using QSignals so that other parts of the program may use the data.
 \item Upon an HID failure, such as on accidental disconnect, the class will attempt to reconnect and broadcast an error state until it is resolved.
@@ -22,5 +22,5 @@ Additionally, these input devices may change completely if they are determined t
 \subsubsection{Design Rationale}
 One of the main goals of this project is to be able to rapidly prototype the software so the Rover team can spend more time testing, and less time waiting for code to be written.
 By using off the shelf libraries for reading in joystick and SpaceNav mouse input, our team's development time can be better put to use making the control systems robust and handling error cases.
-As these are commonly used and tested libraries, there is also a high likelihood that their implementations are more reliable and documented than if our design team were to try and implement equivalent libraries/classes.
+As these are commonly used and tested libraries, there is also a high likelihood that their implementations are more reliable and documented than if our design team were to try and implement equivalent libraries/classes ourselves.
 The use of QT's QSignals will also help us in this regard by minimizing the design time needed to write custom inter-thread communication protocols. 
