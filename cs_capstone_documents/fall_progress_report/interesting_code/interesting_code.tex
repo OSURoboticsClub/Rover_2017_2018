@@ -83,7 +83,7 @@ class VideoTest(QtCore.QThread):
         self.raw_image = message
 \end{lstlisting}
 \subsubsection{Description}
-Yet another QThread class, this example subscribes to the ROS topic that is passed in under the sub\_path argument in order to get video stream data.
+This example subscribes to the ROS topic that is passed in under the sub\_path argument in order to get video stream data.
 An example of this topic might be "/cam1/usb\_cam1/image\_raw/compressed".
 Inside of the body of the thread, it checks if there is image data, and if so decompresses it into a raw 8-bit image using ROS's OpenCV bridge libraries.
 Finally, it converts the OpenCV image into a QImage and then into a QPixmap before broadcasting an update signal so the main GUI thread can show the image on the QLabel.
