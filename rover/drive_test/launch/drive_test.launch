@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="stage_ros" type="stageros" name="simulator" args="$(find drive_test)/worlds/manyDots.world"/>
+  <node pkg="drive_test" type="drive_test.py" name="hw2" output="screen">
+	  <param name="goalX" value="20" />
+    <param name="goalY" value="-20" />
+  </node>
+</launch>
