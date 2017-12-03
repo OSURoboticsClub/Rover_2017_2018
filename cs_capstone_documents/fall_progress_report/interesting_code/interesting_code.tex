@@ -1,1 +1,90 @@
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{gray},       % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{purple},      % string literal style
+}
+
 \section{Interesting Code}
+\subsection{Drive Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+class DriveTest(QtCore.QThread):
+    def __init__(self):
+        super(DriveTest, self).__init__()
+
+        self.not_abort = True
+
+        self.message = None
+        self.publisher = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+
+        rospy.init_node("test")
+
+    def run(self):
+        while self.not_abort:
+            self.message = Twist()
+
+            self.message.linear.x = 1.0
+            self.message.angular.z = 1.0
+
+            self.publisher.publish(self.message)
+
+            self.msleep(100)
+\end{lstlisting}
+
+\subsubsection{Description}
+This QThread example class starts a ROS publishing node on the "/cmd\_vel" topic to send raw drive control commands to the Rover.
+In this case, it is sending a command to drive the Rover forward and to the right, essentially causing it to drive in a never-ending circle.
+
+\subsection{Video Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+class VideoTest(QtCore.QThread):
+    image_ready_signal = QtCore.pyqtSignal()
+
+    def __init__(self, screen_label, video_size=None, sub_path=None):
+        super(VideoTest, self).__init__()
+
+        self.not_abort = True
+
+        self.screen_label = screen_label
+        self.video_size = video_size
+
+        self.message = None
+        self.publisher = rospy.Subscriber(sub_path, CompressedImage, self.__receive_message)
+
+        self.raw_image = None
+        self.cv_image = None
+        self.pixmap = None
+        self.bridge = CvBridge()
+
+        self.image_ready_signal.connect(self.__on_image_update_ready)
+
+    def run(self):
+        while self.not_abort:
+            if self.raw_image:
+                self.cv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
+
+                if self.video_size:
+                    self.cv_image = cv2.resize(self.cv_image, self.video_size)
+                    
+                self.pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(self.cv_image))
+                self.image_ready_signal.emit()
+            self.msleep(20)
+
+    def __on_image_update_ready(self):
+        self.screen_label.setPixmap(self.pixmap)
+
+    def __receive_message(self, message):
+        self.raw_image = message
+\end{lstlisting}
+\subsubsection{Description}
+Yet another QThread class, this example subscribes to the ROS topic that is passed in under the sub\_path argument in order to get video stream data.
+An example of this topic might be "/cam1/usb\_cam1/image\_raw/compressed".
+Inside of the body of the thread, it checks if there is image data, and if so decompresses it into a raw 8-bit image using ROS's OpenCV bridge libraries.
+Finally, it converts the OpenCV image into a QImage and then into a QPixmap before broadcasting an update signal so the main GUI thread can show the image on the QLabel.
+It is important to note that any direct GUI updates must happen in the main GUI thread, otherwise the QApplication will crash.

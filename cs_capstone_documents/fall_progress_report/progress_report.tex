@@ -7,6 +7,9 @@
 \usepackage{multicol}
 \usepackage{pdflscape}
 \usepackage{pdfpages}
+\usepackage[british]{babel}
+\usepackage{listings}
+\usepackage{xcolor}
 
 \usepackage{geometry}
 \geometry{textheight=9.5in, textwidth=7in}
@@ -36,7 +39,16 @@
 \item \textit{Dependencies:} #4%
 \end{itemize}
 }
-
+\definecolor{backcolor}{rgb}{0.95,0.95,0.92}
+\lstset{basicstyle=\ttfamily,
+  backgroundcolor=\color{backcolor},  
+  showstringspaces=false,
+  commentstyle=\color{red},
+  keywordstyle=\color{blue},
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
 
 
 % 2. Uncomment the appropriate line below so that the document type works
@@ -110,7 +122,7 @@
 			\vspace{20pt}
             \begin{abstract}
 			% 6. Fill in your abstract
-			REPLACE THIS
+			This document contains the summary of the purpose and goals of the ground station software, the progress our team has made during the term, as well as problems and solutions to those problems we've encountered over the term. Additionally, it contains snippets of useful code and a retrospective on the work our team has done this term. Overall, this document provides a good overview of everything our team has accomplished over the Fall term.
 
 		\end{abstract}
 		}
