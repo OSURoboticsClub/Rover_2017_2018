@@ -1,0 +1,9 @@
+<launch>
+	<group ns="cameras">
+		<node name="main_navigation" pkg="cv_camera" type="cv_camera_node" output="screen" >
+			<param name="device_path" value="/dev/rover/camera_main_navigation" />
+			<param name="image_width" value="1280" />
+			<param name="image_height" value="720" />
+		</node>
+	</group>
+</launch>

@@ -1,0 +1,19 @@
+<launch>
+	<group ns="cameras">
+		<node name="undercarriage" pkg="image_transport_tutorial" type="my_publisher" output="screen" >
+			<param name="device_path" value="/dev/rover/camera_undercarriage" />
+	</node>
+
+
+	<node name="main_navigation" pkg="image_transport_tutorial" type="my_publisher" output="screen" >
+			<param name="device_path" value="/dev/rover/camera_main_navigation" />
+		</node>
+
+	<node name="gimbal" pkg="image_transport_tutorial" type="my_publisher" output="screen" >
+			<param name="device_path" value="/dev/rover/camera_gimbal" />
+		</node>
+
+	</group>
+
+
+</launch>
