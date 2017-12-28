@@ -1,9 +1,9 @@
 <package>
-  <name>image_transport_tutorial</name>
+  <name>rover_camera</name>
   <version>0.0.0</version>
-  <description>Tutorial for image_transport. This is useful for the tutorials at http://wiki.ros.org/image_transport/Tutorials/</description>
-  <author>Vincent Rabaud</author>
-  <maintainer email="vincent.rabaud@gmail.com">Vincent Rabaud</maintainer>
+  <description>This package opens a camera on linux using OpenCV and publishes multiple streams at different resolutions</description>
+  <author>Corwin Perren</author>
+  <maintainer email="caperren@gmail.com">Corwin Perren</maintainer>
   <license>Apache 2.0</license>
 
   <build_depend>cv_bridge</build_depend>
@@ -20,7 +20,4 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <export>
-    <image_transport plugin="${prefix}/resized_plugins.xml"/>
-  </export>
 </package>
