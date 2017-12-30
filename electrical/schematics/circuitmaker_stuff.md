@@ -23,7 +23,19 @@ If you ever need to find the actual sheet file that CircuitMaker uses it keeps t
 
 There may be multiple directories of `Garbage strings`, so just click around until you find it.
 
-Download the sheet template file and add it to `C:\Users\Public\Documents\Altium\CM\Templates`, then restart CircuitMaker.
+#### Using an OSURC template
+
+Download the sheet template files from this repo and add them to `C:\Users\Public\Documents\Altium\CM\Templates`, then restart CircuitMaker.
+
+Apply the template to any open schematic by going to `Project-> Templates -> General Templates -> "A*_OSURC"`
+
+If you haven't used the template in a project before, you will need to set the project parameters. You can access these by going to `Project -> Project Options -> Parameters`.
+
+Edit the parameters so they look something like this:
+
+![Parameters](http://nickmccomb.net/wp-content/uploads/2017/12/parameters.png "Parameters for Iris Project")
+
+You'll also want to edit the `Title` parameter in the `Document Parameters` (found in `Project -> Document Options -> Parameters`) to reflect the title of your schematic document.
 
 ### Conventions
 
@@ -34,3 +46,17 @@ Sheet Names: `lowercase_with_underscores`
 Sheet Symbols: `UPPERCASE-DASHES`
 
 Sheet Formatting: See [this](https://github.com/OSURoboticsClub/Rover_2017_2018/blob/master/electrical/schematics/schematic-example.pdf).
+
+#### Power Net Naming
+Power Net Names: `voltage_descriptor` where `descriptor` is either `RAW` or `SYS`.
+
+`voltage` is represented as shown in the example below.
+
+`RAW` specifies any voltage that is not ready for system use, such as non-reverse-protected or non-current sensed portions of the circuit.
+
+`SYS` is any voltage that is ready to be used by the system.
+
+For example:
+
+![power_net_naming](http://nickmccomb.net/wp-content/uploads/2017/12/power_net_naming_iris.png "Power Net Naming for the Iris Project")
+
