@@ -2,6 +2,6 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{seria
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="FTU9EU0I", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyDEV1"
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="FTU9EU0I", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyDEV2"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="FTU9EU0I", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyCompass"
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="FTU9EU0I", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyDEV3"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="FTU9EU0I", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyGPS"

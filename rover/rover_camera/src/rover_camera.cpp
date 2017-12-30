@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     ros::Rate loop_rate(fps + 5);
 
 
-    while (node_handle.ok()) {
+    while (ros::ok()) {
 
         cap.read(image);
 
@@ -73,4 +73,6 @@ int main(int argc, char** argv)
         ros::spinOnce();
         loop_rate.sleep();
     }
+
+    cap.release();
 }
