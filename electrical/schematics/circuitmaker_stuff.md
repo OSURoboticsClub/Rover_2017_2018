@@ -48,7 +48,7 @@ You'll also want to edit the `Title` parameter in the `Document Parameters` (fou
 #### Sheet Symbols
 `UPPERCASE-DASHES`
 
-#### Sheet Formattinn
+#### Sheet Formatting
 See [this](https://github.com/OSURoboticsClub/Rover_2017_2018/blob/master/electrical/schematics/schematic-example.pdf).
 
 #### Power Net Naming
