@@ -5,7 +5,7 @@
 Download and install CircuitMaker from [here](https://workspace.circuitmaker.com/Account/SignUp).
 
 ### Starting a New Project 
-Start a new project and make sure to use the naming convention when making the title, you can't change it later -_-. We use `MR1718 [Name]`. For example, the motor node would be `MR1718 Motor`. To make things uniform there are generated project images you can download from the drive, so add that on the main project page as well.
+Start a new project and make sure to use the naming convention when making the title, you can't change it later -_-. We use `MR1718 Name`. For example, the motor node would be `MR1718 Motor`. To make things uniform there are generated project images you can download from the drive, so add that on the main project page as well.
 
 Next download the sheets you will need for your project, at the bare minimum you need:
 
