@@ -1,4 +1,4 @@
-## How to CircuitMaker for OSURC
+## How to CircuitMaker for OSURC Mars Rover
 ----
 
 ### Install
