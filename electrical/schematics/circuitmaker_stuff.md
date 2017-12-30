@@ -34,4 +34,4 @@ Sheet Names: `lowercase_with_underscores`
 
 Sheet Symbols: `UPPERCASE-DASHES`
 
-Sheet Formatting: See this.
+Sheet Formatting: See [this](https://github.com/OSURoboticsClub/Rover_2017_2018/blob/master/electrical/schematics/schematic-example.pdf).
