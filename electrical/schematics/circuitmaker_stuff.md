@@ -24,7 +24,7 @@ If you ever need to find the actual sheet file that CircuitMaker uses it keeps t
 
 There may be multiple directories of `Garbage strings`, so just click around until you find it.
 
-**TODO: how to sheet template**  
+Download the sheet template file and add it to `C:\Users\Public\Documents\Altium\CM\Templates`, then restart CircuitMaker.
 
 ### Conventions
 
