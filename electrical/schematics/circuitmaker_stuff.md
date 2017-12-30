@@ -39,18 +39,22 @@ You'll also want to edit the `Title` parameter in the `Document Parameters` (fou
 
 ### Conventions
 
-Project Names: `MR1718 Name`
+#### Project Names
+`MR1718 Name`
 
-Sheet Names: `lowercase_with_underscores`
+#### Sheet Names
+`lowercase_with_underscores`
 
-Sheet Symbols: `UPPERCASE-DASHES`
+#### Sheet Symbols
+`UPPERCASE-DASHES`
 
-Sheet Formatting: See [this](https://github.com/OSURoboticsClub/Rover_2017_2018/blob/master/electrical/schematics/schematic-example.pdf).
+#### Sheet Formattinn
+See [this](https://github.com/OSURoboticsClub/Rover_2017_2018/blob/master/electrical/schematics/schematic-example.pdf).
 
 #### Power Net Naming
-Power Net Names: `voltage_descriptor` where `descriptor` is either `RAW` or `SYS`.
+`voltage_descriptor` 
 
-`voltage` is represented as shown in the example below.
+Where `descriptor` is either `RAW` or `SYS`. `voltage` is represented as shown in the example below.
 
 `RAW` specifies any voltage that is not ready for system use, such as non-reverse-protected or non-current sensed portions of the circuit.
 
@@ -59,4 +63,3 @@ Power Net Names: `voltage_descriptor` where `descriptor` is either `RAW` or `SYS
 For example:
 
 ![power_net_naming](http://nickmccomb.net/wp-content/uploads/2017/12/power_net_naming_iris.png "Power Net Naming for the Iris Project")
-
