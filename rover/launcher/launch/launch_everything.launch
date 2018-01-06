@@ -1,0 +1,15 @@
+<launch>
+    <node name="rover_gps" pkg="ublox_gps" type="ublox_gps" output="screen" clear_params="false" respawn="true" respawn_delay="10">
+        <rosparam command="load" file="$(find ublox_gps)/config/nmea.yaml" />
+    </node>
+    
+    <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform" respawn="true" output="screen">
+        <param name="magnetic_declination_radians" value="0"/>
+
+        <param name="yaw_offset" value="0"/>
+
+        <remap from="/imu/data" to="/your/imu/topic" />
+        <remap from="/gps/fix" to="/rover_gps/fix" />
+        <remap from="/odometry/filtered" to="/your/robot_localization/output/topic" />
+    </node>
+</launch>

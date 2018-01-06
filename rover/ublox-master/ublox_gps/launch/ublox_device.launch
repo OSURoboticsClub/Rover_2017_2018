@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <node name="rover_gps" pkg="ublox_gps" type="ublox_gps" output="screen" clear_params="false" respawn="true" respawn_delay="10">
+    <rosparam command="load" file="$(find ublox_gps)/config/nmea.yaml" />
+  </node>
+</launch>
