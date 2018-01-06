@@ -23,7 +23,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <group ns="zed">
         <include file="$(find zed_wrapper)/launch/zed_camera.launch">
             <!-- compliant mode for rviz -->
-            <arg name="odometry_frame"        value="$(arg odometry_frame)" />
+            <arg name="odometry_frame"        value="map" />
         </include>
     </group>
 

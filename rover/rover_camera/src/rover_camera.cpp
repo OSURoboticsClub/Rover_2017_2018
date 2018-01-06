@@ -1,4 +1,4 @@
-#include <string.h>
+#include <string>
 #include <iostream>
 
 #include <ros/ros.h>
@@ -41,11 +41,14 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    std::string large_image_node_name = "image_" + std::to_string(large_image_width) + "x" + std::to_string(large_image_height);
+    std::string small_image_node_name = "image_" + std::to_string(small_image_width) + "x" + std::to_string(small_image_height);
+
     image_transport::ImageTransport full_res_image_transport(node_handle);
     image_transport::ImageTransport lower_res_image_transport(node_handle);
 
-    image_transport::Publisher full_size_publisher = full_res_image_transport.advertise("image_720p", 1);
-    image_transport::Publisher lower_size_publisher = lower_res_image_transport.advertise("image_360p", 1);
+    image_transport::Publisher full_size_publisher = full_res_image_transport.advertise(large_image_node_name, 1);
+    image_transport::Publisher lower_size_publisher = lower_res_image_transport.advertise(small_image_node_name, 1);
 
     cv::Mat image;
     cv::Mat image_smaller;
@@ -53,7 +56,7 @@ int main(int argc, char** argv)
     ros::Rate loop_rate(fps + 5);
 
 
-    while (node_handle.ok()) {
+    while (ros::ok()) {
 
         cap.read(image);
 
@@ -70,4 +73,6 @@ int main(int argc, char** argv)
         ros::spinOnce();
         loop_rate.sleep();
     }
+
+    cap.release();
 }

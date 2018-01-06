@@ -1,0 +1,6 @@
+<launch>
+    <node name="navsat" pkg="nmea_navsat_driver" type="nmea_serial_driver" respawn="true">
+        <param name="port" value="/dev/rover/ttyGPS"/>
+        <param name="baud" value="9600"/>
+    </node>
+</launch>
