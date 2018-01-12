@@ -19,7 +19,7 @@
 <!-- ### Start 2D Cameras ### -->
 <group ns="cameras">
 <!-- Start Undercarriage Camera -->
-    <node name="camera_undercarriage" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 1" respawn="true" output="screen">
+    <node name="undercarriage" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 1" respawn="true" output="screen">
         <param name="device_path" value="/dev/rover/camera_undercarriage"/>
     </node>
 
@@ -29,7 +29,7 @@
     </node>
 
 <!-- Start Gimbal Camera -->
-    <node name="gimbal" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 3" respawn="true" output="screen" >
+    <node name="chassis" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 3" respawn="true" output="screen" >
         <param name="device_path" value="/dev/rover/camera_gimbal" />
     </node>
 

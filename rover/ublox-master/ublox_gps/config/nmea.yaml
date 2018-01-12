@@ -1,5 +1,5 @@
 # Sample NMEA parameter configuration
-device: /dev/ttyUSB4
+device: /dev/rover/ttyGPS
 
 uart1:
   baudrate: 9600           # C94-M8P specific

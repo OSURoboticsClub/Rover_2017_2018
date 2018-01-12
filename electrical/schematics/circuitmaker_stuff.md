@@ -11,7 +11,6 @@ Next download the sheets you will need for your project, at the bare minimum you
 * mcu
 * reverse protection
 * rs485_tranceiver
-* rs485_termination
 * 5v_power
 * 3v3_power
 
