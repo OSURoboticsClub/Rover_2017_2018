@@ -13,13 +13,11 @@ import sys
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import signal
 import rospy
-import roslaunch
-import os
-import psutil
-import subprocess
+import time
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import qimage2ndarray
+import numpy as np
 
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import CompressedImage
@@ -71,26 +69,90 @@ class VideoTest(QtCore.QThread):
 
         self.image_ready_signal.connect(self.__on_image_update_ready)
 
+        self.new_frame = False
+        self.frame_count = 0
+        self.last_frame_time = time.time()
+        self.fps = 0
+
+        self.name = sub_path.split("/")[2].replace("_", " ").title()
+
+        self.font = cv2.FONT_HERSHEY_TRIPLEX
+
+        thickness = 1
+        baseline = 0
+
+        text_size = cv2.getTextSize(self.name, self.font, thickness, baseline)
+        print text_size
+
+        text_width, text_height = text_size[0]
+
+        width = text_width + 10
+        height = text_height + 20
+
+        self.blank_image = np.zeros((height, width, 3), np.uint8)
+        cv2.putText(self.blank_image, self.name, ((width - text_width) / 2, int((height * 2) / 3)), self.font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        self.blank_image = cv2.resize(self.blank_image, (width / 2, height / 2))
+
     def run(self):
         # TODO: Thread starting message here
+        y_offset = 0
+        x_offset = 0
+
         while self.not_abort:
-            if self.raw_image:
+            if self.raw_image and self.new_frame:
                 self.cv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
+
+                self.cv_image = self.__show_fps(self.cv_image)
+
+                self.cv_image[y_offset:y_offset + self.blank_image.shape[0], x_offset:x_offset + self.blank_image.shape[1]] = self.blank_image
 
                 if self.video_size:
                     self.cv_image = cv2.resize(self.cv_image, self.video_size)
                 self.pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(self.cv_image))
                 self.image_ready_signal.emit()
-                #print "doin stuff"
-            self.msleep(20)
+                self.new_frame = False
+
+            if (time.time() - self.last_frame_time) >= 0.5:
+                self.fps = int(self.frame_count / (time.time() - self. last_frame_time))
+
+                self.last_frame_time = time.time()
+                self.frame_count = 0
+
+            self.msleep(18)
         # TODO: Thread ending message here
+
+    def __show_fps(self, image):
+        thickness = 1
+        baseline = 0
+
+        fps_string = str(self.fps)
+
+        text_size = cv2.getTextSize(fps_string, self.font, thickness, baseline)
+
+        text_width, text_height = text_size[0]
+
+        width = text_width + 10
+        height = text_height + 20
+
+        fps_image = np.zeros((height, width, 3), np.uint8)
+
+        cv2.putText(fps_image, fps_string, ((width - text_width) / 2, int((height * 2) / 3)), self.font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        fps_image = cv2.resize(fps_image, (width / 2, height / 2))
+
+        y_offset = 0
+        x_offset = (image.shape[1] - fps_image.shape[1]) / 2
+
+        image[y_offset:y_offset + fps_image.shape[0], x_offset:x_offset + fps_image.shape[1]] = fps_image
+
+        return image
 
     def __on_image_update_ready(self):
         self.right_screen_label.setPixmap(self.pixmap)
 
     def __receive_message(self, message):
-        #print "messgae"
         self.raw_image = message
+        self.new_frame = True
+        self.frame_count += 1
 
     def setup_start_and_kill_signals(self, start_signal, kill_signal):
         start_signal.connect(self.start)
@@ -101,8 +163,6 @@ class VideoTest(QtCore.QThread):
 
 
 class DriveTest(QtCore.QThread):
-    ROS_CORE_COMMAND = ["roscore"]
-
     publish_message_signal = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -169,15 +229,15 @@ class GroundStation(QtCore.QObject):
         # noinspection PyArgumentList
         super(GroundStation, self).__init__(parent)
 
-        self.left_screen = self.create_application_window(UI_FILE_LEFT, "Rover Ground Station Left Screen",
-                                                          self.LEFT_SCREEN_ID)  # type: ApplicationWindow
+        # self.left_screen = self.create_application_window(UI_FILE_LEFT, "Rover Ground Station Left Screen",
+        #                                                   self.LEFT_SCREEN_ID)  # type: ApplicationWindow
         self.right_screen = self.create_application_window(UI_FILE_RIGHT, "Rover Ground Station Right Screen",
-                                                           self.RIGHT_SCREEN_ID)  # type: ApplicationWindow
+                                                           self.LEFT_SCREEN_ID)  # type: ApplicationWindow
 
         # Start ROSCORE
-        self.video_test = VideoTest(self.right_screen.primary_video_label, sub_path="/cam1/usb_cam1/image_raw/compressed")
-        self.video_test_1 = VideoTest(self.right_screen.secondary_video_label, (640, 360), sub_path="/cam2/usb_cam2/image_raw/compressed")
-        self.video_test_2 = VideoTest(self.right_screen.tertiary_video_label, (640, 360), sub_path="/zed/right/image_raw_color/compressed")
+        self.video_test = VideoTest(self.right_screen.primary_video_label, (1280, 720), sub_path="/cameras/main_navigation/image_640x360/compressed")
+        self.video_test_1 = VideoTest(self.right_screen.secondary_video_label, (640, 360), sub_path="/cameras/chassis/image_640x360/compressed")
+        self.video_test_2 = VideoTest(self.right_screen.tertiary_video_label, (640, 360), sub_path="/cameras/undercarriage/image_640x360/compressed")
         self.drive_test = DriveTest()
 
         # Keep track of all threads
@@ -195,7 +255,7 @@ class GroundStation(QtCore.QObject):
         self.start_threads_signal.emit()
 
     def __connect_signals_to_slots(self):
-        self.left_screen.exit_requested_signal.connect(self.on_exit_requested__slot)
+        # self.left_screen.exit_requested_signal.connect(self.on_exit_requested__slot)
         self.right_screen.exit_requested_signal.connect(self.on_exit_requested__slot)
 
     def on_exit_requested__slot(self):
