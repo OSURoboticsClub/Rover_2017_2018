@@ -9,7 +9,7 @@ class SystemStatuses:
         self.system_path_locations = [
             '/dev/rover/camera_zed',
             '/dev/rover/camera_undercarriage',
-            '/dev/rover/camera_gimbal',
+            '/dev/rover/camera_chassis',
             '/dev/rover/camera_main_navigation'
         ]
 
@@ -25,8 +25,8 @@ class SystemStatuses:
         self.msg.camera_zed = 1 if os.path.exists(self.system_path_locations[0]) else 0
         # Check if camera_undercarriage is found
         self.msg.camera_undercarriage = 1 if os.path.exists(self.system_path_locations[1]) else 0
-        # Check if camera_gimbal is found
-        self.msg.camera_gimbal = 1 if os.path.exists(self.system_path_locations[2]) else 0
+        # Check if camera_chassis is found
+        self.msg.camera_chassis = 1 if os.path.exists(self.system_path_locations[2]) else 0
         # Check if camera_main_navigation is found
         self.msg.camera_main_navigation = 1 if os.path.exists(self.system_path_locations[3]) else 0
 
