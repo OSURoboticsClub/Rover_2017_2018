@@ -1,4 +1,4 @@
 int8 camera_zed
 int8 camera_undercarriage
-int8 camera_gimbal
+int8 camera_chassis
 int8 camera_main_navigation
