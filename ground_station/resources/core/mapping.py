@@ -68,6 +68,6 @@ class GMapsStitcher(object):
         return pixels * 2 ** (21-zoom)
 
     def _grab_tile(self, sleeptime):
-
-
+        urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
+        urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
 
