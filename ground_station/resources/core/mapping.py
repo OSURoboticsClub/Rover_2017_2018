@@ -1,7 +1,10 @@
 '''
 Mapping.py: Objected Orientated Google Maps for Python
 
+Written by Chris Pham
+
 Copyright OSURC, orginal code from GooMPy by Alec Singer and Simon D. Levy
+
 
 This code is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -67,7 +70,7 @@ class GMapsStitcher(object):
     def _pixels_to_degrees(self, pixels, zoom):
         return pixels * 2 ** (21-zoom)
 
-    def _grab_tile(self, sleeptime):
+    def _grab_tile(self, sleeptime=0):
         # Make the url string for polling
         # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
@@ -93,6 +96,13 @@ class GMapsStitcher(object):
             if not os.path.exists('Resources/Maps'):
                 os.mkdir('Resources/Maps')
             tile_object.save(filename)
+            #Added to prevent timeouts on Google Servers
+            time.sleep(sleeptime)
 
         return tile_object
+
+    def _pixels_to_lon(self, iterator, lon_pixels):
+        # Magic Lines, no idea
+        degrees = _pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
+        return math.degrees((lon_pixels + degrees - _EARTHPIX) / _pixrad)
     
