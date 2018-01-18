@@ -1,3 +1,21 @@
+'''
+Mapping.py: Objected Orientated Google Maps for Python
+
+Copyright OSURC, orginal code from GooMPy by Alec Singer and Simon D. Levy
+
+This code is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as 
+published by the Free Software Foundation, either version 3 of the 
+License, or (at your option) any later version.
+This code is distributed in the hope that it will be useful,     
+but WITHOUT ANY WARRANTY without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License 
+along with this code.  If not, see <http://www.gnu.org/licenses/>.
+
+'''
+
 #####################################
 # Imports
 #####################################
@@ -26,3 +44,6 @@ _TILESIZE = 640
 _GRABRATE = 4
 # Pixel Radius of Earth for calculations
 _pixrad = _EARTHPIX / math.pi
+
+
+class Google
