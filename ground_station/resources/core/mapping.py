@@ -12,7 +12,9 @@ import time
 #####################################
 # Constants
 #####################################
-_KEY =  
+fp = open('key', w)
+_KEY = fp.read().rstrip()
+fp.close()
 
 # Number of pixels in half the earth's circumference at zoom = 21
 _EARTHPIX = 268435456
