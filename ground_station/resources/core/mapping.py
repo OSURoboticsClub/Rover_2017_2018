@@ -53,9 +53,9 @@ _pixrad = _EARTHPIX / math.pi
 
 
 class GMapsStitcher(object):
-    def __init__(self, width, height, latitude,
-                    longitude, zoom, maptype, radius_meters=None,
-                    num_tiles=4):
+    def __init__(self, width, height,
+                 latitude, longitude, zoom,
+                 maptype, radius_meters=None, num_tiles=4):
         self.latitude = latitude
         self.longitude = longitude
         self.width = width
@@ -63,5 +63,17 @@ class GMapsStitcher(object):
         self.zoom = zoom
         self.maptype = maptype
         self.radius_meters = radius_meters
+    
+    def _new_image(self):
+        return PIL.Image.new('RGB', (self.width, self.height))
+
+    def _fast_round(self, value, precision):
+        return int(value * 10 ** precision) / 10. ** precision
+
+    def _pixels_to_degrees(self, pixels, zoom):
+        return pixels * 2 ** (21-zoom)
+
+    def _grab_tile(self, sleeptime):
+
 
 
