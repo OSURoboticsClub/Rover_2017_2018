@@ -46,4 +46,16 @@ _GRABRATE = 4
 _pixrad = _EARTHPIX / math.pi
 
 
-class Google
+class GMapsStitcher(object):
+    def __init__(self, width, height, latitude,
+                    longitude, zoom, maptype, radius_meters=None,
+                    num_tiles=4):
+        self.latitude = latitude
+        self.longitude = longitude
+        self.width = width
+        self.height = height
+        self.zoom = zoom
+        self.maptype = maptype
+        self.radius_meters = radius_meters
+
+
