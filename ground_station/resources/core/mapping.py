@@ -60,6 +60,7 @@ class GMapsStitcher(object):
         self.zoom = zoom
         self.maptype = maptype
         self.radius_meters = radius_meters
+        self.num_tiles = num_tiles
     
     def _new_image(self):
         return PIL.Image.new('RGB', (self.width, self.height))
@@ -103,6 +104,6 @@ class GMapsStitcher(object):
 
     def _pixels_to_lon(self, iterator, lon_pixels):
         # Magic Lines, no idea
-        degrees = _pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
+        degrees = self._pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
         return math.degrees((lon_pixels + degrees - _EARTHPIX) / _pixrad)
-    
+
