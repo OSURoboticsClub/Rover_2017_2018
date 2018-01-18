@@ -21,7 +21,7 @@ along with this code.  If not, see <http://www.gnu.org/licenses/>.
 #####################################
 # Python native imports
 import math
-import urllib
+import urllib2
 import PIL.Image
 from io import StringIO, BytesIO
 import os
@@ -68,6 +68,31 @@ class GMapsStitcher(object):
         return pixels * 2 ** (21-zoom)
 
     def _grab_tile(self, sleeptime):
+        # Make the url string for polling
+        # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
         urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
 
+        # Fill the formatting 
+        specs = self.latitude, self.longitude, self.zoom, self.maptype, _TILESIZE, _KEY
+        filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s' % specs) + '.jpg'
+
+        # Tile Image object
+        tile_object = None
+
+        if os.path.isfile(filename):
+            tile_object = PIL.Image.open(filename)
+        
+        # If file on filesystem
+        else:
+            # make the url
+            url = urlbase % specs
+
+            result = urllib2.Request(url).read()
+            tile_object = PIL.Image.open(BytesIO(result))
+            if not os.path.exists('Resources/Maps'):
+                os.mkdir('Resources/Maps')
+            tile_object.save(filename)
+
+        return tile_object
+    
