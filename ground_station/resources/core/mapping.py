@@ -12,7 +12,7 @@ import time
 #####################################
 # Constants
 #####################################
-fp = open('key', w)
+fp = open('key', 'w')
 _KEY = fp.read().rstrip()
 fp.close()
 
