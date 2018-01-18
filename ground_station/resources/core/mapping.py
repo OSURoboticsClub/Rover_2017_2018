@@ -1,10 +1,8 @@
 '''
 Mapping.py: Objected Orientated Google Maps for Python
-
-Written by Chris Pham
+ReWritten by Chris Pham
 
 Copyright OSURC, orginal code from GooMPy by Alec Singer and Simon D. Levy
-
 
 This code is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -25,10 +23,10 @@ along with this code.  If not, see <http://www.gnu.org/licenses/>.
 # Python native imports
 import math
 import urllib2
-import PIL.Image
 from io import StringIO, BytesIO
 import os
 import time
+import PIL.Image
 
 #####################################
 # Constants
@@ -61,7 +59,7 @@ class GMapsStitcher(object):
         self.maptype = maptype
         self.radius_meters = radius_meters
         self.num_tiles = num_tiles
-    
+
     def _new_image(self):
         return PIL.Image.new('RGB', (self.width, self.height))
 
@@ -77,7 +75,7 @@ class GMapsStitcher(object):
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
         urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
 
-        # Fill the formatting 
+        # Fill the formatting
         specs = self.latitude, self.longitude, self.zoom, self.maptype, _TILESIZE, _KEY
         filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s' % specs) + '.jpg'
 
@@ -86,7 +84,7 @@ class GMapsStitcher(object):
 
         if os.path.isfile(filename):
             tile_object = PIL.Image.open(filename)
-        
+
         # If file on filesystem
         else:
             # make the url
@@ -107,3 +105,7 @@ class GMapsStitcher(object):
         degrees = self._pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
         return math.degrees((lon_pixels + degrees - _EARTHPIX) / _pixrad)
 
+    def _pixels_to_lat(self, iterator, lat_pixels):
+        # Magic Lines
+        degree = self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)
+        return math.degrees(math.pi / 2 - 2 * math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX) / _pixrad)))
