@@ -12,9 +12,15 @@ import time
 #####################################
 # Constants
 #####################################
+<<<<<<< 666f522bf5947794d802e8cbbf221ac004fc4eed
 fp = open('key', w)
 _KEY = fp.read().rstrip()
 fp.close()
+=======
+file_pointer = open('key', 'w')
+_KEY = file_pointer.read().rstrip()
+file_pointer.close()
+>>>>>>> fixed fp naming conventions
 
 # Number of pixels in half the earth's circumference at zoom = 21
 _EARTHPIX = 268435456
