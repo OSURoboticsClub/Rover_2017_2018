@@ -66,8 +66,8 @@ class GMapsStitcher(object):
         self.radius_meters = radius_meters
         self.num_tiles = num_tiles
 
-    def _new_image(self):
-        return PIL.Image.new('RGB', (self.width, self.height))
+    def _new_image(self, width, height):
+        return PIL.Image.new('RGB', (width, height))
 
     def _fast_round(self, value, precision):
         return int(value * 10 ** precision) / 10. ** precision
@@ -79,14 +79,14 @@ class GMapsStitcher(object):
           # https://groups.google.com/forum/#!topic/google-maps-js-api-v3/hDRO4oHVSeM
         return 2 ** self.zoom / (156543.03392 * math.cos(math.radians(self.latitude)))
 
-    def _grab_tile(self, sleeptime=0):
+    def _grab_tile(self, longitude, latitude, sleeptime=0):
         # Make the url string for polling
         # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
         urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
 
         # Fill the formatting
-        specs = self.latitude, self.longitude, self.zoom, self.maptype, _TILESIZE, _KEY
+        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _KEY
         filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s' % specs) + '.jpg'
 
         # Tile Image object
@@ -118,8 +118,8 @@ class GMapsStitcher(object):
     def _pixels_to_lat(self, iterator, lat_pixels):
         # Magic Lines
         degree = self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)
-        temp = math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX)
-        return math.degrees(math.pi / 2 - 2 * temp / _pixrad)))
+        temp = math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX))/ _pixrad)
+        return math.degrees(math.pi / 2 - 2 * temp)
 
     def fetch_tiles(self,):
         # cap floats to precision amount
@@ -130,3 +130,20 @@ class GMapsStitcher(object):
         if self.radius_meters is not None:
             self.num_tiles = int(round(2*self._pixels_to_meters / (_TILESIZE / 2. / self.radius_meters)))
 
+        lon_pixels = _EARTHPIX + self.longitude * math.radians(_pixrad)
+
+        sin_lat = math.sin(math.radians(self.latitude))
+        lat_pixels = _EARTHPIX - _pixrad * math.log((1+sin_lat)/(1-sin_lat))/2
+        big_size = self.num_tiles * _TILESIZE
+
+        big_image = self._new_image(big_size, big_size)
+
+        for j in range(self.num_tiles):
+            lon = self._pixels_to_lon(j,lon_pixels)
+            for k in range(self.num_tiles):
+                lat = self._pixels_to_lat(k, lat_pixels)
+                tile = self._grab_tile(lon, lat)
+                big_image.paste(tile, (j * _TILESIZE, k * _TILESIZE))
+        
+        big_image.save("buttholes.jpg")
+    
