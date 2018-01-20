@@ -75,6 +75,9 @@ class GMapsStitcher(object):
     def _pixels_to_degrees(self, pixels, zoom):
         return pixels * 2 ** (21-zoom)
 
+    def _pixels_to_meters(self)
+        return 2 ** self.zoom / (156543.03392 * math.cos(math.radians(self.latitude)))
+
     def _grab_tile(self, sleeptime=0):
         # Make the url string for polling
         # GET request header gets appended to the string
@@ -115,3 +118,11 @@ class GMapsStitcher(object):
         # Magic Lines
         degree = self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)
         return math.degrees(math.pi / 2 - 2 * math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX) / _pixrad)))
+    
+    def fetch_tiles(self):
+        # cap floats to precision amount
+        self.latitude = self._fast_round(latitude, _DEGREE_PRECISION)
+        self.longitude = self._fast_round(longitude, _DEGREE_PRECISION)
+
+        #grab the pixels per meter
+
