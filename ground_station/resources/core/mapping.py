@@ -69,7 +69,8 @@ class GMapsStitcher(object):
     def _pixels_to_degrees(self, pixels, zoom):
         return pixels * 2 ** (21-zoom)
 
-    def _pixels_to_meters(self)
+    def _pixels_to_meters(self):
+          # https://groups.google.com/forum/#!topic/google-maps-js-api-v3/hDRO4oHVSeM
         return 2 ** self.zoom / (156543.03392 * math.cos(math.radians(self.latitude)))
 
     def _grab_tile(self, sleeptime=0):
@@ -111,12 +112,15 @@ class GMapsStitcher(object):
     def _pixels_to_lat(self, iterator, lat_pixels):
         # Magic Lines
         degree = self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)
-        return math.degrees(math.pi / 2 - 2 * math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX) / _pixrad)))
-    
-    def fetch_tiles(self):
-        # cap floats to precision amount
-        self.latitude = self._fast_round(latitude, _DEGREE_PRECISION)
-        self.longitude = self._fast_round(longitude, _DEGREE_PRECISION)
+        temp = math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX)
+        return math.degrees(math.pi / 2 - 2 * temp / _pixrad)))
 
-        #grab the pixels per meter
+    def fetch_tiles(self,):
+        # cap floats to precision amount
+        self.latitude = self._fast_round(self.latitude, _DEGREE_PRECISION)
+        self.longitude = self._fast_round(self.longitude, _DEGREE_PRECISION)
+
+        # number of tiles required to go from center latitude to desired radius in meters
+        if self.radius_meters is not None:
+            self.num_tiles = int(round(2*self._pixels_to_meters / (_TILESIZE / 2. / self.radius_meters)))
 
