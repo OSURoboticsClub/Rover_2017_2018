@@ -22,8 +22,6 @@ class SystemStatuses:
 
         self.msg = RoverSysStatus()
         self.__set_msg_values()
-        # self.__set_cameras()
-        # self.__UTC_GPS_Time()
 
         # Simple Subscriber test boolean -- camera_2_updated.py
         # self.hasCameraUndercarriageChanged = False
@@ -107,16 +105,16 @@ class SystemStatuses:
 
     def run(self):
         r = rospy.Rate(10)
-        rospy.loginfo(self.msg)
-        self.pub.publish(self.msg)
+        # rospy.loginfo(self.msg)
+        # self.pub.publish(self.msg)
         while not rospy.is_shutdown():
             if (self.msg.camera_zed != os.path.exists(self.system_path_locations[0]) or
                     self.msg.camera_undercarriage != os.path.exists(self.system_path_locations[1]) or
                     self.msg.camera_chassis != os.path.exists(self.system_path_locations[2]) or
                     self.msg.camera_main_navigation != os.path.exists(self.system_path_locations[3])):
                 self.__set_cameras()
-                rospy.loginfo(self.msg)
-                self.pub.publish(self.msg)
+            rospy.loginfo(self.msg)
+            self.pub.publish(self.msg)
             r.sleep()
 
 

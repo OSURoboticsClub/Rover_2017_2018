@@ -11,12 +11,26 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="system_statuses_node.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="system_statuses_node.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="105" column="55" lean-forward="true" selection-start-line="105" selection-start-column="55" selection-end-line="105" selection-end-column="55" />
-              <folding />
+            <state relative-caret-position="-732">
+              <caret line="17" column="63" lean-forward="false" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="63" />
+              <folding>
+                <element signature="e#22#43#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="rover_statuses.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/rover_statuses.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="708">
+              <caret line="43" column="40" lean-forward="false" selection-start-line="43" selection-start-column="40" selection-end-line="43" selection-end-column="40" />
+              <folding>
+                <element signature="e#22#43#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -35,12 +49,21 @@
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/camera_2_updater.py" />
         <option value="$PROJECT_DIR$/system_statuses.py" />
+        <option value="$PROJECT_DIR$/node_statuses.py" />
         <option value="$PROJECT_DIR$/system_statuses_node.py" />
+        <option value="$PROJECT_DIR$/rover_statuses.py" />
       </list>
     </option>
   </component>
@@ -159,6 +182,14 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/system_statuses.py" />
+    <entry file="file://$PROJECT_DIR$/node_statuses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="3" column="8" lean-forward="false" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/camera_2_updater.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
@@ -171,9 +202,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="105" column="55" lean-forward="true" selection-start-line="105" selection-start-column="55" selection-end-line="105" selection-end-column="55" />
-          <folding />
+        <state relative-caret-position="-732">
+          <caret line="17" column="63" lean-forward="false" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="63" />
+          <folding>
+            <element signature="e#22#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rover_statuses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="708">
+          <caret line="43" column="40" lean-forward="false" selection-start-line="43" selection-start-column="40" selection-end-line="43" selection-end-column="40" />
+          <folding>
+            <element signature="e#22#43#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
