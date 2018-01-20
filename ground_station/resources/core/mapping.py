@@ -85,11 +85,11 @@ class GMapsStitcher(object):
         # Make the url string for polling
         # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
-        urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
+        urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s&signature=%s'
 
         # Fill the formatting
-        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _KEYS[0]
-        filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s' % specs) + '.jpg'
+        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _KEYS[0], _KEYS[1]
+        filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s_%s' % specs) + '.jpg'
 
         # Tile Image object
         tile_object = None
