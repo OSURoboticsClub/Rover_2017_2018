@@ -31,20 +31,22 @@ import PIL.Image
 #####################################
 # Constants
 #####################################
+_KEYS = []
 file_pointer = open('key', 'w')
-_KEY = file_pointer.read().rstrip()
+for i in file_pointer:
+    _KEYS.append(file_pointer.readline().rstrip())
 file_pointer.close()
 
 # Number of pixels in half the earth's circumference at zoom = 21
 _EARTHPIX = 268435456
 # Number of decimal places for rounding coordinates
-_DEGREE_PRECISION = 4 
+_DEGREE_PRECISION = 4
 # Larget tile we can grab without paying
 _TILESIZE = 640
 # Fastest rate at which we can download tiles without paying
 _GRABRATE = 4
 # Pixel Radius of Earth for calculations
-_pixrad = _EARTHPIX / math.pi
+_PIXRAD = _EARTHPIX / math.pi
 
 
 class GMapsStitcher(object):
@@ -80,7 +82,7 @@ class GMapsStitcher(object):
         urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
 
         # Fill the formatting
-        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _KEY
+        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _KEYS[0]
         filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s' % specs) + '.jpg'
 
         # Tile Image object
@@ -107,12 +109,12 @@ class GMapsStitcher(object):
     def _pixels_to_lon(self, iterator, lon_pixels):
         # Magic Lines, no idea
         degrees = self._pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
-        return math.degrees((lon_pixels + degrees - _EARTHPIX) / _pixrad)
+        return math.degrees((lon_pixels + degrees - _EARTHPIX) / _PIXRAD)
 
     def _pixels_to_lat(self, iterator, lat_pixels):
         # Magic Lines
         degree = self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)
-        temp = math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX))/ _pixrad)
+        temp = math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX))/ _PIXRAD)
         return math.degrees(math.pi / 2 - 2 * temp)
 
     def fetch_tiles(self,):
@@ -124,20 +126,19 @@ class GMapsStitcher(object):
         if self.radius_meters is not None:
             self.num_tiles = int(round(2*self._pixels_to_meters / (_TILESIZE / 2. / self.radius_meters)))
 
-        lon_pixels = _EARTHPIX + self.longitude * math.radians(_pixrad)
+        lon_pixels = _EARTHPIX + self.longitude * math.radians(_PIXRAD)
 
         sin_lat = math.sin(math.radians(self.latitude))
-        lat_pixels = _EARTHPIX - _pixrad * math.log((1+sin_lat)/(1-sin_lat))/2
+        lat_pixels = _EARTHPIX - _PIXRAD * math.log((1+sin_lat)/(1-sin_lat))/2
         big_size = self.num_tiles * _TILESIZE
 
         big_image = self._new_image(big_size, big_size)
 
         for j in range(self.num_tiles):
-            lon = self._pixels_to_lon(j,lon_pixels)
+            lon = self._pixels_to_lon(j, lon_pixels)
             for k in range(self.num_tiles):
                 lat = self._pixels_to_lat(k, lat_pixels)
                 tile = self._grab_tile(lon, lat)
                 big_image.paste(tile, (j * _TILESIZE, k * _TILESIZE))
-        
-        big_image.save("buttholes.jpg")
-    
+
+        big_image.save("testimage.jpg")
