@@ -5,7 +5,7 @@ ReWritten by Chris Pham
 Copyright OSURC, orginal code from GooMPy by Alec Singer and Simon D. Levy
 
 This code is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as 
+it under the terms of the GNU Lesser General Public License as
 published by the Free Software Foundation, either version 3 of the 
 License, or (at your option) any later version.
 This code is distributed in the hope that it will be useful,     
@@ -27,21 +27,17 @@ from io import StringIO, BytesIO
 import os
 import time
 import PIL.Image
+import signing
 
 #####################################
 # Constants
 #####################################
-<<<<<<< 1bd9af00f206c528febfe9b024e50b8bd4ee73fb
-<<<<<<< 666f522bf5947794d802e8cbbf221ac004fc4eed
-=======
-=======
 _KEYS = []
->>>>>>> Fixed to fit PEP
+
 file_pointer = open('key', 'w')
 for i in file_pointer:
     _KEYS.append(file_pointer.readline().rstrip())
 file_pointer.close()
->>>>>>> fixed fp naming conventions
 
 # Number of pixels in half the earth's circumference at zoom = 21
 _EARTHPIX = 268435456
@@ -53,6 +49,13 @@ _TILESIZE = 640
 _GRABRATE = 4
 # Pixel Radius of Earth for calculations
 _PIXRAD = _EARTHPIX / math.pi
+
+file_pointer = open('key', 'r')
+for i in file_pointer:
+    _KEYS.append(i.rstrip())
+file_pointer.close()
+
+print _KEYS
 
 
 class GMapsStitcher(object):
@@ -85,11 +88,11 @@ class GMapsStitcher(object):
         # Make the url string for polling
         # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
-        urlbase += 'center=%f%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s&signature=%s'
+        urlbase += 'center=%f,%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
 
         # Fill the formatting
-        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _KEYS[0], _KEYS[1]
-        filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s_%s' % specs) + '.jpg'
+        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0]
+        filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s' % specs) + '.jpg'
 
         # Tile Image object
         tile_object = None
@@ -101,8 +104,10 @@ class GMapsStitcher(object):
         else:
             # make the url
             url = urlbase % specs
-
-            result = urllib2.Request(url).read()
+            print url
+            url = signing.sign_url(url, _KEYS[1])
+            print url
+            result = urllib2.urlopen(urllib2.Request(url)).read()
             tile_object = PIL.Image.open(BytesIO(result))
             if not os.path.exists('Resources/Maps'):
                 os.mkdir('Resources/Maps')
@@ -123,14 +128,14 @@ class GMapsStitcher(object):
         temp = math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX))/ _PIXRAD)
         return math.degrees(math.pi / 2 - 2 * temp)
 
-    def fetch_tiles(self,):
+    def fetch_tiles(self):
         # cap floats to precision amount
         self.latitude = self._fast_round(self.latitude, _DEGREE_PRECISION)
         self.longitude = self._fast_round(self.longitude, _DEGREE_PRECISION)
 
         # number of tiles required to go from center latitude to desired radius in meters
         if self.radius_meters is not None:
-            self.num_tiles = int(round(2*self._pixels_to_meters / (_TILESIZE / 2. / self.radius_meters)))
+            self.num_tiles = int(round(2*self._pixels_to_meters() / (_TILESIZE / 2. / self.radius_meters)))
 
         lon_pixels = _EARTHPIX + self.longitude * math.radians(_PIXRAD)
 
