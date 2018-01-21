@@ -90,3 +90,6 @@ ENV/
 
 # Google API Key
 ground_station/resources/core/key
+
+# Map Images
+*.jpg
