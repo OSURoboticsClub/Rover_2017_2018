@@ -57,7 +57,12 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
     FILES
     RoverSysStatus.msg
-    Camera2Changer.msg
+    BogieStatuses.msg
+    FrSkyStatus.msg
+    JetsonInfo.msg
+    CameraStatuses.msg
+    GPSInfo.msg
+    MiscStatuses.msg
 )
 
 ## Generate services in the 'srv' folder

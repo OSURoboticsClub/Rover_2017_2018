@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import rospy, os.path
+import rospy
 from system_statuses.msg import RoverSysStatus
 
 

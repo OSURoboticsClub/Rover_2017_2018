@@ -1,1 +1,0 @@
-int8 camera_2_value

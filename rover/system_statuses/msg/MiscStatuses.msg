@@ -1,0 +1,5 @@
+int8 arm_connection_status
+int8 arm_end_effector_connection_statuses
+int8 sample_containment_connection_status
+int8 tower_connection_status
+int8 chassis_pan_tilt_connection_status

@@ -1,0 +1,1 @@
+int8 FrSky_controller_connection_status

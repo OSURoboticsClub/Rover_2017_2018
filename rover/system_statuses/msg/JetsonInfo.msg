@@ -1,0 +1,4 @@
+int8 jetson_CPU
+int8 jetson_RAM
+int8 jetson_EMMC
+int8 jetson_NVME_SSD
