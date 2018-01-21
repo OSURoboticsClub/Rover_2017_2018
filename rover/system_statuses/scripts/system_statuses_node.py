@@ -33,38 +33,43 @@ class SystemStatuses:
         self.GPS_msg = GPSInfo()
         self.jetson_msg = JetsonInfo()
         self.misc_msg = MiscStatuses()
-        self.__set_msg_values()
 
-    # INIT all RoverSysMessage values
-    def __set_msg_values(self):
-        self.__gps_update()
-        self.__bogie_connection_statuses()
-        self.__arm_connection_status()
-        self.__arm_end_effector_connection_statuses()
+        # init all message values
+        self.__pull_new_message_values()
+
+        # init all previous values
+        self.__update_all_previous_values()
+
+    # init all RoverSysMessage values
+    def __pull_new_message_values(self):
+        self.__set_gps_info()
+        self.__set_bogie_connection_statuses()
+        self.__set_arm_connection_status()
+        self.__set_arm_end_effector_connection_statuses()
         self.__set_cameras()
-        self.__sample_containment_connection_status()
-        self.__tower_connection_status()
-        self.__chassis_pan_tilt_connection_status()
-        self.__jetson_usage_information()
-        self.__frsky_controller_connection_status()
+        self.__set_sample_containment_connection_status()
+        self.__set_tower_connection_status()
+        self.__set_chassis_pan_tilt_connection_status()
+        self.__set_jetson_usage_information()
+        self.__set_frsky_controller_connection_status()
 
     # Pulls the UTC GPS Time (WIP)
-    def __gps_update(self):
+    def __set_gps_info(self):
         self.GPS_msg.UTC_GPS_time = 0
         self.GPS_msg.GPS_connection_status = 0
 
     # Pulls bogie connection statuses (WIP)
-    def __bogie_connection_statuses(self):
+    def __set_bogie_connection_statuses(self):
         self.bogie_msg.bogie_connection_1 = 0
         self.bogie_msg.bogie_connection_2 = 0
         self.bogie_msg.bogie_connection_3 = 0
 
     # Checks arm connection status (WIP)
-    def __arm_connection_status(self):
+    def __set_arm_connection_status(self):
         self.misc_msg.arm_connection_status = 0
 
     # Checks Arm End Effector Connection Statuses (WIP)
-    def __arm_end_effector_connection_statuses(self):
+    def __set_arm_end_effector_connection_statuses(self):
         self.misc_msg.arm_end_effector_connection_statuses = 0
 
     # Sets the Camera values (zed, undercarriage, chassis, and main_nav
@@ -79,62 +84,121 @@ class SystemStatuses:
             self.camera_msg.camera_main_navigation = 1 if os.path.exists(self.system_path_locations[3]) else 0
 
     # Checks Sample Containment Connection Status (WIP)
-    def __sample_containment_connection_status(self):
+    def __set_sample_containment_connection_status(self):
         self.misc_msg.sample_containment_connection_status = 0
 
-    def __tower_connection_status(self):
+    def __set_tower_connection_status(self):
         self.misc_msg.tower_connection_status = 0
 
     # Checks Tower Connection Status (WIP)
-    def __chassis_pan_tilt_connection_status(self):
+    def __set_chassis_pan_tilt_connection_status(self):
         self.misc_msg.chassis_pan_tilt_connection_status = 0
 
     # Get Jetson Statuses (WIP)
-    def __jetson_usage_information(self):
+    def __set_jetson_usage_information(self):
         self.jetson_msg.jetson_CPU = 0
         self.jetson_msg.jetson_RAM = 0
         self.jetson_msg.jetson_EMMC = 0
         self.jetson_msg.jetson_NVME_SSD = 0
 
     # Check FrSky Controller Connection Status (WIP)
-    def __frsky_controller_connection_status(self):
+    def __set_frsky_controller_connection_status(self):
         self.FrSky_msg.FrSky_controller_connection_status = 0
 
+    # Used mainly for init, sets all previous values in one go
+    def __update_all_previous_values(self):
+        self.__set_previous_camera_values()
+        self.__set_previous_jetson_values()
+        self.__set_previous_frsky_value()
+        self.__set_previous_bogie_values()
+        self.__set_previous_gps_values()
+        self.__set_previous_misc_values()
+
+    def __set_previous_camera_values(self):
+        self.previous_camera_zed = self.camera_msg.camera_zed
+        self.previous_camera_undercarriage = self.camera_msg.camera_undercarriage
+        self.previous_camera_chassis = self.camera_msg.camera_chassis
+        self.previous_camera_main_navigation = self.camera_msg.camera_main_navigation
+
+    def __set_previous_jetson_values(self):
+        self.previous_jetson_CPU = self.jetson_msg.jetson_CPU
+        self.previous_jetson_RAM = self.jetson_msg.jetson_RAM
+        self.previous_jetson_EMMC = self.jetson_msg.jetson_EMMC
+        self.previous_jetson_NVME_SSD = self.jetson_msg.jetson_NVME_SSD
+
+    def __set_previous_frsky_value(self):
+        self.previous_FrSky_controller_connection_status = self.FrSky_msg.FrSky_controller_connection_status
+
+    def __set_previous_bogie_values(self):
+        self.previous_bogie_connection_1 = self.bogie_msg.bogie_connection_1
+        self.previous_bogie_connection_2 = self.bogie_msg.bogie_connection_2
+        self.previous_bogie_connection_3 = self.bogie_msg.bogie_connection_3
+
+    def __set_previous_gps_values(self):
+        self.previous_UTC_GPS_time = self.GPS_msg.UTC_GPS_time
+        self.previous_GPS_connection_status = self.GPS_msg.GPS_connection_status
+
+    def __set_previous_misc_values(self):
+        self.previous_arm_connection_status = self.misc_msg.arm_connection_status
+        self.previous_arm_end_effector_connection_statuses = self.misc_msg.arm_end_effector_connection_statuses
+        self.previous_chassis_pan_tilt_connection_status = self.misc_msg.chassis_pan_tilt_connection_status
+        self.previous_sample_containment_connection_status = self.misc_msg.sample_containment_connection_status
+        self.previous_tower_connection_status = self.misc_msg.tower_connection_status
+
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(10)  # 10Hz
         while not rospy.is_shutdown():
-            # Camera Check & update if change
-            if (self.camera_msg.camera_zed != os.path.exists(self.system_path_locations[0]) or
-                    self.camera_msg.camera_undercarriage != os.path.exists(self.system_path_locations[1]) or
-                    self.camera_msg.camera_chassis != os.path.exists(self.system_path_locations[2]) or
-                    self.camera_msg.camera_main_navigation != os.path.exists(self.system_path_locations[3])):
-                self.__set_cameras()
+            # Update all message values
+            self.__pull_new_message_values()
+
+            # Camera Check -- if current value is now different from previous value,
+            # update the previous value for cameras and publish to listening Subscribers
+            if (self.camera_msg.camera_zed != self.previous_camera_zed or
+                    self.camera_msg.camera_undercarriage != self.previous_camera_undercarriage or
+                    self.camera_msg.camera_chassis != self.previous_camera_chassis or
+                    self.camera_msg.camera_main_navigation != self.previous_camera_main_navigation):
+                self.__set_previous_camera_values()
                 self.pub_camera.publish(self.camera_msg)
 
             # Placeholder Jetson Info Check
-            if (self.jetson_msg.jetson_CPU != 0 or
-                    self.jetson_msg.jetson_RAM != 0 or
-                    self.jetson_msg.jetson_EMMC != 0 or
-                    self.jetson_msg.jetson_NVME_SSD != 0):
-                self.__jetson_usage_information()
+            if (self.jetson_msg.jetson_CPU != self.previous_jetson_CPU or
+                    self.jetson_msg.jetson_RAM != self.previous_jetson_RAM or
+                    self.jetson_msg.jetson_EMMC != self.previous_jetson_EMMC or
+                    self.jetson_msg.jetson_NVME_SSD != self.previous_jetson_NVME_SSD):
+                self.__set_previous_jetson_values()
                 self.pub_jetson.publish(self.jetson_msg)
 
             # Placeholder FrSky Controller Check
-            if self.FrSky_msg.FrSky_controller_connection_status != 0:
-                self.__frsky_controller_connection_status()
+            if self.FrSky_msg.FrSky_controller_connection_status != self.previous_FrSky_controller_connection_status:
+                self.__set_previous_frsky_value()
                 self.pub_FrSky.publish(self.FrSky_msg)
 
             # Placeholder bogie status check
-            if (self.bogie_msg.bogie_connection_1 != 0 or
-                    self.bogie_msg.bogie_connection_2 != 0 or
-                    self.bogie_msg.bogie_connection_3 != 0):
-                self.__bogie_connection_statuses()
+            if (self.bogie_msg.bogie_connection_1 != self.previous_bogie_connection_1 or
+                    self.bogie_msg.bogie_connection_2 != self.previous_bogie_connection_2 or
+                    self.bogie_msg.bogie_connection_3 != self.previous_bogie_connection_3):
+                self.__set_previous_bogie_values()
                 self.pub_bogie.publish(self.bogie_msg)
 
             # Placeholder GPS Information check
-            if (self.GPS_msg.UTC_GPS_time != 0 or self.GPS_msg.UTC_GPS_time != 0):
-                self.__gps_update()
+            if (self.GPS_msg.UTC_GPS_time != self.previous_UTC_GPS_time or
+                    self.GPS_msg.UTC_GPS_time != self.previous_GPS_connection_status):
+                self.__set_previous_gps_values()
                 self.pub_GPS.publish(self.GPS_msg)
+
+            # Placeholder Misc Information check
+            if (self.misc_msg.arm_connection_status !=
+                    self.previous_arm_connection_status or
+                    self.misc_msg.arm_end_effector_connection_statuses !=
+                    self.previous_arm_end_effector_connection_statuses or
+                    self.misc_msg.chassis_pan_tilt_connection_status !=
+                    self.previous_chassis_pan_tilt_connection_status or
+                    self.misc_msg.sample_containment_connection_status !=
+                    self.previous_sample_containment_connection_status or
+                    self.misc_msg.tower_connection_status !=
+                    self.previous_tower_connection_status):
+                self.__set_previous_misc_values()
+                self.pub_Misc.publish(self.misc_msg)
 
             # rospy.loginfo(self.msg)
             r.sleep()
