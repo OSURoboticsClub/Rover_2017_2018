@@ -92,7 +92,7 @@ Save this .zip in the same folder as the gerber ones.
 
 #### Assembling your files for being sent to the manufacturer
 
-Extract both of the drill files into their own folders. We're looking to establish the following group of files:
+Extract both of the .zip files into their own folders. We're looking to establish the following group of files:
 
 ![Gerber Files](https://sites.google.com/a/oregonstate.edu/osurcknowledgebase/_/rsrc/1506362541118/engineering-resources/electrical-engineering/pcb-design/altium-designer-to-df-robot/2015-10-18%2000_43_59-OSH%20Park%20~%20Design%20Submission%20Guidelines.png "Gerber Files")
 
