@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="ssh://rover@192.168.1.15:22/usr/bin/python" name="ssh://rover@192.168.1.15:22/usr/bin/python">
-        <fileTransfer host="192.168.1.15" port="22" accessType="SFTP">
+        <fileTransfer host="192.168.1.15" port="22" rootFolder="/home/rover" accessType="SFTP">
           <option name="port" value="22" />
         </fileTransfer>
       </webServer>
