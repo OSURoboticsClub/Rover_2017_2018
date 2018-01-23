@@ -28,13 +28,11 @@ class RoverVideoReceiver(QtCore.QThread):
     publish_message_signal = QtCore.pyqtSignal()
     image_ready_signal = QtCore.pyqtSignal()
 
-    def __init__(self, shared_objects, video_display_label, topic_path):
+    def __init__(self, camera_name):
         super(RoverVideoReceiver, self).__init__()
 
         # ########## Reference to class init variables ##########
-        self.shared_objects = shared_objects
-        self.video_display_label = video_display_label  # type:QtWidgets.QLabel
-        self.topic_path = topic_path
+        self.camera_name = camera_name
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -46,14 +44,13 @@ class RoverVideoReceiver(QtCore.QThread):
         self.run_thread_flag = True
 
         # ########## Class Variables ##########
+        self.camera_title_name = self.camera_name.replace("_", " ").title()
+
+        self.topic_path = "/cameras/" + self.camera_name + "/image_640x360/compressed"
+
         # Subscription variables
-        # self.video_subscriber = rospy.Subscriber(self.topic_path, CompressedImage,
-        #                                          self.__image_data_received_callback)  # type: rospy.Subscriber
-
-        self.subscription_queue_size = 10
-
-        # Steam name variable
-        self.video_name = self.topic_path.split("/")[2].replace("_", " ").title()
+        self.video_subscriber = rospy.Subscriber(self.topic_path, CompressedImage,
+                                                 self.__image_data_received_callback)  # type: rospy.Subscriber
 
         # Image variables
         self.raw_image = None
@@ -69,7 +66,7 @@ class RoverVideoReceiver(QtCore.QThread):
         self.__set_local_callbacks()
 
     def run(self):
-        self.logger.debug("Starting \"%s\" Thread")
+        self.logger.debug("Starting \"%s\" Camera Thread" % self.camera_title_name)
 
         while self.run_thread_flag:
             if self.video_enabled:
@@ -79,7 +76,7 @@ class RoverVideoReceiver(QtCore.QThread):
 
             self.msleep(18)
 
-        self.logger.debug("Stopping \"%s\" Thread")
+        self.logger.debug("Stopping \"%s\" Camera Thread" % self.camera_title_name)
 
     def __show_video_enabled(self):
         if self.new_frame:
@@ -98,14 +95,16 @@ class RoverVideoReceiver(QtCore.QThread):
             self.new_frame = False
 
     def __on_image_update_ready(self):
-        self.video_display_label.setPixmap(self.pixmap)
+        pass
+        # self.video_display_label.setPixmap(self.pixmap)
 
     def __image_data_received_callback(self, raw_image):
         self.raw_image = raw_image
         self.new_frame = True
 
     def __set_local_callbacks(self):
-        self.video_display_label.mouseDoubleClickEvent = self.toggle_video_display
+        pass
+        # self.video_display_label.mouseDoubleClickEvent = self.toggle_video_display
 
     def toggle_video_display(self, _):
         if self.video_enabled:

@@ -7,9 +7,11 @@ import sys
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import signal
 import rospy
+import logging
 import qdarkstyle
 
 # Custom Imports
+import Framework.StartupSystems.ROSMasterChecker as ROSMasterChecker
 import Framework.LoggingSystems.Logger as Logger
 import Framework.VideoSystems.RoverVideoCoordinator as RoverVideoCoordinator
 
@@ -55,6 +57,8 @@ class GroundStation(QtCore.QObject):
     LEFT_SCREEN_ID = 0
     RIGHT_SCREEN_ID = 1
 
+    exit_requested_signal = QtCore.pyqtSignal()
+
     start_threads_signal = QtCore.pyqtSignal()
     connect_signals_and_slots_signal = QtCore.pyqtSignal()
     kill_threads_signal = QtCore.pyqtSignal()
@@ -63,7 +67,11 @@ class GroundStation(QtCore.QObject):
         # noinspection PyArgumentList
         super(GroundStation, self).__init__(parent)
 
-        rospy.init_node("ground_station")
+        # ##### Setup the Logger Immediately #####
+        self.logger_setup_class = Logger.Logger(console_output=True)  # Doesn't need to be shared
+
+        # ########## Get the Pick And Plate instance of the logger ##########
+        self.logger = logging.getLogger("groundstation")
 
         self.shared_objects = {
             "screens": {},
@@ -71,7 +79,7 @@ class GroundStation(QtCore.QObject):
             "threaded_classes": {}
         }
 
-        # ###### Instantiate Left And Right Screens #####
+        # ###### Instantiate Left And Right Screens ######
         self.shared_objects["screens"]["left_screen"] = \
             self.create_application_window(UI_FILE_LEFT, "Rover Ground Station Left Screen",
                                            self.LEFT_SCREEN_ID)  # type: ApplicationWindow
@@ -80,33 +88,26 @@ class GroundStation(QtCore.QObject):
             self.create_application_window(UI_FILE_RIGHT, "Rover Ground Station Right Screen",
                                            self.RIGHT_SCREEN_ID)  # type: ApplicationWindow
 
-        # ##### Instantiate Simple Classes #####
-        self.logger_setup_class = Logger.Logger(console_output=True)  # Doesn't need to be shared
+        # ###### Initialize the Ground Station Node ######
+        rospy.init_node("ground_station")
 
-        # ##### Instantiate Threaded Classes #####
+        # ##### Instantiate Regular Classes ######
+
+        # ##### Instantiate Threaded Classes ######
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
-
-        # self.__add_thread("Primary Video",
-        #                   RoverVideoReceiver.RoverVideoReceiver(
-        #                       self.shared_objects,
-        #                       self.shared_objects["screens"]["right_screen"].primary_video_label,
-        #                       "/cameras/main_navigation/"))
-        # self.__add_thread("Secondary Video",
-        #                   RoverVideoReceiverOld.VideoTest(
-        #                       self.shared_objects,
-        #                       self.shared_objects["screens"]["right_screen"].secondary_video_label,
-        #                       (640, 360),
-        #                       sub_path="/cameras/chassis/image_640x360/compressed"))
-        # self.__add_thread("Tertiary Video",
-        #                   RoverVideoReceiverOld.VideoTest(
-        #                       self.shared_objects,
-        #                       self.shared_objects["screens"]["right_screen"].tertiary_video_label,
-        #                       (640, 360),
-        #                       sub_path="/cameras/undercarriage/image_640x360/compressed"))
 
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
         self.start_threads_signal.emit()
+
+    def ___ros_master_running(self):
+        checker = ROSMasterChecker.ROSMasterChecker()
+
+        if not checker.master_present(5):
+            self.logger.debug("ROS Master Not Found!!!! Exiting!!!")
+            QtGui.QGuiApplication.exit()
+            return False
+        return True
 
     def __add_thread(self, thread_name, instance):
         self.shared_objects["threaded_classes"][thread_name] = instance
@@ -121,8 +122,8 @@ class GroundStation(QtCore.QObject):
         self.kill_threads_signal.emit()
 
         # Wait for Threads
-        for thread in self.threads["threaded_classes"]:
-            self.threads["threaded_classes"][thread].wait()
+        for thread in self.shared_objects["threaded_classes"]:
+            self.shared_objects["threaded_classes"][thread].wait()
 
         QtGui.QGuiApplication.exit()
 
@@ -152,13 +153,26 @@ class GroundStation(QtCore.QObject):
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # This allows the keyboard interrupt kill to work properly
 
+    # ########## Start the QApplication Framework ##########
     application = QtWidgets.QApplication(sys.argv)  # Create the ase qt gui application
     application.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
+    # ########## Set Organization Details for QSettings ##########
     QtCore.QCoreApplication.setOrganizationName("OSURC")
     QtCore.QCoreApplication.setOrganizationDomain("http://osurobotics.club/")
     QtCore.QCoreApplication.setApplicationName("groundstation")
 
-    ground_station = GroundStation()
+    # ########## Check ROS Master Status ##########
+    master_checker = ROSMasterChecker.ROSMasterChecker()
 
+    if not master_checker.master_present(5):
+        message_box = QtWidgets.QMessageBox()
+        message_box.setWindowTitle("Rover Ground Station")
+        message_box.setText("Connection to ROS Master Failed!!!\n" +
+                            "Ensure ROS master is running or check for network issues.")
+        message_box.exec_()
+        exit()
+
+    # ########## Start Ground Station If Ready ##########
+    ground_station = GroundStation()
     application.exec_()  # Execute launching of the application

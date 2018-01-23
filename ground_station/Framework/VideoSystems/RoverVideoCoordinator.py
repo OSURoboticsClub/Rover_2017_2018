@@ -14,15 +14,17 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import CompressedImage
 
 # Custom Imports
+import RoverVideoReceiver
 
 #####################################
 # Global Variables
 #####################################
-FONT = cv2.FONT_HERSHEY_TRIPLEX
+CAMERA_TOPIC_PATH = "/cameras"
+EXCLUDED_CAMERAS = ["zed"]
 
 
 #####################################
-# RoverVideoReceiver Class Definition
+# RoverVideoCoordinator Class Definition
 #####################################
 class RoverVideoCoordinator(QtCore.QThread):
     def __init__(self, shared_objects):
@@ -44,24 +46,59 @@ class RoverVideoCoordinator(QtCore.QThread):
         # ########## Thread Flags ##########
         self.run_thread_flag = True
 
+        self.setup_cameras_flag = True
+
+        # ########## Class Variables ##########
+        self.global_start_signal = None
+        self.global_connect_signals_and_slots_signal = None
+        self.global_kill_signal = None
+
+        self.valid_cameras = []
+
+        self.camera_threads = {}
+
+        # ########## Setup cameras ##########
+        self.__get_cameras()
+        self.__setup_video_threads()
+
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
 
-        topics = rospy.get_published_topics("/cameras")
-
-        for group in topics:
-            main_topic = group[0]
-            last_section_topic = main_topic.split("/")[-1]
-            if "image_" in main_topic and "zed" not in main_topic and last_section_topic == "compressed" :
-                print group[0]
-
         while self.run_thread_flag:
+            if self.setup_cameras_flag:
 
+                self.setup_cameras_flag = False
             self.msleep(100)
+
+        self.__wait_for_camera_threads()
 
         self.logger.debug("Stopping Video Coordinator Thread")
 
-    def _get_cameras(self):
+    def __get_cameras(self):
+        topics = rospy.get_published_topics(CAMERA_TOPIC_PATH)
+
+        names = []
+
+        for topics_group in topics:
+            main_topic = topics_group[0]
+            camera_name = main_topic.split("/")[2]
+            names.append(camera_name)
+
+        names = set(names)
+
+        for camera in EXCLUDED_CAMERAS:
+            if camera in names:
+                names.remove(camera)
+
+        self.valid_cameras = list(names)
+
+    def __setup_video_threads(self):
+        for camera in self.valid_cameras:
+            self.camera_threads[camera] = RoverVideoReceiver.RoverVideoReceiver(camera)
+
+    def __wait_for_camera_threads(self):
+        for camera in self.camera_threads:
+            self.camera_threads[camera].wait()
 
     def connect_signals_and_slots(self):
         pass
@@ -71,5 +108,9 @@ class RoverVideoCoordinator(QtCore.QThread):
         signals_and_slots_signal.connect(self.connect_signals_and_slots)
         kill_signal.connect(self.on_kill_threads_requested__slot)
 
+        for camera in self.camera_threads:
+            self.camera_threads[camera].setup_signals(start_signal, signals_and_slots_signal, kill_signal)
+
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False
+
