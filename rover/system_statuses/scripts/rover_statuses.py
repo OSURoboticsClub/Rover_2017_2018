@@ -19,11 +19,11 @@ class RoverStatuses:
 
         # Subscription examples on pulling data from system_statuses_node.py
         rospy.Subscriber('camera_system_status_chatter', CameraStatuses, self.__camera_callback)
-        rospy.Subscriber('bogie_system_status_chatter', BogieStatuses, self.__camera_callback)
-        rospy.Subscriber('FrSky_system_status_chatter', FrSkyStatus, self.__camera_callback)
-        rospy.Subscriber('GPS_system_status_chatter', GPSInfo, self.__camera_callback)
-        rospy.Subscriber('jetson_system_status_chatter', JetsonInfo, self.__camera_callback)
-        rospy.Subscriber('misc_system_status_chatter', MiscStatuses, self.__camera_callback)
+        rospy.Subscriber('bogie_system_status_chatter', BogieStatuses, self.__bogie_callback)
+        rospy.Subscriber('FrSky_system_status_chatter', FrSkyStatus, self.__frsky_callback)
+        rospy.Subscriber('GPS_system_status_chatter', GPSInfo, self.__gps_callback)
+        rospy.Subscriber('jetson_system_status_chatter', JetsonInfo, self.__jetson_callback)
+        rospy.Subscriber('misc_system_status_chatter', MiscStatuses, self.__misc_callback)
 
         self.camera_msg = CameraStatuses()
         self.bogie_msg = BogieStatuses()
@@ -51,6 +51,7 @@ class RoverStatuses:
         self.jetson_msg.jetson_RAM = data.jetson_RAM
         self.jetson_msg.jetson_EMMC = data.jetson_EMMC
         self.jetson_msg.jetson_NVME_SSD = data.jetson_NVME_SSD
+        rospy.loginfo(self.jetson_msg)
 
     def __gps_callback(self, data):
         self.GPS_msg.UTC_GPS_time = data.UTC_GPS_time
@@ -65,11 +66,11 @@ class RoverStatuses:
 
     def run(self):
         rospy.Subscriber('camera_system_status_chatter', CameraStatuses, self.__camera_callback)
-        rospy.Subscriber('bogie_system_status_chatter', BogieStatuses, self.__camera_callback)
-        rospy.Subscriber('FrSky_system_status_chatter', FrSkyStatus, self.__camera_callback)
-        rospy.Subscriber('GPS_system_status_chatter', GPSInfo, self.__camera_callback)
-        rospy.Subscriber('jetson_system_status_chatter', JetsonInfo, self.__camera_callback)
-        rospy.Subscriber('misc_system_status_chatter', MiscStatuses, self.__camera_callback)
+        rospy.Subscriber('bogie_system_status_chatter', BogieStatuses, self.__bogie_callback)
+        rospy.Subscriber('FrSky_system_status_chatter', FrSkyStatus, self.__frsky_callback)
+        rospy.Subscriber('GPS_system_status_chatter', GPSInfo, self.__gps_callback)
+        rospy.Subscriber('jetson_system_status_chatter', JetsonInfo, self.__jetson_callback)
+        rospy.Subscriber('misc_system_status_chatter', MiscStatuses, self.__misc_callback)
         rospy.spin()
 
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import rospy
 import os.path
+import psutil
 from system_statuses.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
-
 
 
 class SystemStatuses:
@@ -96,8 +96,9 @@ class SystemStatuses:
 
     # Get Jetson Statuses (WIP)
     def __set_jetson_usage_information(self):
-        self.jetson_msg.jetson_CPU = 0
-        self.jetson_msg.jetson_RAM = 0
+        self.jetson_msg.jetson_CPU = psutil.cpu_percent()
+        mem = psutil.virtual_memory()
+        self.jetson_msg.jetson_RAM = mem.percent
         self.jetson_msg.jetson_EMMC = 0
         self.jetson_msg.jetson_NVME_SSD = 0
 
