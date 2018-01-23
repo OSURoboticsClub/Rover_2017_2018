@@ -62,3 +62,71 @@ Where `descriptor` is either `RAW` or `SYS`. `voltage` is represented as shown i
 For example:
 
 ![power_net_naming](http://nickmccomb.net/wp-content/uploads/2017/12/power_net_naming_iris.png "Power Net Naming for the Iris Project")
+
+### Exporting your Project
+
+#### Board Outline
+Ensure you have your board outline connector setup. You need an outline defined in the "Outline" layer (mechanical 1) as well as an exact copy on Mechanical 4 (per [CircuitMaker Fourm Post](https://circuitmaker.com/forum/posts/220409)).
+
+We need both gerber files, and NC Drill files. Gerbers tell the manufacture where to put copper, silkscreen, etc, while the NC Drill files tell them where to drill. Your guess as to why they are different processes.
+
+#### Outputting Gerbers
+
+Make sure your file is 100% ready to go (do a final Design Rule Check), and then go to the output tab and select "Gerber". You will have to commit your project to export any manufacturing files. 
+
+Choose the following settings:
+![Gerber Settings 1](http://nickmccomb.net/wp-content/uploads/2018/01/2018-01-22-17_14_34-Gerber-Setup.png "Gerber Settings 1")
+![Gerber Settings 2](http://nickmccomb.net/wp-content/uploads/2018/01/2018-01-22-17_14_55-Gerber-Setup.png "Gerber Settings 2")
+
+
+Then hit OK, and save your project into the "Node Output Files" folder in the Google Drive (if outputting a node) under your folder's name.
+
+#### Outputting NC Drill Files
+
+Select "NC Drill Files" under the output menu. You will have to commit your project again.
+
+Choose the following settings: 
+![NC Drill Settings](http://nickmccomb.net/wp-content/uploads/2018/01/2018-01-22-17_18_01-NC-Drill-Setup.png "NC Drill Settings")
+
+Save this .zip in the same folder as the gerber ones.
+
+#### Assembling your files for being sent to the manufacturer
+
+Extract both of the drill files into their own folders. We're looking to establish the following group of files:
+
+![Gerber Files](https://sites.google.com/a/oregonstate.edu/osurcknowledgebase/_/rsrc/1506362541118/engineering-resources/electrical-engineering/pcb-design/altium-designer-to-df-robot/2015-10-18%2000_43_59-OSH%20Park%20~%20Design%20Submission%20Guidelines.png "Gerber Files")
+
+Make a folder with a basic board name (e.g. "IrisBoard") that will hold your finalized board generation files. This will be your staging folder.
+
+Grab the **.TXT** from the "\*\_NC\_Drill" folder, rename it "_boardname_.XLN" and move it into your staging folder.
+
+Rename the **.GM4** file from the "\_Gerber" folder to "_boardname_.GKO" and move it to your staging folder.
+
+From the same folder, move the following files into your staging folder:
+
+* .GBL
+* .GBO
+* .GBS
+* .GTL
+* .GTO
+* .GTS
+
+You should now have all the files from the picture above in your staging folder. Make a .zip of this folder. This folder is all you have to send to the manufacturer to make your board.
+
+#### Verifying you've done this correctly
+
+Upload your design to [OshPark.com](www.oshpark.com) and make sure that they render it correctly. This is a great first pass indicator to make sure you've done this process correctly. PCBWAY will also check your boards, but this prevents some dumb mistakes in assemling your .zip file.
+
+
+#### Ordering your boards
+
+Email the Team Lead with your .zip files, and he will place the order for you. Include the following information:
+
+* Board dimensions in mm
+* Desired color for the board (if not Red for Rover)
+* Desired copper weight (1oz is the default, unless you have a reason for it to be different)
+
+
+
+
+
