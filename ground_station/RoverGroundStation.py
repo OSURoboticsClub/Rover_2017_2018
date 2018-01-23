@@ -10,6 +10,7 @@ import rospy
 import qdarkstyle
 
 # Custom Imports
+import Framework.LoggingSystems.Logger as Logger
 import Framework.VideoSystems.RoverVideoCoordinator as RoverVideoCoordinator
 
 #####################################
@@ -80,8 +81,10 @@ class GroundStation(QtCore.QObject):
                                            self.RIGHT_SCREEN_ID)  # type: ApplicationWindow
 
         # ##### Instantiate Simple Classes #####
+        self.logger_setup_class = Logger.Logger(console_output=True)  # Doesn't need to be shared
 
         # ##### Instantiate Threaded Classes #####
+        self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
 
         # self.__add_thread("Primary Video",
         #                   RoverVideoReceiver.RoverVideoReceiver(
@@ -151,6 +154,10 @@ if __name__ == "__main__":
 
     application = QtWidgets.QApplication(sys.argv)  # Create the ase qt gui application
     application.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+
+    QtCore.QCoreApplication.setOrganizationName("OSURC")
+    QtCore.QCoreApplication.setOrganizationDomain("http://osurobotics.club/")
+    QtCore.QCoreApplication.setApplicationName("groundstation")
 
     ground_station = GroundStation()
 

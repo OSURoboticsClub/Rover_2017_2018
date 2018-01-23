@@ -24,9 +24,9 @@ FONT = cv2.FONT_HERSHEY_TRIPLEX
 #####################################
 # RoverVideoReceiver Class Definition
 #####################################
-class RoverVideoReceiver(QtCore.QThread):
+class RoverVideoCoordinator(QtCore.QThread):
     def __init__(self, shared_objects):
-        super(RoverVideoReceiver, self).__init__()
+        super(RoverVideoCoordinator, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
@@ -47,11 +47,21 @@ class RoverVideoReceiver(QtCore.QThread):
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
 
+        topics = rospy.get_published_topics("/cameras")
+
+        for group in topics:
+            main_topic = group[0]
+            last_section_topic = main_topic.split("/")[-1]
+            if "image_" in main_topic and "zed" not in main_topic and last_section_topic == "compressed" :
+                print group[0]
+
         while self.run_thread_flag:
 
             self.msleep(100)
 
         self.logger.debug("Stopping Video Coordinator Thread")
+
+    def _get_cameras(self):
 
     def connect_signals_and_slots(self):
         pass

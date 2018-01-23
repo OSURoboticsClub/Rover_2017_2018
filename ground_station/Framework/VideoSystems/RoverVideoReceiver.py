@@ -50,12 +50,6 @@ class RoverVideoReceiver(QtCore.QThread):
         # self.video_subscriber = rospy.Subscriber(self.topic_path, CompressedImage,
         #                                          self.__image_data_received_callback)  # type: rospy.Subscriber
 
-        topics = rospy.get_published_topics(self.topic_path)
-
-        for group in topics:
-            if "image_" in group[0]:
-                print group[0]
-
         self.subscription_queue_size = 10
 
         # Steam name variable
@@ -102,7 +96,6 @@ class RoverVideoReceiver(QtCore.QThread):
             self.pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(fps_image))
             self.image_ready_signal.emit()
             self.new_frame = False
-
 
     def __on_image_update_ready(self):
         self.video_display_label.setPixmap(self.pixmap)
