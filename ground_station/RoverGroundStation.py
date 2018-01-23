@@ -7,6 +7,7 @@ import sys
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import signal
 import rospy
+import qdarkstyle
 
 # Custom Imports
 import Framework.VideoSystems.RoverVideoCoordinator as RoverVideoCoordinator
@@ -81,7 +82,7 @@ class GroundStation(QtCore.QObject):
         # ##### Instantiate Simple Classes #####
 
         # ##### Instantiate Threaded Classes #####
-        self
+
         # self.__add_thread("Primary Video",
         #                   RoverVideoReceiver.RoverVideoReceiver(
         #                       self.shared_objects,
@@ -106,7 +107,8 @@ class GroundStation(QtCore.QObject):
 
     def __add_thread(self, thread_name, instance):
         self.shared_objects["threaded_classes"][thread_name] = instance
-        instance.setup_signals(self.start_threads_signal, self.connect_signals_and_slots_signal, self.kill_threads_signal)
+        instance.setup_signals(self.start_threads_signal, self.connect_signals_and_slots_signal,
+                               self.kill_threads_signal)
 
     def __connect_signals_to_slots(self):
         self.shared_objects["screens"]["left_screen"].exit_requested_signal.connect(self.on_exit_requested__slot)
@@ -148,6 +150,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # This allows the keyboard interrupt kill to work properly
 
     application = QtWidgets.QApplication(sys.argv)  # Create the ase qt gui application
+    application.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
     ground_station = GroundStation()
 
