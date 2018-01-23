@@ -25,8 +25,7 @@ FONT = cv2.FONT_HERSHEY_TRIPLEX
 # RoverVideoReceiver Class Definition
 #####################################
 class RoverVideoReceiver(QtCore.QThread):
-    publish_message_signal = QtCore.pyqtSignal()
-    image_ready_signal = QtCore.pyqtSignal()
+    image_ready_signal = QtCore.pyqtSignal(str)
 
     def __init__(self, camera_name):
         super(RoverVideoReceiver, self).__init__()
@@ -54,12 +53,15 @@ class RoverVideoReceiver(QtCore.QThread):
 
         # Image variables
         self.raw_image = None
-        self.opencv_image = None
-        self.pixmap = None
+        self.opencv_1280x720_image = None
+        self.opencv_640x360_image = None
+
+        self.pixmap_1280x720_image = None
+        self.pixmap_640x360_image = None
 
         # Processing variables
         self.bridge = CvBridge()  # OpenCV ROS Video Data Processor
-        self.video_enabled = False
+        self.video_enabled = True
         self.new_frame = False
 
         # Assign local callbacks
@@ -80,10 +82,26 @@ class RoverVideoReceiver(QtCore.QThread):
 
     def __show_video_enabled(self):
         if self.new_frame:
-            self.opencv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
-            self.opencv_image = cv2.resize(self.opencv_image, (1280, 720))
-            self.pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(self.opencv_image))
-            self.image_ready_signal.emit()
+            opencv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
+
+            height, width, _ = opencv_image.shape
+
+            if width != 1280 and height != 720:
+                self.opencv_1280x720_image = cv2.resize(opencv_image, (1280, 720))
+            else:
+                self.opencv_1280x720_image = opencv_image
+
+            if width != 640 and height != 360:
+                self.opencv_640x360_image = cv2.resize(opencv_image, (640, 360))
+            else:
+                self.opencv_640x360_image = opencv_image
+
+            self.pixmap_1280x720_image = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(
+                self.opencv_1280x720_image))
+            self.pixmap_640x360_image = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(
+                self.opencv_640x360_image))
+
+            self.image_ready_signal.emit(self.camera_name)
             self.new_frame = False
 
     def __show_video_disabled(self):
@@ -91,12 +109,8 @@ class RoverVideoReceiver(QtCore.QThread):
             fps_image = np.zeros((720, 1280, 3), np.uint8)
 
             self.pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(fps_image))
-            self.image_ready_signal.emit()
+            self.image_ready_signal.emit(self.camera_name)
             self.new_frame = False
-
-    def __on_image_update_ready(self):
-        pass
-        # self.video_display_label.setPixmap(self.pixmap)
 
     def __image_data_received_callback(self, raw_image):
         self.raw_image = raw_image
@@ -117,7 +131,7 @@ class RoverVideoReceiver(QtCore.QThread):
             self.video_enabled = True
 
     def connect_signals_and_slots(self):
-        self.image_ready_signal.connect(self.__on_image_update_ready)
+        pass
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)

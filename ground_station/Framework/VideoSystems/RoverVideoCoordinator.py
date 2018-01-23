@@ -27,6 +27,8 @@ EXCLUDED_CAMERAS = ["zed"]
 # RoverVideoCoordinator Class Definition
 #####################################
 class RoverVideoCoordinator(QtCore.QThread):
+    pixmap_ready_signal = QtCore.pyqtSignal(str)
+
     def __init__(self, shared_objects):
         super(RoverVideoCoordinator, self).__init__()
 
@@ -34,8 +36,8 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.shared_objects = shared_objects
         self.right_screen = self.shared_objects["screens"]["right_screen"]
         self.primary_video_display_label = self.right_screen.primary_video_label  # type:QtWidgets.QLabel
-        self.primary_video_display_label = self.right_screen.secondary_video_label  # type:QtWidgets.QLabel
-        self.primary_video_display_label = self.right_screen.tertiary_video_label  # type:QtWidgets.QLabel
+        self.secondary_video_display_label = self.right_screen.secondary_video_label  # type:QtWidgets.QLabel
+        self.tertiary_video_display_label = self.right_screen.tertiary_video_label  # type:QtWidgets.QLabel
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -49,25 +51,26 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.setup_cameras_flag = True
 
         # ########## Class Variables ##########
-        self.global_start_signal = None
-        self.global_connect_signals_and_slots_signal = None
-        self.global_kill_signal = None
-
+        # Camera variables
+        self.camera_threads = {}
         self.valid_cameras = []
 
-        self.camera_threads = {}
-
-        # ########## Setup cameras ##########
+        # Setup cameras
         self.__get_cameras()
         self.__setup_video_threads()
+
+        self.primary_label_current_setting = 0
+        self.secondary_label_current_setting = 1
+        self.tertiary_label_current_setting = 0
+
+        self.camera_data = {x: {"new_opencv": False} for x in self.valid_cameras}
+        print self.camera_data
 
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
 
         while self.run_thread_flag:
-            if self.setup_cameras_flag:
 
-                self.setup_cameras_flag = False
             self.msleep(100)
 
         self.__wait_for_camera_threads()
@@ -101,7 +104,8 @@ class RoverVideoCoordinator(QtCore.QThread):
             self.camera_threads[camera].wait()
 
     def connect_signals_and_slots(self):
-        pass
+        for thread in self.camera_threads:
+            self.camera_threads[thread].image_ready_signal.connect(self.pixmap_ready__slot)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
@@ -110,6 +114,16 @@ class RoverVideoCoordinator(QtCore.QThread):
 
         for camera in self.camera_threads:
             self.camera_threads[camera].setup_signals(start_signal, signals_and_slots_signal, kill_signal)
+
+    def pixmap_ready__slot(self, camera):
+        if self.valid_cameras[self.primary_label_current_setting] == camera:
+            self.primary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_1280x720_image)
+
+        if self.valid_cameras[self.secondary_label_current_setting] == camera:
+            self.secondary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_640x360_image)
+
+        if self.valid_cameras[self.tertiary_label_current_setting] == camera:
+            self.tertiary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_640x360_image)
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False
