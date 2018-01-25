@@ -124,9 +124,8 @@ class GMapsStitcher(object):
 
     def _pixels_to_lat(self, iterator, lat_pixels):
         # Magic Lines
-        degree = self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)
-        temp = math.atan(math.exp(((lat_pixels + degree) - _EARTHPIX))/ _PIXRAD)
-        return math.degrees(math.pi / 2 - 2 * temp)
+        return math.degrees(math.pi / 2 - 2 * math.atan(
+            math.exp(((lat_pixels + self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)) - _EARTHPIX) / _PIXRAD)))
 
     def fetch_tiles(self):
         # cap floats to precision amount
