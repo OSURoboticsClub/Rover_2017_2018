@@ -65,6 +65,17 @@ class GMapsStitcher(object):
         self.maptype = maptype
         self.radius_meters = radius_meters
         self.num_tiles = num_tiles
+        self.display_image = self._new_image(width, height)
+        self.image_zoom = 1.0
+
+        
+        # Get the big image here
+        self._fetch()
+        middle = self.big_image.size[0] // 2
+        self.left_x = middle
+        self.upper_y = middle
+
+        self.update()
 
     def _new_image(self, width, height):
         return PIL.Image.new('RGB', (width, height))
@@ -147,3 +158,38 @@ class GMapsStitcher(object):
                 big_image.paste(tile, (j * _TILESIZE, k * _TILESIZE))
 
         big_image.save("testimage.jpg")
+
+        west = self._pixels_to_lon(0, lon_pixels)
+        east = self._pixels_to_lon(self.num_tiles - 1, lat_pixels)
+
+        north = self._pixels_to_lat(0, lat_pixels)
+        south = self._pixels_to_lat(self.num_tiles - 1, lat_pixels)
+        return big_image, (north, west), (south, east)
+
+    def get_image(self):
+        return self.display_image
+
+    def move(self, dx, dy):
+        self._constrain_x(dx)
+        self._constrain_y(dy)
+        self.update()
+
+    def _constrain_x(self, diff):
+        new_value = self.left_x - diff
+        return new_value if (new_value > 0 and (new_value < self.big_image.size[0] - self.width)) else self.left_x
+
+    def _constrain_y(self, diff):
+        new_value = self.upper_y - diff
+        return new_value if new_value > 0 and new_value < self.big_image.size[0] - self.height else self.upper_y
+
+    def update(self):
+        self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
+        self.display_image.resize((self.image_zoom, self.image_zoom))
+
+    def _fetch(self):
+        self.big_image, self.northwest, self.southeast = self.fetch_tiles()
+        print self.northwest
+
+    def useZoom(self, new_zoom):
+        self.image_zoom = new_zoom
+        self.update()
