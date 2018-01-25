@@ -13,8 +13,12 @@ import RoverVideoReceiver
 #####################################
 # Global Variables
 #####################################
-CAMERA_TOPIC_PATH = "/cameras"
+CAMERA_TOPIC_PATH = "/cameras/"
 EXCLUDED_CAMERAS = ["zed"]
+
+PRIMARY_LABEL_MAX = (640, 360)
+SECONDARY_LABEL_MAX = (256, 144)
+TERTIARY_LABEL_MAX = (256, 144)
 
 
 #####################################
@@ -48,6 +52,7 @@ class RoverVideoCoordinator(QtCore.QThread):
         # Camera variables
         self.camera_threads = {}
         self.valid_cameras = []
+        self.disabled_cameras = []
 
         # Setup cameras
         self.__get_cameras()
@@ -57,16 +62,56 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.secondary_label_current_setting = 0
         self.tertiary_label_current_setting = 0
 
+        self.primary_label_max_resolution = -1
+        self.secondary_label_max_resolution = -1
+        self.tertiary_label_max_resolution = -1
+
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
 
-        while self.run_thread_flag:
+        self.__set_max_resolutions()  # Do this initially so we don't try to disable cameras before they're set up
+        self.msleep(500)
 
-            self.msleep(100)
+        while self.run_thread_flag:
+            self.__set_max_resolutions()
+            # self.__toggle_background_cameras_if_needed()
+            self.msleep(10)
 
         self.__wait_for_camera_threads()
 
         self.logger.debug("Stopping Video Coordinator Thread")
+
+    def __set_max_resolutions(self):
+        self.primary_label_max_resolution = self.camera_threads[
+            self.valid_cameras[self.primary_label_current_setting]].current_max_resolution
+        self.secondary_label_max_resolution = self.camera_threads[
+            self.valid_cameras[self.secondary_label_current_setting]].current_max_resolution
+        self.tertiary_label_max_resolution = self.camera_threads[
+            self.valid_cameras[self.tertiary_label_current_setting]].current_max_resolution
+
+        if self.primary_label_max_resolution != PRIMARY_LABEL_MAX:
+            self.camera_threads[self.valid_cameras[self.primary_label_current_setting]].change_max_resolution_setting(
+                PRIMARY_LABEL_MAX)
+
+        if self.secondary_label_max_resolution != SECONDARY_LABEL_MAX and self.secondary_label_current_setting != self.primary_label_current_setting:
+            self.camera_threads[self.valid_cameras[self.secondary_label_current_setting]].change_max_resolution_setting(
+                SECONDARY_LABEL_MAX)
+
+        if self.tertiary_label_max_resolution != TERTIARY_LABEL_MAX and self.tertiary_label_current_setting != self.primary_label_current_setting:
+            self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].change_max_resolution_setting(
+                TERTIARY_LABEL_MAX)
+
+    def __toggle_background_cameras_if_needed(self):
+        enabled = list({self.primary_label_current_setting, self.secondary_label_current_setting,
+                        self.tertiary_label_current_setting})
+
+        for camera_index, camera_name in enumerate(self.valid_cameras):
+            if camera_index not in enabled:
+                self.camera_threads[camera_name].toggle_video_display()
+                self.disabled_cameras.append(camera_index)
+            elif camera_index in self.disabled_cameras:
+                self.camera_threads[camera_name].toggle_video_display()
+                self.disabled_cameras.remove(camera_index)
 
     def __get_cameras(self):
         topics = rospy.get_published_topics(CAMERA_TOPIC_PATH)
@@ -140,4 +185,3 @@ class RoverVideoCoordinator(QtCore.QThread):
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False
-

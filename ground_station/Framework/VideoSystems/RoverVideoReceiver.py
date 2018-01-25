@@ -17,7 +17,7 @@ from sensor_msgs.msg import CompressedImage
 #####################################
 # Global Variables
 #####################################
-FONT = cv2.FONT_HERSHEY_TRIPLEX
+CAMERA_TOPIC_PATH = "/cameras/"
 
 
 #####################################
@@ -44,11 +44,23 @@ class RoverVideoReceiver(QtCore.QThread):
         # ########## Class Variables ##########
         self.camera_title_name = self.camera_name.replace("_", " ").title()
 
-        self.topic_path = "/cameras/" + self.camera_name + "/image_640x360/compressed"
+        self.topic_base_path = CAMERA_TOPIC_PATH + self.camera_name
+        self.camera_topics = {}
+
+        self.current_max_resolution = None
+
+        self.current_camera_settings = {
+            "resolution": None,
+            "quality_setting": 80,
+
+        }
+
+        self.previous_camera_settings = self.current_camera_settings.copy()
+
+        self.temp_topic_path = CAMERA_TOPIC_PATH + self.camera_name + "/image_640x360/compressed"
 
         # Subscription variables
-        self.video_subscriber = rospy.Subscriber(self.topic_path, CompressedImage,
-                                                 self.__image_data_received_callback)  # type: rospy.Subscriber
+        self.video_subscriber = None  # type: rospy.Subscriber
 
         # Image variables
         self.raw_image = None
@@ -72,6 +84,7 @@ class RoverVideoReceiver(QtCore.QThread):
         self.camera_name_opencv_640x360_image = None
 
         self.__create_camera_name_opencv_images()
+        self.__get_camera_available_resolutions()
 
     def run(self):
         self.logger.debug("Starting \"%s\" Camera Thread" % self.camera_title_name)
@@ -82,12 +95,45 @@ class RoverVideoReceiver(QtCore.QThread):
             else:
                 self.__show_video_disabled()
 
-            self.msleep(18)
+            self.msleep(10)
 
         self.logger.debug("Stopping \"%s\" Camera Thread" % self.camera_title_name)
 
+    def __get_camera_available_resolutions(self):
+        topics = rospy.get_published_topics(self.topic_base_path)
+
+        resolution_options = []
+
+        for topics_group in topics:
+            main_topic = topics_group[0]
+            camera_name = main_topic.split("/")[3]
+            resolution_options.append(camera_name)
+
+        resolution_options = list(set(resolution_options))
+
+        for resolution in resolution_options:
+            # Creates a tuple in (width, height) format that we can use as the key
+            group = int(resolution.split("image_")[1].split("x")[0]), int(resolution.split("image_")[1].split("x")[1])
+            self.camera_topics[group] = self.topic_base_path + "/" + resolution + "/compressed"
+
+    def __update_camera_subscription_and_settings(self):
+        if self.current_camera_settings["resolution"] != self.previous_camera_settings["resolution"]:
+
+            if self.video_subscriber:
+                self.video_subscriber.unregister()
+            new_topic = self.camera_topics[self.current_camera_settings["resolution"]]
+            self.video_subscriber = rospy.Subscriber(new_topic, CompressedImage, self.__image_data_received_callback)
+
+            self.new_frame = False
+            while not self.new_frame:
+                self.msleep(10)
+
+            self.previous_camera_settings["resolution"] = self.current_camera_settings["resolution"]
+
     def __show_video_enabled(self):
-        if self.new_frame:
+        self.__update_camera_subscription_and_settings()
+        if self.new_frame and self.current_camera_settings["resolution"]:
+            # if self.raw_image:
             opencv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
 
             self.__create_final_pixmaps(opencv_image)
@@ -103,8 +149,6 @@ class RoverVideoReceiver(QtCore.QThread):
         self.image_ready_signal.emit(self.camera_name)
 
     def __create_final_pixmaps(self, opencv_image):
-
-
         height, width, _ = opencv_image.shape
 
         if width != 1280 and height != 720:
@@ -155,14 +199,21 @@ class RoverVideoReceiver(QtCore.QThread):
         self.camera_name_opencv_640x360_image = \
             cv2.resize(camera_name_opencv_image, (camera_name_width_buffered / 2, camera_name_height_buffered / 2))
 
+    def change_max_resolution_setting(self, resolution_max):
+        self.current_max_resolution = resolution_max
+        self.current_camera_settings["resolution"] = resolution_max
+
     def toggle_video_display(self):
         if self.video_enabled:
-            self.video_subscriber.unregister()
+            if self.video_subscriber:
+                self.video_subscriber.unregister()
             self.new_frame = True
             self.video_enabled = False
         else:
-            self.video_subscriber = rospy.Subscriber(self.topic_path, CompressedImage,
-                                                     self.__image_data_received_callback)
+            new_topic = self.camera_topics[self.current_camera_settings["resolution"]]
+            self.video_subscriber = rospy.Subscriber(new_topic, CompressedImage, self.__image_data_received_callback)
+            # self.video_subscriber = rospy.Subscriber(self.temp_topic_path, CompressedImage,
+            #                                          self.__image_data_received_callback)
             self.video_enabled = True
 
     def connect_signals_and_slots(self):
