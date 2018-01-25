@@ -1,5 +1,5 @@
 import mapping
 
-obj = mapping.GMapsStitcher(10000, 10000, 44.57078, -123.275998, 21, 'terrain', 200)
+obj = mapping.GMapsStitcher(1, 1, 44.57078, -123.275998, 18, 'terrain', None, 20)
 
 obj.fetch_tiles()
