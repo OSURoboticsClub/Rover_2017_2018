@@ -9,6 +9,7 @@ import numpy as np
 import qimage2ndarray
 
 import rospy
+import dynamic_reconfigure.client
 from cv_bridge import CvBridge
 from sensor_msgs.msg import CompressedImage
 
@@ -18,6 +19,9 @@ from sensor_msgs.msg import CompressedImage
 # Global Variables
 #####################################
 CAMERA_TOPIC_PATH = "/cameras/"
+
+QUALITY_MAX = 50
+QUALITY_MIN = 15
 
 
 #####################################
@@ -51,7 +55,7 @@ class RoverVideoReceiver(QtCore.QThread):
 
         self.current_camera_settings = {
             "resolution": None,
-            "quality_setting": 80,
+            "quality_setting": QUALITY_MAX,
 
         }
 
@@ -83,8 +87,13 @@ class RoverVideoReceiver(QtCore.QThread):
         self.camera_name_opencv_1280x720_image = None
         self.camera_name_opencv_640x360_image = None
 
+        # ROS Dynamic Reconfigure Client
+        self.reconfigure_clients = {}
+
+        # Initial class setup to make text images and get camera resolutions
         self.__create_camera_name_opencv_images()
         self.__get_camera_available_resolutions()
+        self.__setup_reconfigure_clients()
 
     def run(self):
         self.logger.debug("Starting \"%s\" Camera Thread" % self.camera_title_name)
@@ -98,6 +107,18 @@ class RoverVideoReceiver(QtCore.QThread):
             self.msleep(10)
 
         self.logger.debug("Stopping \"%s\" Camera Thread" % self.camera_title_name)
+
+    def __perform_quality_check_and_adjust(self):
+        self.__set_jpeg_quality(self.current_camera_settings["quality_setting"])
+
+    def __set_jpeg_quality(self, quality_setting):
+        self.reconfigure_clients[self.current_camera_settings["resolution"]].update_configuration({"jpeg_quality": quality_setting})
+
+    def __setup_reconfigure_clients(self):
+        for resolution_group in self.camera_topics:
+            image_topic_string = "image_%sx%s" % resolution_group
+            full_topic = self.topic_base_path + "/" + image_topic_string + "/compressed"
+            self.reconfigure_clients[resolution_group] = dynamic_reconfigure.client.Client(full_topic)
 
     def __get_camera_available_resolutions(self):
         topics = rospy.get_published_topics(self.topic_base_path)
@@ -132,8 +153,10 @@ class RoverVideoReceiver(QtCore.QThread):
 
     def __show_video_enabled(self):
         self.__update_camera_subscription_and_settings()
+        
         if self.new_frame and self.current_camera_settings["resolution"]:
-            # if self.raw_image:
+            self.__perform_quality_check_and_adjust()
+
             opencv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
 
             self.__create_final_pixmaps(opencv_image)
@@ -212,8 +235,6 @@ class RoverVideoReceiver(QtCore.QThread):
         else:
             new_topic = self.camera_topics[self.current_camera_settings["resolution"]]
             self.video_subscriber = rospy.Subscriber(new_topic, CompressedImage, self.__image_data_received_callback)
-            # self.video_subscriber = rospy.Subscriber(self.temp_topic_path, CompressedImage,
-            #                                          self.__image_data_received_callback)
             self.video_enabled = True
 
     def connect_signals_and_slots(self):
