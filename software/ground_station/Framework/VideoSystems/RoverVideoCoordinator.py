@@ -66,6 +66,8 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.secondary_label_max_resolution = -1
         self.tertiary_label_max_resolution = -1
 
+        self.first_image_received = False
+
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
 
@@ -74,7 +76,7 @@ class RoverVideoCoordinator(QtCore.QThread):
 
         while self.run_thread_flag:
             self.__set_max_resolutions()
-            # self.__toggle_background_cameras_if_needed()
+            self.__toggle_background_cameras_if_needed()
             self.msleep(10)
 
         self.__wait_for_camera_threads()
@@ -102,16 +104,17 @@ class RoverVideoCoordinator(QtCore.QThread):
                 TERTIARY_LABEL_MAX)
 
     def __toggle_background_cameras_if_needed(self):
-        enabled = list({self.primary_label_current_setting, self.secondary_label_current_setting,
-                        self.tertiary_label_current_setting})
+        if self.first_image_received:
+            enabled = list({self.primary_label_current_setting, self.secondary_label_current_setting,
+                            self.tertiary_label_current_setting})
 
-        for camera_index, camera_name in enumerate(self.valid_cameras):
-            if camera_index not in enabled:
-                self.camera_threads[camera_name].toggle_video_display()
-                self.disabled_cameras.append(camera_index)
-            elif camera_index in self.disabled_cameras:
-                self.camera_threads[camera_name].toggle_video_display()
-                self.disabled_cameras.remove(camera_index)
+            for camera_index, camera_name in enumerate(self.valid_cameras):
+                if camera_index not in enabled and camera_index not in self.disabled_cameras:
+                    self.camera_threads[camera_name].toggle_video_display()
+                    self.disabled_cameras.append(camera_index)
+                elif camera_index in enabled and camera_index in self.disabled_cameras:
+                    self.camera_threads[camera_name].toggle_video_display()
+                    self.disabled_cameras.remove(camera_index)
 
     def __get_cameras(self):
         topics = rospy.get_published_topics(CAMERA_TOPIC_PATH)
@@ -174,6 +177,9 @@ class RoverVideoCoordinator(QtCore.QThread):
             self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].toggle_video_display()
 
     def pixmap_ready__slot(self, camera):
+        if not self.first_image_received:
+            self.first_image_received = True
+
         if self.valid_cameras[self.primary_label_current_setting] == camera:
             self.primary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_1280x720_image)
 
