@@ -1,4 +1,4 @@
 float64 jetson_CPU
 float64 jetson_RAM
-int8 jetson_EMMC
-int8 jetson_NVME_SSD
+float64 jetson_EMMC
+float64 jetson_NVME_SSD

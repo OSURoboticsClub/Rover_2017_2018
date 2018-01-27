@@ -2,6 +2,7 @@
 import rospy
 import os.path
 import psutil
+import subprocess
 from system_statuses.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
 
 
@@ -14,6 +15,13 @@ class SystemStatuses:
             '/dev/rover/camera_undercarriage',
             '/dev/rover/camera_chassis',
             '/dev/rover/camera_main_navigation'
+        ]
+
+        # filesystem paths for EMMC [0] and NVME_SSD [1]
+        # -- UPDATE [1] FOR JETSON --
+        self.file_systems_EMMC_NVMe_SSD = [
+            '/',
+            '/dev/shm'
         ]
 
         rospy.init_node('SystemStatuses')
@@ -99,8 +107,20 @@ class SystemStatuses:
         self.jetson_msg.jetson_CPU = psutil.cpu_percent()
         mem = psutil.virtual_memory()
         self.jetson_msg.jetson_RAM = mem.percent
-        self.jetson_msg.jetson_EMMC = 0
-        self.jetson_msg.jetson_NVME_SSD = 0
+        self.jetson_msg.jetson_EMMC = self.__used_percent_fs(self.file_systems_EMMC_NVMe_SSD[0])
+        self.jetson_msg.jetson_NVME_SSD = self.__used_percent_fs(self.file_systems_EMMC_NVMe_SSD[1])
+
+    # EMMC and NVMe_SSD used % calculation
+    def __used_percent_fs(self, pathname):
+        statvfs = os.statvfs(pathname)
+        # percentage :: USED:
+        #   used amount: blocks - bfree
+        #   used%: used_amount / (used_amount + bavail)
+        used_available = (statvfs.f_frsize * statvfs.f_blocks / 1024) - (statvfs.f_frsize * statvfs.f_bfree / 1024.0)
+        used_percent = used_available / (used_available + (statvfs.f_frsize * statvfs.f_bavail / 1024.0))
+        # Round 4 for 2 decimal accuracy
+        value = 100 * round(used_percent, 4)
+        return value
 
     # Check FrSky Controller Connection Status (WIP)
     def __set_frsky_controller_connection_status(self):
