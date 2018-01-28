@@ -111,10 +111,16 @@ class SystemStatuses:
         self.jetson_msg.jetson_NVME_SSD = self.__used_percent_fs(self.file_systems_EMMC_NVMe_SSD[1])
 
         # Temperature
-        sensor_temperatures = subprocess.check_output("sensors | grep temp", shell=True)
-        parsed_temps = sensor_temperatures.replace("\xc2\xb0C","").replace("(crit = ","").replace("temp1:","")\
-            .replace("\n","").replace("+","").split()
-        self.jetson_msg.jetson_GPU_temp = parsed_temps[4]
+        # This try except causes a bunch of annoying messages, but lets it run on non-jetson devices
+        # sets to -1.0 if sensor fails to give it a default value notifying failure to pull
+        try:
+            sensor_temperatures = subprocess.check_output("sensors | grep temp", shell=True)
+            parsed_temps = sensor_temperatures.replace("\xc2\xb0C","").replace("(crit = ","").replace("temp1:","")\
+                .replace("\n","").replace("+","").split()
+            self.jetson_msg.jetson_GPU_temp = parsed_temps[4]
+        except subprocess.CalledProcessError:
+            print 'sensors call failed (potential reason: on VM)'
+            self.jetson_msg.jetson_GPU_temp = -1.0
 
     # EMMC and NVMe_SSD used % calculation
     def __used_percent_fs(self, pathname):

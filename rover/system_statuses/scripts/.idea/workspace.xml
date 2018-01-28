@@ -14,16 +14,16 @@
       <file leaf-file-name="system_statuses_node.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="137">
-              <caret line="116" column="57" lean-forward="true" selection-start-line="116" selection-start-column="57" selection-end-line="116" selection-end-column="57" />
+            <state relative-caret-position="401">
+              <caret line="121" column="65" lean-forward="false" selection-start-line="121" selection-start-column="65" selection-end-line="121" selection-end-column="65" />
               <folding>
                 <element signature="e#22#34#0" expanded="true" />
-                <element signature="e#6122#6413#0" expanded="false" />
-                <element signature="e#6842#6942#0" expanded="false" />
-                <element signature="e#6995#7217#0" expanded="false" />
-                <element signature="e#7268#7403#0" expanded="false" />
-                <element signature="e#7455#7946#0" expanded="false" />
-                <marker date="1517103102832" expanded="true" signature="6070:7946" ph="..." />
+                <element signature="e#6507#6798#0" expanded="false" />
+                <element signature="e#7227#7327#0" expanded="false" />
+                <element signature="e#7380#7602#0" expanded="false" />
+                <element signature="e#7653#7788#0" expanded="false" />
+                <element signature="e#7840#8331#0" expanded="false" />
+                <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
               </folding>
             </state>
           </provider>
@@ -56,8 +56,8 @@
         <option value="$PROJECT_DIR$/system_statuses.py" />
         <option value="$PROJECT_DIR$/node_statuses.py" />
         <option value="$PROJECT_DIR$/camera_2_updater.py" />
-        <option value="$PROJECT_DIR$/system_statuses_node.py" />
         <option value="$PROJECT_DIR$/rover_statuses.py" />
+        <option value="$PROJECT_DIR$/system_statuses_node.py" />
       </list>
     </option>
   </component>
@@ -181,12 +181,12 @@
           <caret line="124" column="61" lean-forward="false" selection-start-line="124" selection-start-column="61" selection-end-line="124" selection-end-column="61" />
           <folding>
             <element signature="e#22#34#0" expanded="true" />
-            <element signature="e#6122#6413#0" expanded="false" />
-            <element signature="e#6842#6942#0" expanded="false" />
-            <element signature="e#6995#7217#0" expanded="false" />
-            <element signature="e#7268#7403#0" expanded="false" />
-            <element signature="e#7455#7946#0" expanded="false" />
-            <marker date="1517103102832" expanded="true" signature="6070:7946" ph="..." />
+            <element signature="e#6507#6798#0" expanded="false" />
+            <element signature="e#7227#7327#0" expanded="false" />
+            <element signature="e#7380#7602#0" expanded="false" />
+            <element signature="e#7653#7788#0" expanded="false" />
+            <element signature="e#7840#8331#0" expanded="false" />
+            <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
           </folding>
         </state>
       </provider>
@@ -207,12 +207,12 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#22#34#0" expanded="true" />
-            <element signature="e#6122#6413#0" expanded="false" />
-            <element signature="e#6842#6942#0" expanded="false" />
-            <element signature="e#6995#7217#0" expanded="false" />
-            <element signature="e#7268#7403#0" expanded="false" />
-            <element signature="e#7455#7946#0" expanded="false" />
-            <marker date="1517103102832" expanded="true" signature="6070:7946" ph="..." />
+            <element signature="e#6507#6798#0" expanded="false" />
+            <element signature="e#7227#7327#0" expanded="false" />
+            <element signature="e#7380#7602#0" expanded="false" />
+            <element signature="e#7653#7788#0" expanded="false" />
+            <element signature="e#7840#8331#0" expanded="false" />
+            <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
           </folding>
         </state>
       </provider>
@@ -248,16 +248,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="137">
-          <caret line="116" column="57" lean-forward="true" selection-start-line="116" selection-start-column="57" selection-end-line="116" selection-end-column="57" />
+        <state relative-caret-position="401">
+          <caret line="121" column="65" lean-forward="false" selection-start-line="121" selection-start-column="65" selection-end-line="121" selection-end-column="65" />
           <folding>
             <element signature="e#22#34#0" expanded="true" />
-            <element signature="e#6122#6413#0" expanded="false" />
-            <element signature="e#6842#6942#0" expanded="false" />
-            <element signature="e#6995#7217#0" expanded="false" />
-            <element signature="e#7268#7403#0" expanded="false" />
-            <element signature="e#7455#7946#0" expanded="false" />
-            <marker date="1517103102832" expanded="true" signature="6070:7946" ph="..." />
+            <element signature="e#6507#6798#0" expanded="false" />
+            <element signature="e#7227#7327#0" expanded="false" />
+            <element signature="e#7380#7602#0" expanded="false" />
+            <element signature="e#7653#7788#0" expanded="false" />
+            <element signature="e#7840#8331#0" expanded="false" />
+            <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
           </folding>
         </state>
       </provider>
