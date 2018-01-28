@@ -51,6 +51,7 @@ class RoverStatuses:
         self.jetson_msg.jetson_RAM = data.jetson_RAM
         self.jetson_msg.jetson_EMMC = data.jetson_EMMC
         self.jetson_msg.jetson_NVME_SSD = data.jetson_NVME_SSD
+        self.jetson_msg.jetson_GPU_temp = data.jetson_GPU_temp
         rospy.loginfo(self.jetson_msg)
 
     def __gps_callback(self, data):

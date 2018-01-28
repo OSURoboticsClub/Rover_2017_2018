@@ -110,6 +110,12 @@ class SystemStatuses:
         self.jetson_msg.jetson_EMMC = self.__used_percent_fs(self.file_systems_EMMC_NVMe_SSD[0])
         self.jetson_msg.jetson_NVME_SSD = self.__used_percent_fs(self.file_systems_EMMC_NVMe_SSD[1])
 
+        # Temperature
+        sensor_temperatures = subprocess.check_output("sensors | grep temp", shell=True)
+        parsed_temps = sensor_temperatures.replace("\xc2\xb0C","").replace("(crit = ","").replace("temp1:","")\
+            .replace("\n","").replace("+","").split()
+        self.jetson_msg.jetson_GPU_temp = parsed_temps[4]
+
     # EMMC and NVMe_SSD used % calculation
     def __used_percent_fs(self, pathname):
         statvfs = os.statvfs(pathname)
@@ -146,6 +152,7 @@ class SystemStatuses:
         self.previous_jetson_RAM = self.jetson_msg.jetson_RAM
         self.previous_jetson_EMMC = self.jetson_msg.jetson_EMMC
         self.previous_jetson_NVME_SSD = self.jetson_msg.jetson_NVME_SSD
+        self.previous_jetson_GPU_temp = self.jetson_msg.jetson_GPU_temp
 
     def __set_previous_frsky_value(self):
         self.previous_FrSky_controller_connection_status = self.FrSky_msg.FrSky_controller_connection_status
@@ -185,7 +192,8 @@ class SystemStatuses:
             if (self.jetson_msg.jetson_CPU != self.previous_jetson_CPU or
                     self.jetson_msg.jetson_RAM != self.previous_jetson_RAM or
                     self.jetson_msg.jetson_EMMC != self.previous_jetson_EMMC or
-                    self.jetson_msg.jetson_NVME_SSD != self.previous_jetson_NVME_SSD):
+                    self.jetson_msg.jetson_NVME_SSD != self.previous_jetson_NVME_SSD or
+                    self.jetson_msg.jetson_GPU_temp != self.previous_jetson_GPU_temp):
                 self.__set_previous_jetson_values()
                 self.pub_jetson.publish(self.jetson_msg)
 
