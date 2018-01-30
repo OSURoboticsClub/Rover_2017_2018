@@ -1,0 +1,2 @@
+int8 UTC_GPS_time
+int8 GPS_connection_status
