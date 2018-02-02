@@ -74,10 +74,21 @@ class GMapsStitcher(object):
         # Get the big image here
         self._fetch()
         self.center_display(latitude, longitude)
-
-    def obj_print(self):
-        print("Center of the map is at "+ str(self.center_x)+"x"+str(self.center_y))
-        print("The start of the box is at "+str(self.left_x)+"x"+str(self.upper_y))
+    
+    def __str__(self):
+        string_builder = ""
+        string_builder += "Center of the displayed map: %dx%d\n" % (self.center_x, self.center_y)
+        string_builder += "Center of the big map: %dx%d\n" % (self.start_longitude, self.start_longitude)
+        string_builder += "Current latitude is: %4fx%4f\n" % (self.longitude, self.latitude)
+        string_builder += "The top-left of the box: %dx%d\n" % (self.left_x, self.upper_y)
+        string_builder += "Number of tiles genreated: %dx%d\n" % (self.num_tiles, self.num_tiles)
+        string_builder += "Map Type: %s\n" % (self.maptype)
+        string_builder += "Zoom Level: %s\n" % (self.zoom)
+        string_builder += "Dimensions of Big Image: %dx%d\n" % (self.big_image.size[0], self.big_image.size[1])
+        string_builder += "Dimensions of Displayed Image: %dx%d\n" % (self.width, self.height)
+        string_builder += "LatLong of Northwest Corner: %4fx%4f\n" % (self.northwest)
+        string_builder += "LatLong of Southeast Corner: %4fx%4f\n" % (self.southeast)
+        return string_builder
 
     def _new_image(self, width, height):
         return PIL.Image.new('RGBA', (width, height))
@@ -195,7 +206,7 @@ class GMapsStitcher(object):
         viewport_lat_diff = viewport_lat_nw - viewport_lat_se
         viewport_lon_diff = viewport_lon_se - viewport_lon_nw
 
-        print viewport_lon_diff, viewport_lat_diff
+        # print viewport_lon_diff, viewport_lat_diff
 
         bigimage_width = self.big_image.size[0]
         bigimage_height = self.big_image.size[1]
