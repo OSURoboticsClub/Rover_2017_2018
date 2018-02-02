@@ -27,6 +27,7 @@ from io import StringIO, BytesIO
 import os
 import time
 import PIL.Image
+import PIL.ImageDraw
 import signing
 
 #####################################
@@ -49,6 +50,7 @@ _TILESIZE = 640
 _GRABRATE = 4
 # Pixel Radius of Earth for calculations
 _PIXRAD = _EARTHPIX / math.pi
+_DISPLAYPIX = _EARTHPIX / 2000
 
 file_pointer = open('key', 'r')
 for i in file_pointer:
@@ -64,6 +66,8 @@ class GMapsStitcher(object):
                  maptype, radius_meters=None, num_tiles=4):
         self.latitude = latitude
         self.longitude = longitude
+        self.start_latitude = latitude
+        self.start_longitude = longitude
         self.width = width
         self.height = height
         self.zoom = zoom
@@ -71,19 +75,17 @@ class GMapsStitcher(object):
         self.radius_meters = radius_meters
         self.num_tiles = num_tiles
         self.display_image = self._new_image(width, height)
-        self.image_zoom = 1.0
 
-        
         # Get the big image here
         self._fetch()
-        middle = self.big_image.size[0] // 2
-        self.left_x = middle
-        self.upper_y = middle
+        self.center_display(latitude, longitude)
 
-        self.update()
+    def obj_print(self):
+        print("Center of the map is at "+ str(self.center_x)+"x"+str(self.center_y))
+        print("The start of the box is at "+str(self.left_x)+"x"+str(self.upper_y))
 
     def _new_image(self, width, height):
-        return PIL.Image.new('RGB', (width, height))
+        return PIL.Image.new('RGBA', (width, height))
 
     def _fast_round(self, value, precision):
         return int(value * 10 ** precision) / 10. ** precision
@@ -99,11 +101,11 @@ class GMapsStitcher(object):
         # Make the url string for polling
         # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
-        urlbase += 'center=%f,%f&zoom=%d&maptype=%s&size=%dx%d&format=jpg&key=%s'
+        urlbase += 'center=%.4f,%.4f&zoom=%d&maptype=%s&size=%dx%d&format=png&key=%s'
 
         # Fill the formatting
-        specs = latitude, longitude, self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0]
-        filename = 'Resources/Maps/' + ('%f_%f_%d_%s_%d_%d_%s' % specs) + '.jpg'
+        specs = self._fast_round(latitude, 4), self._fast_round(longitude, 4), self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0]
+        filename = 'Resources/Maps/' + ('%.4f_%.4f_%d_%s_%d_%d_%s' % specs) + '.png'
 
         # Tile Image object
         tile_object = None
@@ -151,21 +153,27 @@ class GMapsStitcher(object):
 
         sin_lat = math.sin(math.radians(self.latitude))
         lat_pixels = _EARTHPIX - _PIXRAD * math.log((1+sin_lat)/(1-sin_lat))/2
-        big_size = self.num_tiles * _TILESIZE
-
-        big_image = self._new_image(big_size, big_size)
+        self.big_size = self.num_tiles * _TILESIZE
+        big_image = self._new_image(self.big_size, self.big_size)
 
         for j in range(self.num_tiles):
             lon = self._pixels_to_lon(j, lon_pixels)
+            if j is 0:
+                self.big_map_lon_small = lon
+            if j is 19:
+                self.big_map_lon_big = lon
             for k in range(self.num_tiles):
                 lat = self._pixels_to_lat(k, lat_pixels)
+                #print "j, k", j, k
+                if k is 0:
+                    self.big_map_lat_small = lat
+                if k is 19:
+                    self.big_map_lat_big = lat
                 tile = self._grab_tile(lon, lat)
                 big_image.paste(tile, (j * _TILESIZE, k * _TILESIZE))
 
-        big_image.save("testimage.jpg")
-
         west = self._pixels_to_lon(0, lon_pixels)
-        east = self._pixels_to_lon(self.num_tiles - 1, lat_pixels)
+        east = self._pixels_to_lon(self.num_tiles - 1, lon_pixels)
 
         north = self._pixels_to_lat(0, lat_pixels)
         south = self._pixels_to_lat(self.num_tiles - 1, lat_pixels)
@@ -174,7 +182,7 @@ class GMapsStitcher(object):
     def get_image(self):
         return self.display_image
 
-    def move(self, dx, dy):
+    def move_pix(self, dx, dy):
         self._constrain_x(dx)
         self._constrain_y(dy)
         self.update()
@@ -189,12 +197,132 @@ class GMapsStitcher(object):
 
     def update(self):
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
-        self.display_image.resize((self.image_zoom, self.image_zoom))
+        # self.display_image.resize((self.image_zoom, self.image_zoom))
 
     def _fetch(self):
         self.big_image, self.northwest, self.southeast = self.fetch_tiles()
-        print self.northwest
 
-    def useZoom(self, new_zoom):
-        self.image_zoom = new_zoom
+
+    def _merc_proj(self, lat):
+        return math.log(math.tan((lat/2.) + (math.pi/4.)))
+
+    def move_latlon(self, lat, lon):
+        # print "Lat", self.big_map_lat_small, self.big_map_lat_big
+        # print "Lng", self.big_map_lon_small, self.big_map_lon_big
+
+        # east = math.radians(self.big_map_lon_big)
+        # west = math.radians(self.big_map_lon_small)
+        # north = math.radians(self.big_map_lat_small)
+        # south = math.radians(self.big_map_lat_big)
+        # print north, south
+        # print "east-west", (east-west)
+
+        # y_min = self._merc_proj(south)
+        # y_max = self._merc_proj(north)
+
+        # x_factor = self.big_size/(east-west)
+        # print x_factor
+        # y_factor = self.big_size/(y_max - y_min)
+        # print y_factor
+
+        # print "rads lon", math.radians(lon)
+        # x = (math.radians(lon) - east) * x_factor
+        # y = (y_max - self._merc_proj(math.radians(lat))) * y_factor
+        # print x, y
+        # return x*.1, y
+
+        viewport_lat_nw, viewport_lon_nw = self.northwest
+        viewport_lat_se, viewport_lon_se = self.southeast
+        print "Lat:", viewport_lat_nw, viewport_lat_se
+        print "Lon:", viewport_lon_nw, viewport_lon_se
+
+        viewport_lat_diff = viewport_lat_nw - viewport_lat_se
+        viewport_lon_diff = viewport_lon_se - viewport_lon_nw
+
+        print viewport_lon_diff, viewport_lat_diff
+
+        bigimage_width = self.big_image.size[0]
+        bigimage_height = self.big_image.size[1]
+
+        pixel_per_lat = bigimage_height / viewport_lat_diff
+        pixel_per_lon = bigimage_width / viewport_lon_diff
+        print "Pixel per:", pixel_per_lat, pixel_per_lon
+
+        new_lat_gps_range_percentage = (viewport_lat_nw - lat)
+        new_lon_gps_range_percentage = (lon - viewport_lon_nw)
+        print lon, viewport_lon_se
+
+        print "Percentages: ", new_lat_gps_range_percentage, new_lon_gps_range_percentage
+
+        x = new_lon_gps_range_percentage * pixel_per_lon
+        y = new_lat_gps_range_percentage * pixel_per_lat
+
+        print x, y
+        return y, x
+
+        # east = (self.big_map_lon_big) - (.0034)
+        # west = (self.big_map_lon_small) + (.0034)
+        # north = (self.big_map_lat_small) + (.0025)
+        # south = (self.big_map_lat_big) - (.0025)
+        # lng_diff = west - east
+        # lat_diff = north - south
+
+
+        # x = int(((east - lon)/lng_diff)*self.big_image.size[0])
+        # y = int(((north - lat)/lat_diff)*self.big_image.size[1])
+
+        # print x, y
+        # return x, y
+
+    def _get_cartesian(self, lat, lon):
+        viewport_lat_nw, viewport_lon_nw = self.northwest
+        viewport_lat_se, viewport_lon_se = self.southeast
+        print "Lat:", viewport_lat_nw, viewport_lat_se
+        print "Lon:", viewport_lon_nw, viewport_lon_se
+
+        viewport_lat_diff = viewport_lat_nw - viewport_lat_se
+        viewport_lon_diff = viewport_lon_se - viewport_lon_nw
+
+        print viewport_lon_diff, viewport_lat_diff
+
+        bigimage_width = self.big_image.size[0]
+        bigimage_height = self.big_image.size[1]
+
+        pixel_per_lat = bigimage_height / viewport_lat_diff
+        pixel_per_lon = bigimage_width / viewport_lon_diff
+        print "Pixel per:", pixel_per_lat, pixel_per_lon
+
+        new_lat_gps_range_percentage = (viewport_lat_nw - lat)
+        new_lon_gps_range_percentage = (lon - viewport_lon_nw)
+        print lon, viewport_lon_se
+
+        print "Percentages: ", new_lat_gps_range_percentage, new_lon_gps_range_percentage
+
+        x = new_lon_gps_range_percentage * pixel_per_lon
+        y = new_lat_gps_range_percentage * pixel_per_lat
+
+        return int(x), int(y)
+
+    def add_gps_location(self, lat, lon, shape, size, fill):
+        x, y = self._get_cartesian(lat, lon)
+        draw = PIL.ImageDraw.Draw(self.big_image)
+        if shape is "ellipsis":
+            draw.ellipsis((x-size, y-size, x+size, y+size), fill)
+        else:
+            draw.rectangle([x-size, y-size, x+size, y+size], fill)
+
         self.update()
+
+
+    def center_display(self, lat, lon):
+        x, y = self._get_cartesian(lat, lon)
+        self.center_x = x
+        self.center_y = y
+
+        self.left_x = (self.center_x - (self.width/2))
+        self.upper_y = (self.center_y - (self.height/2))
+        self.update()
+
+
+    def update_rover_map_location(self, lat, lon):
+        print "I did nothing"
