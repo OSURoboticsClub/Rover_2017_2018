@@ -51,9 +51,6 @@ for i in file_pointer:
     _KEYS.append(i.rstrip())
 file_pointer.close()
 
-print _KEYS
-
-
 class GMapsStitcher(object):
     def __init__(self, width, height,
                  latitude, longitude, zoom,
@@ -77,17 +74,17 @@ class GMapsStitcher(object):
     
     def __str__(self):
         string_builder = ""
-        string_builder += "Center of the displayed map: %dx%d\n" % (self.center_x, self.center_y)
-        string_builder += "Center of the big map: %dx%d\n" % (self.start_longitude, self.start_longitude)
-        string_builder += "Current latitude is: %4fx%4f\n" % (self.longitude, self.latitude)
+        string_builder += "Center of the displayed map: %4f, %4f\n" % (self.center_x, self.center_y)
+        string_builder += "Center of the big map: %4fx%4f\n" % (self.start_longitude, self.start_longitude)
+        string_builder += "Current latitude is: %4f, %4f\n" % (self.longitude, self.latitude)
         string_builder += "The top-left of the box: %dx%d\n" % (self.left_x, self.upper_y)
         string_builder += "Number of tiles genreated: %dx%d\n" % (self.num_tiles, self.num_tiles)
         string_builder += "Map Type: %s\n" % (self.maptype)
         string_builder += "Zoom Level: %s\n" % (self.zoom)
         string_builder += "Dimensions of Big Image: %dx%d\n" % (self.big_image.size[0], self.big_image.size[1])
         string_builder += "Dimensions of Displayed Image: %dx%d\n" % (self.width, self.height)
-        string_builder += "LatLong of Northwest Corner: %4fx%4f\n" % (self.northwest)
-        string_builder += "LatLong of Southeast Corner: %4fx%4f\n" % (self.southeast)
+        string_builder += "LatLong of Northwest Corner: %4f, %4f\n" % (self.northwest)
+        string_builder += "LatLong of Southeast Corner: %4f, %4f\n" % (self.southeast)
         return string_builder
 
     def _new_image(self, width, height):

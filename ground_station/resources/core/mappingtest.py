@@ -21,4 +21,4 @@ obj.center_display(44.567161, -123.278432)
 obj.display_image.save("centered.png")
 obj.big_image.save("toobig.png")
 
-obj.obj_print()
+print obj
