@@ -20,7 +20,7 @@ from sensor_msgs.msg import CompressedImage
 #####################################
 CAMERA_TOPIC_PATH = "/cameras/"
 
-QUALITY_MAX = 50
+QUALITY_MAX = 80
 QUALITY_MIN = 15
 
 
@@ -153,7 +153,7 @@ class RoverVideoReceiver(QtCore.QThread):
 
     def __show_video_enabled(self):
         self.__update_camera_subscription_and_settings()
-        
+
         if self.new_frame and self.current_camera_settings["resolution"]:
             self.__perform_quality_check_and_adjust()
 
