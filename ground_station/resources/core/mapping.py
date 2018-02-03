@@ -89,10 +89,6 @@ class GMapsStitcher(object):
         string_builder += "LatLong of Southeast Corner: %4f, %4f\n" % (self.southeast)
         return string_builder
 
-    def _pixels_to_meters(self):
-          # https://groups.google.com/forum/#!topic/google-maps-js-api-v3/hDRO4oHVSeM
-        return 2 ** self.zoom / (156543.03392 * math.cos(math.radians(self.latitude)))
-
     def _grab_tile(self, longitude, latitude, sleeptime=0):
         # Make the url string for polling
         # GET request header gets appended to the string
@@ -141,7 +137,7 @@ class GMapsStitcher(object):
 
         # number of tiles required to go from center latitude to desired radius in meters
         if self.radius_meters is not None:
-            self.num_tiles = int(round(2*self._pixels_to_meters() / (_TILESIZE / 2. / self.radius_meters)))
+            self.num_tiles = int(round(2*self.helper.pixels_to_meters(self.latitude, self.zoom) / (_TILESIZE / 2. / self.radius_meters)))
 
         lon_pixels = _EARTHPIX + self.longitude * math.radians(_PIXRAD)
 
