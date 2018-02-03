@@ -9,3 +9,6 @@ class MapHelper(object):
 
     def fast_round(self, value, precision):
         return int(value * 10 ** precision) / 10. ** precision
+
+    def pixels_to_degrees(self, pixels, zoom):
+        return pixels * 2 ** (21-zoom)

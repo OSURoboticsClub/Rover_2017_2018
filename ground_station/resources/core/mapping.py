@@ -88,9 +88,6 @@ class GMapsStitcher(object):
         string_builder += "LatLong of Southeast Corner: %4f, %4f\n" % (self.southeast)
         return string_builder
 
-    def _pixels_to_degrees(self, pixels, zoom):
-        return pixels * 2 ** (21-zoom)
-
     def _pixels_to_meters(self):
           # https://groups.google.com/forum/#!topic/google-maps-js-api-v3/hDRO4oHVSeM
         return 2 ** self.zoom / (156543.03392 * math.cos(math.radians(self.latitude)))
@@ -128,13 +125,13 @@ class GMapsStitcher(object):
 
     def _pixels_to_lon(self, iterator, lon_pixels):
         # Magic Lines, no idea
-        degrees = self._pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
+        degrees = self.helper.pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
         return math.degrees((lon_pixels + degrees - _EARTHPIX) / _PIXRAD)
 
     def _pixels_to_lat(self, iterator, lat_pixels):
         # Magic Lines
         return math.degrees(math.pi / 2 - 2 * math.atan(
-            math.exp(((lat_pixels + self._pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)) - _EARTHPIX) / _PIXRAD)))
+            math.exp(((lat_pixels + self.helper.pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)) - _EARTHPIX) / _PIXRAD)))
 
     def fetch_tiles(self):
         # cap floats to precision amount
