@@ -88,9 +88,6 @@ class GMapsStitcher(object):
         string_builder += "LatLong of Southeast Corner: %4f, %4f\n" % (self.southeast)
         return string_builder
 
-    def _fast_round(self, value, precision):
-        return int(value * 10 ** precision) / 10. ** precision
-
     def _pixels_to_degrees(self, pixels, zoom):
         return pixels * 2 ** (21-zoom)
 
@@ -105,7 +102,7 @@ class GMapsStitcher(object):
         urlbase += 'center=%.4f,%.4f&zoom=%d&maptype=%s&size=%dx%d&format=png&key=%s'
 
         # Fill the formatting
-        specs = self._fast_round(latitude, 4), self._fast_round(longitude, 4), self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0]
+        specs = self.helper.fast_round(latitude, _DEGREE_PRECISION), self.helper.fast_round(longitude, _DEGREE_PRECISION), self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0]
         filename = 'Resources/Maps/' + ('%.4f_%.4f_%d_%s_%d_%d_%s' % specs) + '.png'
 
         # Tile Image object
@@ -141,8 +138,8 @@ class GMapsStitcher(object):
 
     def fetch_tiles(self):
         # cap floats to precision amount
-        self.latitude = self._fast_round(self.latitude, _DEGREE_PRECISION)
-        self.longitude = self._fast_round(self.longitude, _DEGREE_PRECISION)
+        self.latitude = self.helper.fast_round(self.latitude, _DEGREE_PRECISION)
+        self.longitude = self.helper.fast_round(self.longitude, _DEGREE_PRECISION)
 
         # number of tiles required to go from center latitude to desired radius in meters
         if self.radius_meters is not None:
