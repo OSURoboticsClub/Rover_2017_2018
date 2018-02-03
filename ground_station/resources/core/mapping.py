@@ -230,6 +230,9 @@ class GMapsStitcher(object):
         Function to move the object/rover
         """
         x, y = self._get_cartesian(lat, lon)
+        self._constrain_x(self.center_x-x)
+        self._constrain_y(self.center_y-y)
+        self.update()
 
     def _get_cartesian(self, lat, lon):
         """
