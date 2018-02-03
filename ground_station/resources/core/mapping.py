@@ -55,7 +55,7 @@ class GMapsStitcher(object):
     def __init__(self, width, height,
                  latitude, longitude, zoom,
                  maptype, radius_meters=None, num_tiles=4, debug=False):
-        helper = MapHelper.MapHelper()
+        self.helper = MapHelper.MapHelper()
         self.latitude = latitude
         self.longitude = longitude
         self.start_latitude = latitude
@@ -66,8 +66,9 @@ class GMapsStitcher(object):
         self.maptype = maptype
         self.radius_meters = radius_meters
         self.num_tiles = num_tiles
-        self.display_image = helper.new_image(width, height)
+        self.display_image = self.helper.new_image(width, height)
         self.debug = debug
+        
 
         # Get the big image here
         self._fetch()

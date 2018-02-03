@@ -1,14 +1,15 @@
 import PIL.Image
 
 class MapHelper(object):
-    def __init__(self):
-        return
 
-    def new_image(self, width, height):
+    @staticmethod
+    def new_image(width, height):
         return PIL.Image.new('RGBA', (width, height))
 
-    def fast_round(self, value, precision):
+    @staticmethod
+    def fast_round(value, precision):
         return int(value * 10 ** precision) / 10. ** precision
 
-    def pixels_to_degrees(self, pixels, zoom):
+    @staticmethod
+    def pixels_to_degrees(pixels, zoom):
         return pixels * 2 ** (21-zoom)
