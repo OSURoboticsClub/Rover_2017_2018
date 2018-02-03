@@ -14,7 +14,7 @@
       <file leaf-file-name="system_statuses_node.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="401">
+            <state relative-caret-position="190">
               <caret line="121" column="65" lean-forward="false" selection-start-line="121" selection-start-column="65" selection-end-line="121" selection-end-column="65" />
               <folding>
                 <element signature="e#22#34#0" expanded="true" />
@@ -23,7 +23,7 @@
                 <element signature="e#7380#7602#0" expanded="false" />
                 <element signature="e#7653#7788#0" expanded="false" />
                 <element signature="e#7840#8331#0" expanded="false" />
-                <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
+                <marker date="1517694600462" expanded="true" signature="6455:8331" ph="..." />
               </folding>
             </state>
           </provider>
@@ -32,7 +32,7 @@
       <file leaf-file-name="rover_statuses.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/rover_statuses.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="226">
+            <state relative-caret-position="1248">
               <caret line="53" column="62" lean-forward="false" selection-start-line="53" selection-start-column="62" selection-end-line="53" selection-end-column="62" />
               <folding>
                 <element signature="e#22#34#0" expanded="true" />
@@ -89,6 +89,7 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -100,7 +101,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -177,6 +177,58 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#22#34#0" expanded="true" />
+            <element signature="e#6507#6798#0" expanded="false" />
+            <element signature="e#7227#7327#0" expanded="false" />
+            <element signature="e#7380#7602#0" expanded="false" />
+            <element signature="e#7653#7788#0" expanded="false" />
+            <element signature="e#7840#8331#0" expanded="false" />
+            <marker date="1517694600462" expanded="true" signature="6455:8331" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rover_statuses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1248">
+          <caret line="53" column="62" lean-forward="false" selection-start-line="53" selection-start-column="62" selection-end-line="53" selection-end-column="62" />
+          <folding>
+            <element signature="e#22#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#22#34#0" expanded="true" />
+            <element signature="e#6507#6798#0" expanded="false" />
+            <element signature="e#7227#7327#0" expanded="false" />
+            <element signature="e#7380#7602#0" expanded="false" />
+            <element signature="e#7653#7788#0" expanded="false" />
+            <element signature="e#7840#8331#0" expanded="false" />
+            <marker date="1517694600462" expanded="true" signature="6455:8331" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rover_statuses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1248">
+          <caret line="53" column="62" lean-forward="false" selection-start-line="53" selection-start-column="62" selection-end-line="53" selection-end-column="62" />
+          <folding>
+            <element signature="e#22#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2976">
           <caret line="124" column="61" lean-forward="false" selection-start-line="124" selection-start-column="61" selection-end-line="124" selection-end-column="61" />
           <folding>
@@ -186,7 +238,7 @@
             <element signature="e#7380#7602#0" expanded="false" />
             <element signature="e#7653#7788#0" expanded="false" />
             <element signature="e#7840#8331#0" expanded="false" />
-            <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
+            <marker date="1517694600462" expanded="true" signature="6455:8331" ph="..." />
           </folding>
         </state>
       </provider>
@@ -212,7 +264,7 @@
             <element signature="e#7380#7602#0" expanded="false" />
             <element signature="e#7653#7788#0" expanded="false" />
             <element signature="e#7840#8331#0" expanded="false" />
-            <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
+            <marker date="1517694600462" expanded="true" signature="6455:8331" ph="..." />
           </folding>
         </state>
       </provider>
@@ -238,7 +290,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/rover_statuses.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
+        <state relative-caret-position="1248">
           <caret line="53" column="62" lean-forward="false" selection-start-line="53" selection-start-column="62" selection-end-line="53" selection-end-column="62" />
           <folding>
             <element signature="e#22#34#0" expanded="true" />
@@ -248,7 +300,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/system_statuses_node.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="401">
+        <state relative-caret-position="190">
           <caret line="121" column="65" lean-forward="false" selection-start-line="121" selection-start-column="65" selection-end-line="121" selection-end-column="65" />
           <folding>
             <element signature="e#22#34#0" expanded="true" />
@@ -257,7 +309,7 @@
             <element signature="e#7380#7602#0" expanded="false" />
             <element signature="e#7653#7788#0" expanded="false" />
             <element signature="e#7840#8331#0" expanded="false" />
-            <marker date="1517104529510" expanded="true" signature="6455:8331" ph="..." />
+            <marker date="1517694600462" expanded="true" signature="6455:8331" ph="..." />
           </folding>
         </state>
       </provider>
