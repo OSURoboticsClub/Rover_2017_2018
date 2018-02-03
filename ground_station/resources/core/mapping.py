@@ -293,9 +293,8 @@ class GMapsStitcher(object):
         self.upper_y = (self.center_y - (self.height/2))
         self.update()
 
+    # def update_rover_map_location(self, lat, lon):
+    #     print "I did nothing"
 
-    def update_rover_map_location(self, lat, lon):
-        print "I did nothing"
-
-    def draw_circle(self, lat, lon, radius, fill):
-        print "I did nothing"
+    # def draw_circle(self, lat, lon, radius, fill):
+    #     print "I did nothing"
