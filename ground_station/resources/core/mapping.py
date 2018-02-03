@@ -6,15 +6,14 @@ Copyright OSURC, orginal code from GooMPy by Alec Singer and Simon D. Levy
 
 This code is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation, either version 3 of the 
+published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
-This code is distributed in the hope that it will be useful,     
+This code is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-You should have received a copy of the GNU Lesser General Public License 
+You should have received a copy of the GNU Lesser General Public License
 along with this code.  If not, see <http://www.gnu.org/licenses/>.
-
 '''
 
 #####################################
@@ -51,6 +50,7 @@ for i in file_pointer:
     _KEYS.append(i.rstrip())
 file_pointer.close()
 
+
 class GMapsStitcher(object):
     def __init__(self, width, height,
                  latitude, longitude, zoom,
@@ -68,11 +68,11 @@ class GMapsStitcher(object):
         self.num_tiles = num_tiles
         self.display_image = self.helper.new_image(width, height)
         self.debug = debug
-        
+
         # Get the big image here
         self._fetch()
         self.center_display(latitude, longitude)
-    
+
     def __str__(self):
         """
         This string returns when used in a print statement
@@ -81,17 +81,26 @@ class GMapsStitcher(object):
         returns STRING
         """
         string_builder = ""
-        string_builder += "Center of the displayed map: %4f, %4f\n" % (self.center_x, self.center_y)
-        string_builder += "Center of the big map: %4fx%4f\n" % (self.start_longitude, self.start_longitude)
-        string_builder += "Current latitude is: %4f, %4f\n" % (self.longitude, self.latitude)
-        string_builder += "The top-left of the box: %dx%d\n" % (self.left_x, self.upper_y)
-        string_builder += "Number of tiles genreated: %dx%d\n" % (self.num_tiles, self.num_tiles)
+        string_builder += ("Center of the displayed map: %4f, %4f\n" %
+                           (self.center_x, self.center_y))
+        string_builder += ("Center of the big map: %4fx%4f\n" %
+                           (self.start_longitude, self.start_longitude))
+        string_builder += ("Current latitude is: %4f, %4f\n" %
+                           (self.longitude, self.latitude))
+        string_builder += ("The top-left of the box: %dx%d\n" %
+                           (self.left_x, self.upper_y))
+        string_builder += ("Number of tiles genreated: %dx%d\n" %
+                           (self.num_tiles, self.num_tiles))
         string_builder += "Map Type: %s\n" % (self.maptype)
         string_builder += "Zoom Level: %s\n" % (self.zoom)
-        string_builder += "Dimensions of Big Image: %dx%d\n" % (self.big_image.size[0], self.big_image.size[1])
-        string_builder += "Dimensions of Displayed Image: %dx%d\n" % (self.width, self.height)
-        string_builder += "LatLong of Northwest Corner: %4f, %4f\n" % (self.northwest)
-        string_builder += "LatLong of Southeast Corner: %4f, %4f\n" % (self.southeast)
+        string_builder += ("Dimensions of Big Image: %dx%d\n" %
+                           (self.big_image.size[0], self.big_image.size[1]))
+        string_builder += ("Dimensions of Displayed Image: %dx%d\n" %
+                           (self.width, self.height))
+        string_builder += ("LatLong of Northwest Corner: %4f, %4f\n" %
+                           (self.northwest))
+        string_builder += ("LatLong of Southeast Corner: %4f, %4f\n" %
+                           (self.southeast))
         return string_builder
 
     def _grab_tile(self, longitude, latitude, sleeptime=0):
@@ -99,16 +108,20 @@ class GMapsStitcher(object):
         This will return the tile at location longitude x latitude.
         Includes a sleep time to allow for free use if there is no API key
 
-        returns PIL.IMAGE OBJECT        
+        returns PIL.IMAGE OBJECT
         """
         # Make the url string for polling
         # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
-        urlbase += 'center=%.4f,%.4f&zoom=%d&maptype=%s&size=%dx%d&format=png&key=%s'
+        urlbase += 'center=%.4f,%.4f&zoom=%d&maptype=%s'
+        urlbase += '&size=%dx%d&format=png&key=%s'
 
         # Fill the formatting
-        specs = self.helper.fast_round(latitude, _DEGREE_PRECISION), self.helper.fast_round(longitude, _DEGREE_PRECISION), self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0]
-        filename = 'Resources/Maps/' + ('%.4f_%.4f_%d_%s_%d_%d_%s' % specs) + '.png'
+        specs = (self.helper.fast_round(latitude, _DEGREE_PRECISION),
+                 self.helper.fast_round(longitude, _DEGREE_PRECISION),
+                 self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0])
+        filename = 'Resources/Maps/' + ('%.4f_%.4f_%d_%s_%d_%d_%s' % specs)
+        filename += '.png'
 
         # Tile Image object
         tile_object = None
@@ -126,46 +139,58 @@ class GMapsStitcher(object):
             if not os.path.exists('Resources/Maps'):
                 os.mkdir('Resources/Maps')
             tile_object.save(filename)
-            #Added to prevent timeouts on Google Servers
+            # Added to prevent timeouts on Google Servers
             time.sleep(sleeptime)
 
         return tile_object
 
     def _pixels_to_lon(self, iterator, lon_pixels):
         """
-        This converts pixels to degrees to be used in fetching squares and generate correct squares
-    
+        This converts pixels to degrees to be used in
+        fetching squares and generate correct squares
+
         returns FLOAT(degrees)
         """
         # Magic Lines, no idea
-        degrees = self.helper.pixels_to_degrees(((iterator) - self.num_tiles / 2) * _TILESIZE, self.zoom)
+        degrees = self.helper.pixels_to_degrees((iterator - self.num_tiles / 2)
+                                                * _TILESIZE, self.zoom)
         return math.degrees((lon_pixels + degrees - _EARTHPIX) / _PIXRAD)
 
     def _pixels_to_lat(self, iterator, lat_pixels):
         """
-        This converts pixels to latitude using meridian projection to get the latitude to generate squares 
+        This converts pixels to latitude using meridian projection
+        to get the latitude to generate squares
 
         returns FLOAT(degrees)
         """
         # Magic Lines
-        return math.degrees(math.pi / 2 - 2 * math.atan(
-            math.exp(((lat_pixels + self.helper.pixels_to_degrees((iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)) - _EARTHPIX) / _PIXRAD)))
+        return math.degrees(math.pi / 2 - 2 * math.atan(math.exp(((lat_pixels +
+                            self.helper.pixels_to_degrees(
+                                (iterator - self.num_tiles / 2)
+                                * _TILESIZE, self.zoom))
+                                - _EARTHPIX) / _PIXRAD)))
 
     def fetch_tiles(self):
         """
         Function that handles fetching of files from init'd variables
 
         returns PIL.IMAGE OBJECT, (WEST, NORTH), (EAST, SOUTH)
-        
+
         North/East/South/West are in FLOAT(degrees)
         """
         # cap floats to precision amount
-        self.latitude = self.helper.fast_round(self.latitude, _DEGREE_PRECISION)
-        self.longitude = self.helper.fast_round(self.longitude, _DEGREE_PRECISION)
+        self.latitude = self.helper.fast_round(self.latitude,
+                                               _DEGREE_PRECISION)
+        self.longitude = self.helper.fast_round(self.longitude,
+                                                _DEGREE_PRECISION)
 
-        # number of tiles required to go from center latitude to desired radius in meters
+        # number of tiles required to go from center
+        # latitude to desired radius in meters
         if self.radius_meters is not None:
-            self.num_tiles = int(round(2*self.helper.pixels_to_meters(self.latitude, self.zoom) / (_TILESIZE / 2. / self.radius_meters)))
+            self.num_tiles = (int(
+                              round(2 * self.helper.pixels_to_meters(
+                               self.latitude, self.zoom) /
+                               (_TILESIZE / 2. / self.radius_meters))))
 
         lon_pixels = _EARTHPIX + self.longitude * math.radians(_PIXRAD)
 
@@ -190,7 +215,8 @@ class GMapsStitcher(object):
 
     def move_pix(self, dx, dy):
         """
-        Function gets change in x and y (dx, dy) and then displaces the displayed map that amount
+        Function gets change in x and y (dx, dy)
+        then displaces the displayed map that amount
 
         NO RETURN
         """
@@ -203,14 +229,24 @@ class GMapsStitcher(object):
         Helper for move_pix
         """
         new_value = self.left_x - diff
-        return new_value if (new_value > 0 and (new_value < self.big_image.size[0] - self.width)) else self.left_x
+
+        if !(new_value > 0 and
+             (new_value < self.big_image.size[0] - self.width)):
+            return self.left_x
+        else:
+            return new_value
 
     def _constrain_y(self, diff):
         """
         Helper for move_pix
         """
         new_value = self.upper_y - diff
-        return new_value if new_value > 0 and new_value < self.big_image.size[0] - self.height else self.upper_y
+
+        if !(new_value > 0 and
+             new_value < self.big_image.size[0] - self.height):
+            return self.upper_y
+        else:
+            return new_value
 
     def update(self):
         """
@@ -261,8 +297,6 @@ class GMapsStitcher(object):
         new_lon_gps_range_percentage = (lon - viewport_lon_nw)
         # print lon, viewport_lon_se
 
-        # print "Percentages: ", new_lat_gps_range_percentage, new_lon_gps_range_percentage
-
         x = new_lon_gps_range_percentage * pixel_per_lon
         y = new_lat_gps_range_percentage * pixel_per_lat
 
@@ -270,7 +304,7 @@ class GMapsStitcher(object):
 
     def add_gps_location(self, lat, lon, shape, size, fill):
         """
-        Function adds a shape at lat x lon 
+        Function adds a shape at lat x lon
         """
         x, y = self._get_cartesian(lat, lon)
         draw = PIL.ImageDraw.Draw(self.big_image)
@@ -279,7 +313,6 @@ class GMapsStitcher(object):
         else:
             draw.rectangle([x-size, y-size, x+size, y+size], fill)
         self.update()
-
 
     def center_display(self, lat, lon):
         """

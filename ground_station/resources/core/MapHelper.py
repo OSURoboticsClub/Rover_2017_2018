@@ -1,13 +1,14 @@
 import PIL.Image
 import math
 
+
 class MapHelper(object):
 
     @staticmethod
     def new_image(width, height):
         """
         Generates a new image using PIL.Image module
-        
+
         returns PIL.IMAGE OBJECT
         """
         return PIL.Image.new('RGBA', (width, height))
@@ -33,7 +34,8 @@ class MapHelper(object):
     @staticmethod
     def pixels_to_meters(latitude, zoom):
         """
-        Function generates how many pixels per meter it should be from the projecction
+        Function generates how many pixels per meter it
+        should be from the projecction
 
         returns FLOAT
         """
