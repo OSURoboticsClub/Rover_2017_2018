@@ -26,9 +26,9 @@ import urllib2
 from io import StringIO, BytesIO
 import os
 import time
-import PIL.Image
 import PIL.ImageDraw
 import signing
+import MapHelper
 
 #####################################
 # Constants
@@ -55,6 +55,7 @@ class GMapsStitcher(object):
     def __init__(self, width, height,
                  latitude, longitude, zoom,
                  maptype, radius_meters=None, num_tiles=4, debug=False):
+        helper = MapHelper.MapHelper()
         self.latitude = latitude
         self.longitude = longitude
         self.start_latitude = latitude
@@ -65,7 +66,7 @@ class GMapsStitcher(object):
         self.maptype = maptype
         self.radius_meters = radius_meters
         self.num_tiles = num_tiles
-        self.display_image = self._new_image(width, height)
+        self.display_image = helper.new_image(width, height)
         self.debug = debug
 
         # Get the big image here
@@ -86,9 +87,6 @@ class GMapsStitcher(object):
         string_builder += "LatLong of Northwest Corner: %4f, %4f\n" % (self.northwest)
         string_builder += "LatLong of Southeast Corner: %4f, %4f\n" % (self.southeast)
         return string_builder
-
-    def _new_image(self, width, height):
-        return PIL.Image.new('RGBA', (width, height))
 
     def _fast_round(self, value, precision):
         return int(value * 10 ** precision) / 10. ** precision
@@ -155,7 +153,7 @@ class GMapsStitcher(object):
         sin_lat = math.sin(math.radians(self.latitude))
         lat_pixels = _EARTHPIX - _PIXRAD * math.log((1+sin_lat)/(1-sin_lat))/2
         self.big_size = self.num_tiles * _TILESIZE
-        big_image = self._new_image(self.big_size, self.big_size)
+        big_image = self.helper.new_image(self.big_size, self.big_size)
 
         for j in range(self.num_tiles):
             lon = self._pixels_to_lon(j, lon_pixels)
