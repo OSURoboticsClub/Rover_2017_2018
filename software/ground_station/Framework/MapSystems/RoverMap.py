@@ -230,7 +230,7 @@ class GMapsStitcher(object):
         """
         new_value = self.left_x - diff
 
-        if !((new_value > 0) and (new_value < self.big_image.size[0] - self.width)):
+        if not new_value > 0 and (new_value < self.big_image.size[0] - self.width):
             return self.left_x
         else:
             return new_value
