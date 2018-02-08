@@ -20,7 +20,7 @@ class RoverMapCoordinator(QtCore.QThread):
     pixmap_ready_signal = QtCore.pyqtSignal(str)
 
     def __init__(self, shared_objects):
-        super(RoverMapCoordinator, self).init()
+        super(RoverMapCoordinator, self).__init__()
 
         self.shared_objects = shared_objects
         self.left_screen = self.shared_objects["screens"]["left_screen"]
