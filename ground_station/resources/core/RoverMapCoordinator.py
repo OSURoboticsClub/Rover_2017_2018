@@ -57,4 +57,4 @@ class RoverMapCoordinator(QtCore.QThread):
         self.mapping_label.setPixmap(self.map_thread.display_image)
 
     def on_kill_threads_requested_slot(self):
-        self.run_thread_flag = false
+        self.run_thread_flag = False
