@@ -33,7 +33,6 @@ class RoverMapCoordinator(QtCore.QThread):
         self.setup_map_flag = True
 
         # setup map
-        self._get_map()
         self._setup_map_threads()
 
     def run(self):
@@ -52,3 +51,5 @@ class RoverMapCoordinator(QtCore.QThread):
         self.map_thread = RoverMap.GMapsStitcher(2000, 
                                                  2000, 44.567161, -123.278432,
                                                  18, 'terrain', None, 20)
+    
+
