@@ -27,7 +27,7 @@ import os
 import time
 import PIL.ImageDraw
 import signing
-import MapHelper
+import RoverMapHelper as MapHelper
 
 #####################################
 # Constants
@@ -241,8 +241,7 @@ class GMapsStitcher(object):
         """
         new_value = self.upper_y - diff
 
-        if !(new_value > 0 and
-             new_value < self.big_image.size[1] - self.height):
+        if not new_value > 0 and (new_value < self.big_image.size[1] - self.height):
             return self.upper_y
         else:
             return new_value
