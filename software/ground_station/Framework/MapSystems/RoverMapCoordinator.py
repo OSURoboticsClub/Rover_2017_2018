@@ -64,3 +64,6 @@ class RoverMapCoordinator(QtCore.QThread):
         start_signal.connect(self.start)
         signals_and_slots_signal(self.connect_signals_and_slots)
         kill_signal.connect(self.on_kill_threads_requested_slot)
+
+    def connect_signals_and_slots(self):
+        self.map_thread.image_ready_signal.connect(self.pixmap_ready_slot)

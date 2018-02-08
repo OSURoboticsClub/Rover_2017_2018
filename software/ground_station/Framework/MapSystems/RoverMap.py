@@ -329,3 +329,6 @@ class GMapsStitcher(object):
 
     # def draw_circle(self, lat, lon, radius, fill):
     #     print "I did nothing"
+
+    def connect_signals_and_slots(self):
+        pass
