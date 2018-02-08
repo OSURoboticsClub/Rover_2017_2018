@@ -45,9 +45,6 @@ class RoverMapCoordinator(QtCore.QThread):
         self.__wait_for_map_thread()
         self.logger.debug("Stopping Map Coordinator Thread")
 
-    def __wait_for_map_thread(self):
-        self.map_thread.wait()
-
     def _setup_map_threads(self):
         self.map_thread = RoverMap.GMapsStitcher(1280, 
                                                  720, 44.567161, -123.278432,
@@ -56,5 +53,14 @@ class RoverMapCoordinator(QtCore.QThread):
     def pixmap_ready_slot(self):
         self.mapping_label.setPixmap(self.map_thread.display_image)
 
+    def __wait_for_map_thread(self):
+        self.map_thread.wait()
+
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
+
+    def setup_signals(self, start_signal, signals_and_slots_signal, 
+                      kill_signal):
+        start_signal.connect(self.start)
+        signals_and_slots_signal(self.connect_signals_and_slots)
+        kill_signal.connect(self.on_kill_threads_requested_slot)
