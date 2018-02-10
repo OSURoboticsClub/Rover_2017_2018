@@ -1,0 +1,4 @@
+# We want board documentation photos in here, 
+# so we'll allow specific files in this subdirectory
+!*.jpg
+!*.png
