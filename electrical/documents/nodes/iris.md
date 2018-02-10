@@ -17,6 +17,8 @@ This design is entirely Open Source and is available on CircuitMaker, see below 
 
 This is a 4-layer design.
 
+The name "Iris" comes from the greek messenger god, [Iris](http://www.theoi.com/Pontios/Iris.html). This is the board that acts as a "messenger god" for our computer, telling the rest of the robot what to do. 
+
 ### Bill of Materials
 
 [Bill of Materials V1](
