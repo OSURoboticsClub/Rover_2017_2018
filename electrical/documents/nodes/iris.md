@@ -25,9 +25,19 @@ https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnIS
 
 #### Design files
 
-[MR1718 IRIS](https://workspace.circuitmaker.com/Projects/Details/Nick-McComb/OSURC-Mars-Rover-2017-2018-Iris-Board)
+[MR1718 IRIS on CircuitMaker](https://workspace.circuitmaker.com/Projects/Details/Nick-McComb/OSURC-Mars-Rover-2017-2018-Iris-Board)
 
 ### Downloads
 
 [Schematic V1](files/iris-v1-schematic.pdf)
-[Step V1](files/iris.step)
+
+[3D Model V1 (STEP)](files/iris.step)
+
+### Known Issues
+
+#### Version 1
+- Used CAN tx/rx instead of hardware UART
+- Connections from FTDI to RS485 transceiver wrong, need to short DE / RE pins together, then this connection goes to FTDI enable. PWREN for the RS485 converted is wrong naming and doesn’t reflect its purpose. No connection to PWREN on 4232 needed...
+- Missing 3v3 rail connection to VBAT pin on Teensy. Will program without it, but will not boot without it.
+- For R46 vs R47 selection, only R47 is needed.
+- No invert needed for S.BUS connection (bridge pins)
