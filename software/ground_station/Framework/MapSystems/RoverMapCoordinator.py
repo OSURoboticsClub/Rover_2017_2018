@@ -33,6 +33,10 @@ class RoverMapCoordinator(QtCore.QThread):
         self.run_thread_flag = True
         self.setup_map_flag = True
 
+        self.google_maps_object = None
+        self.map_image = None
+        self.overlay_image = None
+
         # setup map
         self._setup_map_threads()
 
@@ -40,21 +44,28 @@ class RoverMapCoordinator(QtCore.QThread):
         self.logger.debug("Starting Map Coordinator Thread")
         
         while self.run_thread_flag:
-            self.msleep(10)
+            if self.setup_map_flag:
+                self.__map_setup()
+                self.setup_map_flag = False
+            else:
+                self._get_map_image()
+            self.msleep(3)
 
-        self.__wait_for_map_thread()
         self.logger.debug("Stopping Map Coordinator Thread")
 
     def _setup_map_threads(self):
-        self.map_thread = RoverMap.GMapsStitcher(1280, 
-                                                 720, 44.567161, -123.278432,
-                                                 18, 'terrain', None, 20)
-    
-    def pixmap_ready_slot(self):
-        self.mapping_label.setPixmap(self.map_thread.display_image)
+        self.google_maps_object = RoverMap.GMapsStitcher(1280, 
+                                                         720,
+                                                         44.567161,
+                                                         -123.278432,
+                                                         18,
+                                                         'terrain',
+                                                         None, 20)
 
-    def __wait_for_map_thread(self):
-        self.map_thread.wait()
+    def _get_map_image(self):
+        self.map_image = self.google_maps_object.display_image
+        # get overlay here
+        self.pixmap_ready_signal.emit()
 
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
@@ -66,4 +77,4 @@ class RoverMapCoordinator(QtCore.QThread):
         kill_signal.connect(self.on_kill_threads_requested_slot)
 
     def connect_signals_and_slots(self):
-        self.map_thread.image_ready_signal.connect(self.pixmap_ready_slot)
+        self.image_ready_signal.connect(self.pixmap_ready_slot)
