@@ -14,7 +14,7 @@ The project contains the following nodes:
 
 ### IRIS node
 
-<img src="files/iris.jpg" width="300" style="-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;" > 
+<img src="files/iris.jpg" width="300">
 
 This node serves as the computer's main interface with the hardware in the rest of the Rover. It features 10 RS485 ports and a Teensy Microcontroller that allows it to perform most of the control and sensing features for the Rover.
 
@@ -22,7 +22,7 @@ This node serves as the computer's main interface with the hardware in the rest 
 
 ### Motor node
 
-<img src="files/motor_render.png" width="300" style="-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;">
+<img src="files/motor_render.png" width="300">
 
 This node controls the motors that turn Rover's wheels.
 
