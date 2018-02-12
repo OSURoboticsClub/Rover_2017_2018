@@ -61,6 +61,7 @@ class RoverDrive(object):
 
         self.first_motor = minimalmodbus.Instrument(self.port, self.first_motor_modbus_id)
         self.second_motor = minimalmodbus.Instrument(self.port, self.second_motor_modbus_id)
+        print self.port
 
         self.motors_subscriber = rospy.Subscriber(MOTOR_TOPIC, RoverMotorDrive, self.__motor_message_callback)
 
@@ -91,11 +92,14 @@ class RoverDrive(object):
             serial.rs485.RS485Settings(rts_level_for_rx=1, rts_level_for_tx=0, delay_before_rx=0, delay_before_tx=0)
 
     def __motor_message_callback(self, data):
-        first_motor_register_data = list(MOTOR_DRIVER_DEFAULT_MESSAGE)  # Makes a copy
-        first_motor_register_data[MOTOR_DRIVER_REGISTER_MAP["DIRECTION"]] = int(data.first_motor_direction)
-        first_motor_register_data[MOTOR_DRIVER_REGISTER_MAP["SPEED"]] = data.first_motor_speed
-        print first_motor_register_data
-        self.first_motor.write_registers(0, first_motor_register_data)
+        try:
+            first_motor_register_data = list(MOTOR_DRIVER_DEFAULT_MESSAGE)  # Makes a copy
+            first_motor_register_data[MOTOR_DRIVER_REGISTER_MAP["DIRECTION"]] = int(data.first_motor_direction)
+            first_motor_register_data[MOTOR_DRIVER_REGISTER_MAP["SPEED"]] = data.first_motor_speed
+            # print first_motor_register_data
+            self.first_motor.write_registers(0, first_motor_register_data)
+        except:
+            print "Drive exception"
 
 #####################################
 # Main Definition
