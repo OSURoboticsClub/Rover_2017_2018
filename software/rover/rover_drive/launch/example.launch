@@ -1,0 +1,8 @@
+<launch>
+  <group ns="drive">
+    <node name="" pkg="rover_drive" type="rover_drive_node.py" launch-prefix="taskset -c 5" output="screen">
+        <param name="port" value="/dev/rover/ttyIRIS_1_0"/>
+	<param name="baud" value="2000000"/>
+    </node>
+  </group>
+</launch>
