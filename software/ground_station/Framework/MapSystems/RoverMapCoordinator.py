@@ -2,7 +2,9 @@
 # Imports
 #####################################
 # Python native imports
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PIL.ImageQt import ImageQt
+
 import logging
 
 import rospy
@@ -17,7 +19,7 @@ import RoverMap
 
 
 class RoverMapCoordinator(QtCore.QThread):
-    pixmap_ready_signal = QtCore.pyqtSignal(str)
+    pixmap_ready_signal = QtCore.pyqtSignal()
 
     def __init__(self, shared_objects):
         super(RoverMapCoordinator, self).__init__()
@@ -37,15 +39,14 @@ class RoverMapCoordinator(QtCore.QThread):
         self.map_image = None
         self.overlay_image = None
 
-        # setup map
-        self._setup_map_threads()
+        self.map_pixmap = None
 
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
         
         while self.run_thread_flag:
             if self.setup_map_flag:
-                self.__map_setup()
+                self._map_setup()
                 self.setup_map_flag = False
             else:
                 self._get_map_image()
@@ -62,10 +63,23 @@ class RoverMapCoordinator(QtCore.QThread):
                                                          'terrain',
                                                          None, 20)
 
+    def _map_setup(self):
+        self.google_maps_object = RoverMap.GMapsStitcher(1280, 
+                                                         720,
+                                                         44.567161,
+                                                         -123.278432,
+                                                         18,
+                                                         'terrain',
+                                                         None, 20)
     def _get_map_image(self):
-        self.map_image = self.google_maps_object.display_image
-        # get overlay here
-        self.pixmap_ready_signal.emit()
+		self.map_image = self.google_maps_object.display_image
+		# get overlay here
+		qim = ImageQt(self.map_image)
+		self.map_pixmap = QtGui.QPixmap.fromImage(qim)
+		self.pixmap_ready_signal.emit()
+
+    def connect_signals_and_slots(self):
+        self.pixmap_ready_signal.connect(self.pixmap_ready__slot)
 
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
@@ -73,8 +87,9 @@ class RoverMapCoordinator(QtCore.QThread):
     def setup_signals(self, start_signal, signals_and_slots_signal, 
                       kill_signal):
         start_signal.connect(self.start)
-        signals_and_slots_signal(self.connect_signals_and_slots)
+        signals_and_slots_signal.connect(self.connect_signals_and_slots)
         kill_signal.connect(self.on_kill_threads_requested_slot)
 
-    def connect_signals_and_slots(self):
-        self.image_ready_signal.connect(self.pixmap_ready_slot)
+    def pixmap_ready__slot(self):
+        self.logger.info("Made it")
+        self.mapping_label.setPixmap(self.map_pixmap)

@@ -55,8 +55,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 # GroundStation Class Definition
 #####################################
 class GroundStation(QtCore.QObject):
-    LEFT_SCREEN_ID = 0
-    RIGHT_SCREEN_ID = 1
+    LEFT_SCREEN_ID = 1
+    RIGHT_SCREEN_ID = 0
 
     exit_requested_signal = QtCore.pyqtSignal()
 
