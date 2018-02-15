@@ -9,6 +9,8 @@ import signal
 import rospy
 import logging
 import qdarkstyle
+import PIL.Image
+from PIL.ImageQt import ImageQt
 
 # Custom Imports
 import Framework.StartupSystems.ROSMasterChecker as ROSMasterChecker
@@ -100,6 +102,9 @@ class GroundStation(QtCore.QObject):
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
         self.start_threads_signal.emit()
+        
+        compass_image = PIL.Image.open("Resources/Images/compass.png").resize((300, 300))  # PIL.Image     
+        self.shared_objects["right_screen"].compass_label.setPixmap(QtGui.QPixmap.fromImage(ImageQt(compass_image))) 
 
     def ___ros_master_running(self):
         checker = ROSMasterChecker.ROSMasterChecker()
