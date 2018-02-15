@@ -34,10 +34,6 @@
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
-  <property name="styleSheet">
-   <string notr="true">background-color: #201F1D; 
-color: #DCDCDC;</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
