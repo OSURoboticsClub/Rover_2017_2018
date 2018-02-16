@@ -37,4 +37,4 @@ https://docs.google.com/spreadsheets/d/1CobSEg-5mzBy_F1_ASbbnYLLLra0shLwDUG4rKD0
 ### Known Issues
 
 #### Version 1
-- Switching regulator that was purchased is not compatible with the design. A pin-compatible new one was specc'd and ordered, it is included in the BOM as "alternative" parts. Only U1, L1, and R1 are changed. An 1N4148 diode also needs to be added per LT1933's datasheet. 
+- Switching regulator that was purchased is not compatible with the design. A pin-compatible new one was specc'd and ordered, it is included in the BOM as "alternative" parts. Only U1, L1, C2, and R1 are changed. An 1N4148 diode also needs to be added per LT1933's datasheet. 
