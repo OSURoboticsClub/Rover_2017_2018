@@ -1,0 +1,63 @@
+\subsection{Ken Steinfeldt}
+\subsubsection{Week 1}
+On the first day of class the entire group met in the OSURC Mars Rover team lab space in Graf 306.
+During this meeting we familiarized ourselves with the equipment that we would be working with in the coming weeks.
+This equipment included what currently existed of the mars rover hardware stack, the ground station hardware, and general hardware available around the lab space environment.
+After becoming familiar with the hardware and lab environment we sat down to plan the future of the project.
+The first order of business was to decide on regular, weekly, meeting times for us to work together.
+It was decided that we would meet on Tuesdays and Thursdays from about 9AM to around 3PM, weekly.
+It was also the expectation that the capstone team would meet with the Mars Rover club on Saturdays at noon.
+Regularly meeting in the lab and with the rest of the Mars Rover team allows us to regularly interact with the hardware stack, keep tabs on rover development, and socialize with other members of the team who are not in the capstone project.
+Finally, we reviewed the tasks that needed to be completed and discussed dependencies.
+After this discussion tasks were assigned to each member.
+Corwin would start with video feeds, Chris with mapping, and I with system statuses.
+With this decided we set about familiarizing ourselves with our tasks and made plans to complete them.
+I spent the remaining time that week setting up my development environment and learning about ROS, through the official ROS tutorial, and PyQt development.
+\subsubsection{Week 2}
+During week 2 I started working on the StatusCore module for the first time.
+The purpose of the StatusCore module is to retrieve rover status information and display it to the user via the ground station UI.
+This is done utilizing some ROS abstractions called publishers and subscribers.
+In this case the SystemStatus module on the rover broadcasts via publishers, and the StatusCore module in the ground station software receives these broadcasts via subscribers.
+My plan is to pick up the broadcasted statuses from the rover through a series of callback functions in the StatusCore module.
+I hope to then push the results directly to the GUI after performing whatever minimal logic is necessary.
+I spent the week learning about publishers and subscribers.
+At this time the rover software team was creating their status publishers, so I was able to work with them in order to better understand the process and formulate a prototype for my StatusCore module.
+\subsubsection{Week 3}
+In the beginning of week 3 I was naive enough to believe that I would finish up my first iteration of the StatusCore module.
+I was unable to do so.
+However, at the end of this week, and with the help of the rover software team, I had a very simple template that could use going forward.
+Though not all rover publishers had yet been built, this template includes callback functions with subscribers to each publisher had been built.
+With this template in place I was confident with the foundation of the StatusCore module and determined that I would spend the next week creating the necessary GUI elements.
+This plan would allow me to move forward with my work while the rover software team finished their SystemStatus module.
+Once the SystemStatus module is complete I can simply add the necessary subscribers, implement some simple bounds-checking logic and wrap up StatusCore.
+It is worth noting that during week 3 the mars rover repository was completely reorganized by Corwin at the request of many people within the overall project.
+\subsubsection{Week 4}
+As noted previously, my plan for week four was to create the necessary GUI elements for StatusCore.
+The beginning of the week was spent learning the PyQt framework, which proved to be somewhat more complicated than I had anticipated.
+However, by midweek I felt that I had a tenuous grasp of it and proceeded to move forward.
+The system status portion of the GUI calls for a clock, a very necessary tool during competition, so I set about to implement one.
+Implementing the clock was somewhat trivial but did require a small amount of time to write the logic and output the time.
+After completing the clock I moved onto the stopwatch.
+Building the stopwatch was, for me, a nontrivial process, and took some time to complete.
+However, by the end of the week I had a working stopwatch module.
+Currently the stopwatch uses two pushbuttons; start and reset, to operate. 
+In the future I plan to remove the pushbuttons and operate only on right and left mouse clicks.
+\subsubsection{Week 5}
+Week five I did not anticipate accomplishing much as I had many midterm assignments in other classes to complete.
+Project time this week was spent on finishing the visual framework for the system statuses.
+By the end of the week I had completed a very basic and very ugly GUI for StatusCore.
+However, it was later determined that we would use a different style for the GUI that is focused more on boxes and 'lights' than text, and the the UI was quickly redesigned.
+\subsubsection{Week 6}
+On week six the group went the the elevator pitch meeting and participated and then spend the remaining time working on the midterm report.
+A poster was rough draft was completed and done in such a way that only minimal changes will be required for the final poster.
+Then, of course, the midterm report was written and the video report recorded.
+
+
+
+
+
+
+
+
+
+

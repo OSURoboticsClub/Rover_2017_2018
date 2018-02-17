@@ -1,0 +1,59 @@
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{gray},       % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{purple},      % string literal style
+}
+
+\section{Interesting Code}
+\subsection{Joystick ROS Drive Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+rospy.init_node("drive_tester")
+self.pub = rospy.Publisher("/drive/motoroneandtwo", RoverMotorDrive, queue_size=1)
+
+def __get_controller_data(self):
+        if (self.controller_aquired):
+            events = self.gamepad.read()
+
+            for event in events:
+                if event.code in self.raw_mapping_to_class_mapping:
+                    self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
+                    # print "Logitech: %s" % self.controller_states
+
+
+def __broadcast_if_ready(self):
+	drive = RoverMotorDrive()
+
+	axis = self.controller_states["left_stick_y_axis"]
+
+	drive.first_motor_direction = 1 if axis <= 512 else 0
+	drive.first_motor_speed = min(abs(self.controller_states["left_stick_y_axis"] - 512) * 128, 65535)
+
+	self.pub.publish(drive)
+\end{lstlisting}
+
+\subsubsection{Description}
+These two methods and supporting lines above, taken from the testing class LogitechJoystick, contained in the file joystick\_drive\_test.py are the core of what is needed to get joystick data and broadcast it to the rover over a ROS topic.
+These two methods are called on after another in a QThread. \_\_get\_controller\_data() reacts to motion events from the joystick and stores the current value of all axes and buttons in self.controller\_states. Then, in \_\_broadcast\_if\_ready(), and instantiation of the custom ROS message type, RoverMotorDrive, is made and values set to a scaled version of the raw values provided by the joystick. Finally, this data is published to the motor drive node and causes the ROS receiving node to see the data, send a message to the motor driver, and cause the motor to spin.
+
+\subsection{Video Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+def toggle_video_display(self):
+	if self.video_enabled:
+		if self.video_subscriber:
+			self.video_subscriber.unregister()
+		self.new_frame = True
+		self.video_enabled = False
+	else:
+		new_topic = self.camera_topics[self.current_camera_settings["resolution"]]
+		self.video_subscriber = rospy.Subscriber(new_topic, CompressedImage, self.__image_data_received_callback)
+		self.video_enabled = True
+\end{lstlisting}
+\subsubsection{Description}
+This very simple snippet is in the VideoReceiver class in VideoSystems. It is a demonstration of what is needed to properly disable the receiving of video data on a stream. Looking at the Subscriber line, you can see that there is an image callback associated with the subscription to a topic in ROS. This means that if you don't actually unsubscribe (or in this case, unregister) from a topic, as can be seen a few lines above, the data will continue being received even if you are not actively using it. Not doing this would cause unwanted bandwidth to be used.
