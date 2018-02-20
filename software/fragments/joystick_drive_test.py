@@ -11,7 +11,6 @@ import logging
 from inputs import devices, GamePad
 import sys
 import time
-import pygame
 
 import rospy
 from rover_drive.msg import RoverMotorDrive
@@ -21,7 +20,7 @@ from rover_drive.msg import RoverMotorDrive
 # Global Variables
 #####################################
 GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
-CONTROLLER_DATA_UPDATE_FREQUENCY = 50  # Times per second
+CONTROLLER_DATA_UPDATE_FREQUENCY = 100  # Times per second
 
 
 #####################################
@@ -122,8 +121,7 @@ class LogitechJoystick(QtCore.QThread):
                 self.setup_controller_flag = False
             if self.data_acquisition_and_broadcast_flag:
                 self.__get_controller_data()
-
-            self.__broadcast_if_ready()
+                self.__broadcast_if_ready()
 
             # self.msleep(100)
 
@@ -152,14 +150,19 @@ class LogitechJoystick(QtCore.QThread):
 
 
     def __broadcast_if_ready(self):
-        drive = RoverMotorDrive()
+        current_time = time.time()
 
-        axis = self.controller_states["left_stick_y_axis"]
+        if (current_time - self.last_time) > (1 / CONTROLLER_DATA_UPDATE_FREQUENCY):
+            drive = RoverMotorDrive()
 
-        drive.first_motor_direction = 1 if axis <= 512 else 0
-        drive.first_motor_speed = min(abs(self.controller_states["left_stick_y_axis"] - 512) * 128, 65535)
+            axis = self.controller_states["left_stick_y_axis"]
 
-        self.pub.publish(drive)
+            drive.first_motor_direction = 1 if axis <= 512 else 0
+            drive.first_motor_speed = min(abs(self.controller_states["left_stick_y_axis"] - 512) * 128, 65535)
+
+            self.pub.publish(drive)
+            self.last_time = current_time
+
 
 
     def on_kill_threads__slot(self):
