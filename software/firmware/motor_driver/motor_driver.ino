@@ -55,6 +55,8 @@ void setup() {
     num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
     slave.begin(2000000); // baud-rate at 19200
     slave.setTimeOut(150);
+
+    Serial.begin(9600);
 }
 
 void loop() {
@@ -96,6 +98,9 @@ void setup_hardware(){
 
     // Change motor PWM frequency so it's not in the audible range
     analogWriteFrequency(HARDWARE::MOTOR_PWM, 25000);
+
+    // Set teensy to increased analog resolution
+    analogReadResolution(13);
 }
 
 void poll_modbus(){
@@ -143,4 +148,6 @@ void poll_sensors_and_motor_state(){
     modbus_data[MODBUS_REGISTERS::CURRENT] = (uint16_t)(((((analogRead(HARDWARE::MOTOR_CURRENT_SENSE) / 8192.0) * 3.3) - 0.05) / 0.02) * 1000);
     modbus_data[MODBUS_REGISTERS::FAULT] = !digitalRead(HARDWARE::MOTOR_FAULT);
     modbus_data[MODBUS_REGISTERS::TEMPERATURE] = (uint16_t)(((((analogRead(HARDWARE::TEMP) / 8192.0) * 3.3) - 0.750) / 0.01) * 1000);
+
+    Serial.println(modbus_data[MODBUS_REGISTERS::CURRENT]);
 }
