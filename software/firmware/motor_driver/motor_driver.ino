@@ -1,8 +1,7 @@
 ////////// Includes //////////
-// Define the arduino serial port used for modbus here
 #include <ModbusRtu.h>
 
-////////// Hardware / Date Enumerations //////////
+////////// Hardware / Data Enumerations //////////
 enum HARDWARE {
     RS485_EN = 2,
     RS485_RX = 7,
@@ -56,8 +55,6 @@ void setup() {
     num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
     slave.begin(2000000); // baud-rate at 19200
     slave.setTimeOut(150);
-
-    Serial.begin(9600);
 }
 
 void loop() {
