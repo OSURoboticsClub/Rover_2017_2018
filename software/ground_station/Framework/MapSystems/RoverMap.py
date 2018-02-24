@@ -337,15 +337,37 @@ class GMapsStitcher(object):
 
 
 class OverlayImage(object):
-    def __init__(self, lat, long, northwest, southeast, width, height):
+    def __init__(self, latitude, longitude, northwest, southeast,
+                 big_width, big_height, width, height):
         self.northwest = northwest
         self.southeast = southeast
-        self.latitude = lat
-        self.longitude = long
+        self.latitude = latitude
+        self.longitude = longitude
+        self.big_width = big_width
+        self.big_height = big_height
         self.width = width
         self.height = height
         self.big_image = None
         self.display_image = None
+        self.helper = MapHelper.MapHelper()
+
+        x, y = self._get_cartesian(latitude, longitude)
+        self.center_x = x
+        self.center_y = y
+
+        self.left_x = (self.center_x - (self.width/2))
+        self.upper_y = (self.center_y - (self.height/2))
+
+    def generate_image_files(self):
+        """
+        Creates big_image and display image sizes
+
+        Returns NONE
+        """
+        self.big_image = self.helper.new_image(self.big_width, self.big_height,
+                                               True)
+        self.display_image = self.helper.new_image(self.width, self.height,
+                                                   True)
 
     def _get_cartesian(self, lat, lon):
         """
@@ -378,3 +400,19 @@ class OverlayImage(object):
         y = new_lat_gps_range_percentage * pixel_per_lat
 
         return int(x), int(y)
+
+    def update_new_location(self, latitude, longitude):
+        self._draw_rover(latitude, longitude, 10)
+        self.update()
+
+        return self.display_image
+
+    def _draw_rover(self, lat, lon, size):
+        x, y = self._get_cartesian(lat, lon)
+        draw = PIL.ImageDraw.Draw(self.big_image)
+        draw.ellipsis((x-size, y-size, x+size, y+size), (255, 255, 255, 0))
+        draw.line(x-size, y-size, x+size, y+size, (255, 255, 255, 0), 25)
+        draw.line(x+size, y+size, x+2*size, y+2*size, (255, 255, 255, 0), 25)
+
+    def update(self):
+        self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))

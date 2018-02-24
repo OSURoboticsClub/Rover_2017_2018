@@ -5,13 +5,16 @@ import math
 class MapHelper(object):
 
     @staticmethod
-    def new_image(width, height):
+    def new_image(width, height, alpha=False):
         """
         Generates a new image using PIL.Image module
 
         returns PIL.IMAGE OBJECT
         """
-        return PIL.Image.new('RGBA', (width, height))
+        if alpha is True:
+            return PIL.Image.new('RGBA', (width, height), (0, 0, 0, 255))
+        else:
+            return PIL.Image.new('RGBA', (width, height))
 
     @staticmethod
     def fast_round(value, precision):
