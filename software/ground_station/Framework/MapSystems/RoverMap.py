@@ -401,18 +401,26 @@ class OverlayImage(object):
 
         return int(x), int(y)
 
-    def update_new_location(self, latitude, longitude):
-        self._draw_rover(latitude, longitude, 10)
+    def update_new_location(self, latitude, longitude, compass):
+        self._draw_rover(latitude, longitude, 10, compass)
         self.update()
 
         return self.display_image
 
-    def _draw_rover(self, lat, lon, size):
+    def _draw_rover(self, lat, lon, size, scaler):
         x, y = self._get_cartesian(lat, lon)
         draw = PIL.ImageDraw.Draw(self.big_image)
         draw.ellipsis((x-size, y-size, x+size, y+size), (255, 255, 255, 0))
-        draw.line(x-size, y-size, x+size, y+size, (255, 255, 255, 0), 25)
-        draw.line(x+size, y+size, x+2*size, y+2*size, (255, 255, 255, 0), 25)
+        draw.line(
+            math.cos(x-2*size * scaler),
+            math.sin(y * scaler),
+            math.cos(x * scaler),
+            math.sin(y+2*size * scaler), (255, 255, 255, 0), 25)
+        draw.line(
+            math.cos(x+2*size * scaler),
+            math.sin(y * scaler),
+            math.cos(x * scaler),
+            math.sin(y+2*size * scaler), (255, 255, 255, 0), 25)
 
     def update(self):
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
