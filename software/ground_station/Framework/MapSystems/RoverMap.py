@@ -152,8 +152,8 @@ class GMapsStitcher(object):
         returns FLOAT(degrees)
         """
         # Magic Lines, no idea
-        degrees = self.helper.pixels_to_degrees((iterator - self.num_tiles / 2)
-                                                * _TILESIZE, self.zoom)
+        degrees = self.helper.pixels_to_degrees(
+            (iterator - self.num_tiles / 2) * _TILESIZE, self.zoom)
         return math.degrees((lon_pixels + degrees - _EARTHPIX) / _PIXRAD)
 
     def _pixels_to_lat(self, iterator, lat_pixels):
@@ -166,9 +166,9 @@ class GMapsStitcher(object):
         # Magic Lines
         return math.degrees(math.pi / 2 - 2 * math.atan(math.exp(((lat_pixels +
                             self.helper.pixels_to_degrees(
-                                (iterator - self.num_tiles / 2)
-                                * _TILESIZE, self.zoom))
-                                - _EARTHPIX) / _PIXRAD)))
+                                (iterator - self.num_tiles /
+                                 2) * _TILESIZE, self.zoom)) -
+                                 _EARTHPIX) / _PIXRAD)))
 
     def fetch_tiles(self):
         """
@@ -230,7 +230,8 @@ class GMapsStitcher(object):
         """
         new_value = self.left_x - diff
 
-        if not new_value > 0 and (new_value < self.big_image.size[0] - self.width):
+        if ((not new_value > 0) and
+           (new_value < self.big_image.size[0] - self.width)):
             return self.left_x
         else:
             return new_value
@@ -241,7 +242,8 @@ class GMapsStitcher(object):
         """
         new_value = self.upper_y - diff
 
-        if not new_value > 0 and (new_value < self.big_image.size[1] - self.height):
+        if ((not new_value > 0) and
+           (new_value < self.big_image.size[1] - self.height)):
             return self.upper_y
         else:
             return new_value
@@ -332,3 +334,47 @@ class GMapsStitcher(object):
 
     def connect_signals_and_slots(self):
         pass
+
+
+class OverlayImage(object):
+    def __init__(self, lat, long, northwest, southeast, width, height):
+        self.northwest = northwest
+        self.southeast = southeast
+        self.latitude = lat
+        self.longitude = long
+        self.width = width
+        self.height = height
+        self.big_image = None
+        self.display_image = None
+
+    def _get_cartesian(self, lat, lon):
+        """
+        Helper for getting the x, y given lat and lon
+
+        returns INT, INT (x, y)
+        """
+        viewport_lat_nw, viewport_lon_nw = self.northwest
+        viewport_lat_se, viewport_lon_se = self.southeast
+        # print "Lat:", viewport_lat_nw, viewport_lat_se
+        # print "Lon:", viewport_lon_nw, viewport_lon_se
+
+        viewport_lat_diff = viewport_lat_nw - viewport_lat_se
+        viewport_lon_diff = viewport_lon_se - viewport_lon_nw
+
+        # print viewport_lon_diff, viewport_lat_diff
+
+        bigimage_width = self.width
+        bigimage_height = self.height
+
+        pixel_per_lat = bigimage_height / viewport_lat_diff
+        pixel_per_lon = bigimage_width / viewport_lon_diff
+        # print "Pixel per:", pixel_per_lat, pixel_per_lon
+
+        new_lat_gps_range_percentage = (viewport_lat_nw - lat)
+        new_lon_gps_range_percentage = (lon - viewport_lon_nw)
+        # print lon, viewport_lon_se
+
+        x = new_lon_gps_range_percentage * pixel_per_lon
+        y = new_lat_gps_range_percentage * pixel_per_lat
+
+        return int(x), int(y)

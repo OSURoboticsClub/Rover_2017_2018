@@ -43,7 +43,7 @@ class RoverMapCoordinator(QtCore.QThread):
 
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
-        
+
         while self.run_thread_flag:
             if self.setup_map_flag:
                 self._map_setup()
@@ -55,7 +55,7 @@ class RoverMapCoordinator(QtCore.QThread):
         self.logger.debug("Stopping Map Coordinator Thread")
 
     def _setup_map_threads(self):
-        self.google_maps_object = RoverMap.GMapsStitcher(1280, 
+        self.google_maps_object = RoverMap.GMapsStitcher(1280,
                                                          720,
                                                          44.567161,
                                                          -123.278432,
@@ -64,19 +64,20 @@ class RoverMapCoordinator(QtCore.QThread):
                                                          None, 20)
 
     def _map_setup(self):
-        self.google_maps_object = RoverMap.GMapsStitcher(1280, 
+        self.google_maps_object = RoverMap.GMapsStitcher(1280,
                                                          720,
                                                          44.567161,
                                                          -123.278432,
                                                          18,
                                                          'terrain',
                                                          None, 20)
+
     def _get_map_image(self):
-		self.map_image = self.google_maps_object.display_image
-		# get overlay here
-		qim = ImageQt(self.map_image)
-		self.map_pixmap = QtGui.QPixmap.fromImage(qim)
-		self.pixmap_ready_signal.emit()
+        self.map_image = self.google_maps_object.display_image
+        # get overlay here
+        qim = ImageQt(self.map_image)
+        self.map_pixmap = QtGui.QPixmap.fromImage(qim)
+        self.pixmap_ready_signal.emit()
 
     def connect_signals_and_slots(self):
         self.pixmap_ready_signal.connect(self.pixmap_ready__slot)
@@ -84,7 +85,7 @@ class RoverMapCoordinator(QtCore.QThread):
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
 
-    def setup_signals(self, start_signal, signals_and_slots_signal, 
+    def setup_signals(self, start_signal, signals_and_slots_signal,
                       kill_signal):
         start_signal.connect(self.start)
         signals_and_slots_signal.connect(self.connect_signals_and_slots)
