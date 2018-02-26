@@ -83,6 +83,7 @@ class IrisController(object):
         self.drive_command_publisher_topic = rospy.get_param("~drive_command_topic", DEFAULT_DRIVE_COMMAND_TOPIC)
 
         self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
+        # print self.wait_time
 
         self.iris = minimalmodbus.Instrument(self.port, MODBUS_ID)
         self.__setup_minimalmodbus_for_485()
