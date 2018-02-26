@@ -18,14 +18,16 @@ args = vars(ap.parse_args())
 # define the lower and upper boundaries of the "green"
 # ball in the HSV color space, then initialize the
 # list of tracked points
-greenLower = (50, 112, 50)
-greenUpper = (144, 255, 145)
+greenLower = np.array((40, 100, 50), dtype="uint8")
+greenUpper = np.array((64, 255, 255), dtype="uint8")
+# lower_yellow = np.array([30, 255, 135], dtype=np.uint8)
+# upper_yellow = np.array([40, 255, 185], dtype=np.uint8)
 pts = deque(maxlen=args["buffer"])
 
 # if a video path was not supplied, grab the reference
 # to the webcam
 if not args.get("video", False):
-    camera = cv2.VideoCapture(1)
+    camera = cv2.VideoCapture(0)
 
 # otherwise, grab a reference to the video file
 else:
@@ -51,6 +53,7 @@ while True:
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
     mask = cv2.inRange(hsv, greenLower, greenUpper)
+    # mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
 
@@ -69,8 +72,10 @@ while True:
         M = cv2.moments(c)
         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
+        area = M['m00']
+
         # only proceed if the radius meets a minimum size
-        if radius > 1:
+        if area > 100:
             # draw the circle and centroid on the frame,
             # then update the list of tracked points
             cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
