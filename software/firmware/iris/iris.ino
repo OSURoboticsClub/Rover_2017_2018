@@ -46,7 +46,7 @@ uint8_t message_count = 0;
 uint8_t failSafe;
 uint16_t lostFrames = 0;
 
-uint16_t telem_24v_scalar = 37989;
+uint16_t telem_24v_scalar = 37500;
 
 ////////// Class Instantiations //////////
 SBUS x8r(SBUS_HARDWARE_PORT);
@@ -57,7 +57,7 @@ void setup() {
     x8r.begin();
 
     num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
-    slave.begin(2000000);
+    slave.begin(115200);
 
     Serial.begin(9600);
 }
@@ -104,8 +104,7 @@ void poll_sbus(){
 }
 
 void poll_sensors(){
-    uint16_t v24 = telem_24v_scalar * (analogRead(HARDWARE::TELEM_24V) / 8192.0);
-    Serial.println(v24);
+    modbus_data[MODBUS_REGISTERS::VOLTAGE_24] = telem_24v_scalar * (analogRead(HARDWARE::TELEM_24V) / 8192.0);
 
 }
 

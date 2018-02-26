@@ -1,0 +1,27 @@
+ <launch>
+    <group ns="rover_control">
+        <node name="iris_controller" pkg="rover_control" type="iris_controller.py" output="screen">
+            <param name="port" value="/dev/rover/ttyIRIS_2_2"/>
+        </node>
+
+        <node name="control_coordinator" pkg="rover_control" type="control_coordinator.py" output="screen"/>
+
+        <node name="rear_bogie" pkg="rover_control" type="drive_control.py" output="screen">
+            <param name="port" value="/dev/rover/ttyIRIS_0_0"/>
+            <param name="drive_control_topic" value="drive_control/rear"/>
+        </node>
+
+        <node name="left_bogie" pkg="rover_control" type="drive_control.py" output="screen">
+            <param name="port" value="/dev/rover/ttyIRIS_0_1"/>
+            <param name="drive_control_topic" value="drive_control/left"/>
+            <param name="invert_first_motor" value="True"/>
+            <param name="invert_second_motor" value="True"/>
+        </node>
+
+        <node name="right_bogie" pkg="rover_control" type="drive_control.py" output="screen">
+            <param name="port" value="/dev/rover/ttyIRIS_0_2"/>
+            <param name="drive_control_topic" value="drive_control/right"/>
+        </node>
+
+    </group>
+</launch>
