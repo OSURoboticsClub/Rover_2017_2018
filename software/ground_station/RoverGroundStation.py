@@ -17,6 +17,7 @@ import Framework.StartupSystems.ROSMasterChecker as ROSMasterChecker
 import Framework.LoggingSystems.Logger as Logger
 import Framework.VideoSystems.RoverVideoCoordinator as RoverVideoCoordinator
 import Framework.MapSystems.RoverMapCoordinator as RoverMapCoordinator
+import Framework.DriveSystems.RoverDriveSender as RoverDriveSender
 
 #####################################
 # Global Variables
@@ -99,6 +100,7 @@ class GroundStation(QtCore.QObject):
         # ##### Instantiate Threaded Classes ######
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
         self.__add_thread("Map Coordinator", RoverMapCoordinator.RoverMapCoordinator(self.shared_objects))
+        self.__add_thread("Rover Drive Sender", RoverDriveSender.RoverDriveSender(self.shared_objects))
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
         self.start_threads_signal.emit()
