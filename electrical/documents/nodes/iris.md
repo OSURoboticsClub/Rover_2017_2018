@@ -43,3 +43,5 @@ https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnIS
 - Missing 3v3 rail connection to VBAT pin on Teensy. Will program without it, but will not boot without it.
 - For R46 vs R47 selection, only R47 is needed.
 - No invert needed for S.BUS connection (bridge pins)
+- No serial number spot on silkscreen
+- Likely that this should use a high-speed USB hub instead of the current full-speed implementation. It is easy, without deliberate planning, to hit the bottleneck of the USB hub.

@@ -37,4 +37,7 @@ https://docs.google.com/spreadsheets/d/1CobSEg-5mzBy_F1_ASbbnYLLLra0shLwDUG4rKD0
 ### Known Issues
 
 #### Version 1
-None (yet)
+- Switching regulator that was purchased is not compatible with the design. A pin-compatible new one was specc'd and ordered, it is included in the BOM as "alternative" parts. Only U1, L1, C2, and R1 are changed. An 1N4148 diode also needs to be added per LT1933's datasheet. See below schematic:
+<img src="files/motor_v1_bodge_1.jpg" width="600px">
+- Missing 3v3 rail connection to VBAT on Teensy. Will program without it, but will not boot without it. Connect VBat (pin 21) to the 3v3 side of C12 (closest to the XTAL)
+- MCU mistakenly connected to the 5v_SYS, needs to be connected to the 3v3 net (as there is no 5v net on this board)

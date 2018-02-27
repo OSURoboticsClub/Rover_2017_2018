@@ -11,7 +11,6 @@ import logging
 from inputs import devices, GamePad
 import sys
 import time
-import pygame
 
 import rospy
 from rover_drive.msg import RoverMotorDrive
@@ -21,17 +20,6 @@ from rover_drive.msg import RoverMotorDrive
 # Global Variables
 #####################################
 GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
-CONTROLLER_DATA_UPDATE_FREQUENCY = 50  # Times per second
-
-
-#####################################
-# Controller Class Definition
-#####################################
-
-# ########## Signals ##########
-controller_connection_aquired = QtCore.pyqtSignal(bool)
-controller_update_ready_signal = QtCore.pyqtSignal()
-
 
 #####################################
 # Controller Class Definition
@@ -104,12 +92,7 @@ class LogitechJoystick(QtCore.QThread):
             "BTN_NORTH": "x_pressed",
             "BTN_WEST": "y_pressed"
         }
-
-        self.last_time = time.time()
-
-        rospy.init_node("drive_tester")
-
-        self.pub = rospy.Publisher("/drive/motoroneandtwo", RoverMotorDrive, queue_size=1)
+        self.ready = False
 
         self.start()
 
@@ -122,15 +105,6 @@ class LogitechJoystick(QtCore.QThread):
                 self.setup_controller_flag = False
             if self.data_acquisition_and_broadcast_flag:
                 self.__get_controller_data()
-
-            self.__broadcast_if_ready()
-
-            # self.msleep(100)
-
-
-    # noinspection PyUnresolvedReferences
-    def connect_signals_to_slots__slot(self):
-        pass
 
 
     def __setup_controller(self):
@@ -148,31 +122,52 @@ class LogitechJoystick(QtCore.QThread):
             for event in events:
                 if event.code in self.raw_mapping_to_class_mapping:
                     self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
+            self.ready = True
                     # print "Logitech: %s" % self.controller_states
 
 
-    def __broadcast_if_ready(self):
-        drive = RoverMotorDrive()
-
-        axis = self.controller_states["left_stick_y_axis"]
-
-        drive.first_motor_direction = 1 if axis <= 512 else 0
-        drive.first_motor_speed = min(abs(self.controller_states["left_stick_y_axis"] - 512) * 128, 65535)
-
-        self.pub.publish(drive)
 
 
-    def on_kill_threads__slot(self):
-        self.terminate()  # DON'T normally do this!!!!!
-        self.run_thread_flag = False
 
+#####################################
+# Controller Class Definition
+#####################################
+class Publisher(QtCore.QThread):
+    def __init__(self):
+        super(Publisher, self).__init__()
+
+        self.joystick = LogitechJoystick()
+        while not self.joystick.ready:
+            self.msleep(100)
+
+        # ########## Thread Flags ##########
+        self.run_thread_flag = True
+
+        rospy.init_node("drive_tester")
+
+        self.pub = rospy.Publisher("/drive/motoroneandtwo", RoverMotorDrive, queue_size=1)
+
+        self.last_time = time.time()
+        self.drive = RoverMotorDrive()
+        self.start()
+
+    def run(self):
+        while self.run_thread_flag:
+            self.__update_and_publish()
+            self.msleep(50)
+
+    def __update_and_publish(self):
+
+        axis = self.joystick.controller_states["left_stick_y_axis"]
+
+        self.drive.first_motor_direction = 1 if axis <= 512 else 0
+        self.drive.first_motor_speed = min(abs(self.joystick.controller_states["left_stick_y_axis"] - 512) * 128, 65535)
+
+        self.pub.publish(self.drive)
 
 if __name__ == '__main__':
     qapp = QtCore.QCoreApplication(sys.argv)
 
-    joystick = LogitechJoystick()
+    joystick = Publisher()
 
     qapp.exec_()
-
-
-
