@@ -175,8 +175,8 @@ class RoverDriveSender(QtCore.QThread):
     def __update_and_publish(self):
         drive_message = DriveCommandMessage()
 
-        drive_message.drive_twist.linear.x = (self.joystick.controller_states["y_axis"] - 512) / 512
-        drive_message.drive_twist.angular.z = (self.joystick.controller_states["z_axis"] - 128) / 128
+        drive_message.drive_twist.linear.x = (self.joystick.controller_states["y_axis"] - 512) / 512.0
+        drive_message.drive_twist.angular.z = (self.joystick.controller_states["z_axis"] - 128) / 128.0
         self.drive_command_publisher.publish(drive_message)
         # print self.joystick.controller_states["y_axis"], self.joystick.controller_states["z_axis"]
 
