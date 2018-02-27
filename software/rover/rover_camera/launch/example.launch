@@ -10,7 +10,7 @@
 
 
     <node name="gimbal" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 3" output="screen" >
-      <param name="device_path" value="/dev/rover/camera_gimbal" />
+      <param name="device_path" value="/dev/rover/camera_chassis" />
     </node>
 
 
