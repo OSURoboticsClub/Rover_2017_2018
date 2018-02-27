@@ -17,6 +17,8 @@ GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
 
 DEFAULT_DRIVE_COMMAND_TOPIC = "command_control/groundstation_drive"
 
+DRIVE_COMMAND_HERTZ = 15
+
 
 #####################################
 # Controller Class Definition
@@ -36,14 +38,14 @@ class LogitechJoystick(QtCore.QThread):
 
         self.controller_states = {
             "left_stick_x_axis": 0,
-            "left_stick_y_axis": 0,
+            "y_axis": 0,
             "left_stick_center_pressed": 0,
 
             "right_stick_x_axis": 0,
             "right_stick_y_axis": 0,
             "right_stick_center_pressed": 0,
 
-            "left_trigger_z_axis": 0,
+            "z_axis": 0,
             "left_bumper_pressed": 0,
 
             "right_trigger_z_axis": 0,
@@ -64,14 +66,14 @@ class LogitechJoystick(QtCore.QThread):
 
         self.raw_mapping_to_class_mapping = {
             "ABS_X": "left_stick_x_axis",
-            "ABS_Y": "left_stick_y_axis",
+            "ABS_Y": "y_axis",
             "BTN_THUMBL": "left_stick_center_pressed",
 
             "ABS_RX": "right_stick_x_axis",
             "ABS_RY": "right_stick_y_axis",
             "BTN_THUMBR": "right_stick_center_pressed",
 
-            "ABS_Z": "left_trigger_z_axis",
+            "ABS_Z": "z_axis",
             "BTN_TL": "left_bumper_pressed",
 
             "ABS_RZ": "right_trigger_z_axis",
@@ -104,6 +106,7 @@ class LogitechJoystick(QtCore.QThread):
 
     def __setup_controller(self):
         for device in devices.gamepads:
+            print device
             if device.name == GAME_CONTROLLER_NAME:
                 self.gamepad = device
 
@@ -152,6 +155,8 @@ class RoverDriveSender(QtCore.QThread):
         # Publishers
         self.drive_command_publisher = rospy.Publisher(DEFAULT_DRIVE_COMMAND_TOPIC, DriveCommandMessage, queue_size=1)
 
+        self.wait_time = 1 / DRIVE_COMMAND_HERTZ
+
     def run(self):
         while self.run_thread_flag:
 
@@ -169,7 +174,7 @@ class RoverDriveSender(QtCore.QThread):
     def __update_and_publish(self):
 
         # axis = self.joystick.controller_states["left_stick_y_axis"]
-        print self.joystick.controller_states
+        print self.joystick.controller_states["y_axis"], self.joystick.controller_states["z_axis"]
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
