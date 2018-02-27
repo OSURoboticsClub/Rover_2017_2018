@@ -66,8 +66,8 @@ class ControlCoordinator(object):
         right_drive.first_motor_direction = right_direction
         right_drive.second_motor_direction = right_direction
 
-        left_speed = abs(left * UINT16_MAX)
-        right_speed = abs(right * UINT16_MAX)
+        left_speed = min(abs(left * UINT16_MAX), UINT16_MAX)
+        right_speed = min(abs(right * UINT16_MAX), UINT16_MAX)
 
         rear_drive.first_motor_speed = left_speed
         left_drive.first_motor_speed = left_speed
