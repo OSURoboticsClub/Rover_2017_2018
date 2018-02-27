@@ -93,7 +93,7 @@ class RoverVideoReceiver(QtCore.QThread):
         # Initial class setup to make text images and get camera resolutions
         self.__create_camera_name_opencv_images()
         self.__get_camera_available_resolutions()
-        self.__setup_reconfigure_clients()
+        #self.__setup_reconfigure_clients()
 
     def run(self):
         self.logger.debug("Starting \"%s\" Camera Thread" % self.camera_title_name)
@@ -155,7 +155,7 @@ class RoverVideoReceiver(QtCore.QThread):
         self.__update_camera_subscription_and_settings()
 
         if self.new_frame and self.current_camera_settings["resolution"]:
-            self.__perform_quality_check_and_adjust()
+            # self.__perform_quality_check_and_adjust()
 
             opencv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
 
