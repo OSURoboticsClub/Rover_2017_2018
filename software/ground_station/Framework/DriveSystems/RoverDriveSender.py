@@ -38,7 +38,7 @@ class LogitechJoystick(QtCore.QThread):
 
         self.controller_states = {
             "left_stick_x_axis": 0,
-            "y_axis": 0,
+            "y_axis": 512,
             "left_stick_center_pressed": 0,
 
             "right_stick_x_axis": 0,
@@ -48,7 +48,7 @@ class LogitechJoystick(QtCore.QThread):
             "left_trigger_z_axis": 0,
             "left_bumper_pressed": 0,
 
-            "z_axis": 0,
+            "z_axis": 128,
             "right_bumper_pressed": 0,
 
             "dpad_x": 0,
@@ -175,8 +175,8 @@ class RoverDriveSender(QtCore.QThread):
     def __update_and_publish(self):
         drive_message = DriveCommandMessage()
 
-        drive_message.drive_twist.linear.x = (self.joystick.controller_states["y_axis"] - 512) / 512
-        drive_message.drive_twist.angular.z = (self.joystick.controller_states["z_axis"] - 128) / 128
+        drive_message.drive_twist.linear.x = -(self.joystick.controller_states["y_axis"] - 512) / 512.0
+        drive_message.drive_twist.angular.z = -(self.joystick.controller_states["z_axis"] - 128) / 128.0
         self.drive_command_publisher.publish(drive_message)
         # print self.joystick.controller_states["y_axis"], self.joystick.controller_states["z_axis"]
 
