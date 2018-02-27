@@ -15,7 +15,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender2" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
@@ -28,7 +28,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender3" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
@@ -41,7 +41,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender4" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
@@ -54,7 +54,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender5" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
@@ -67,7 +67,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender6" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
@@ -80,7 +80,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender7" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
@@ -93,7 +93,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender8" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
@@ -106,7 +106,7 @@
 	</node>
 
     	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<node name="udp_sender9" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
 
 		<!-- The destination host name or IP address -->
 		<param name="destination_addr" value="$(arg target)" />
