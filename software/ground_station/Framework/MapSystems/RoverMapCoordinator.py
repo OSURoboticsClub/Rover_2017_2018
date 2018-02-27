@@ -92,5 +92,4 @@ class RoverMapCoordinator(QtCore.QThread):
         kill_signal.connect(self.on_kill_threads_requested_slot)
 
     def pixmap_ready__slot(self):
-        self.logger.info("Made it")
         self.mapping_label.setPixmap(self.map_pixmap)
