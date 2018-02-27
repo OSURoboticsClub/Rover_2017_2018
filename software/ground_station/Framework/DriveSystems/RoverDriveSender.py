@@ -36,7 +36,7 @@ class LogitechJoystick(QtCore.QThread):
         # ########## Class Variables ##########
         self.gamepad = None  # type: GamePad
 
-        self.controller_states = {
+        elf.controller_states = {
             "left_stick_x_axis": 0,
             "y_axis": 0,
             "left_stick_center_pressed": 0,
@@ -45,10 +45,10 @@ class LogitechJoystick(QtCore.QThread):
             "right_stick_y_axis": 0,
             "right_stick_center_pressed": 0,
 
-            "z_axis": 0,
+            "left_trigger_z_axis": 0,
             "left_bumper_pressed": 0,
 
-            "right_trigger_z_axis": 0,
+            "z_axis": 0,
             "right_bumper_pressed": 0,
 
             "dpad_x": 0,
@@ -73,10 +73,10 @@ class LogitechJoystick(QtCore.QThread):
             "ABS_RY": "right_stick_y_axis",
             "BTN_THUMBR": "right_stick_center_pressed",
 
-            "ABS_Z": "z_axis",
+            "ABS_Z": "left_trigger_z_axis",
             "BTN_TL": "left_bumper_pressed",
 
-            "ABS_RZ": "right_trigger_z_axis",
+            "ABS_RZ": "z_axis",
             "BTN_TR": "right_bumper_pressed",
 
             "ABS_HAT0X": "dpad_x",
@@ -91,6 +91,7 @@ class LogitechJoystick(QtCore.QThread):
             "BTN_NORTH": "x_pressed",
             "BTN_WEST": "y_pressed"
         }
+
         self.ready = False
 
         self.start()
@@ -172,9 +173,12 @@ class RoverDriveSender(QtCore.QThread):
         pass
 
     def __update_and_publish(self):
+        drive_message = DriveCommandMessage()
 
-        # axis = self.joystick.controller_states["left_stick_y_axis"]
-        print self.joystick.controller_states["y_axis"], self.joystick.controller_states["z_axis"]
+        drive_message.drive_twist.linear.x = (self.joystick.controller_states["y_axis"] - 512) / 512
+        drive_message.drive_twist.angular.z = (self.joystick.controller_states["z_axis"] - 128) / 128
+        self.drive_command_publisher.publish(drive_message)
+        # print self.joystick.controller_states["y_axis"], self.joystick.controller_states["z_axis"]
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
