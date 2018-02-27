@@ -1,44 +1,44 @@
 <launch>
-	<arg name="target" default="192.168.1.10" />
+	<arg name="target" default="192.168.1.15" />
 
-	<!-- The UDP sender node -->
-	<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+	<!--&lt;!&ndash; The UDP sender node &ndash;&gt;-->
+	<!--<node name="udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">-->
 
-		<!-- The destination host name or IP address -->
-		<param name="destination_addr" value="$(arg target)" />
-		<param name="destination_port" value="17001" />
-		<!-- Load the list of topics from a YAML file -->
-		<rosparam param="topics">
-            [{name: "/cameras/camera_chassis/image_1280x720/compressed", compress: false, rate: 30.0}]
-        </rosparam>
+		<!--&lt;!&ndash; The destination host name or IP address &ndash;&gt;-->
+		<!--<param name="destination_addr" value="$(arg target)" />-->
+		<!--<param name="destination_port" value="17001" />-->
+		<!--&lt;!&ndash; Load the list of topics from a YAML file &ndash;&gt;-->
+		<!--<rosparam param="topics">-->
+            <!--[{name: "/cameras/camera_chassis/image_1280x720/compressed", compress: false, rate: 30.0}]-->
+        <!--</rosparam>-->
 
-	</node>
+	<!--</node>-->
 
-    	<!-- The UDP sender node -->
-	<node name="udp_sender2" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+    	<!--&lt;!&ndash; The UDP sender node &ndash;&gt;-->
+	<!--<node name="udp_sender2" pkg="nimbro_topic_transport" type="udp_sender" output="screen">-->
 
-		<!-- The destination host name or IP address -->
-		<param name="destination_addr" value="$(arg target)" />
-		<param name="destination_port" value="17002" />
-		<!-- Load the list of topics from a YAML file -->
-		<rosparam param="topics">
-            [{name: "/cameras/camera_undercarriage/image_1280x720/compressed", compress: false, rate: 30.0}]
-        </rosparam>
+		<!--&lt;!&ndash; The destination host name or IP address &ndash;&gt;-->
+		<!--<param name="destination_addr" value="$(arg target)" />-->
+		<!--<param name="destination_port" value="17002" />-->
+		<!--&lt;!&ndash; Load the list of topics from a YAML file &ndash;&gt;-->
+		<!--<rosparam param="topics">-->
+            <!--[{name: "/cameras/camera_undercarriage/image_1280x720/compressed", compress: false, rate: 30.0}]-->
+        <!--</rosparam>-->
 
-	</node>
+	<!--</node>-->
 
-    	<!-- The UDP sender node -->
-	<node name="udp_sender3" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+    	<!--&lt;!&ndash; The UDP sender node &ndash;&gt;-->
+	<!--<node name="udp_sender3" pkg="nimbro_topic_transport" type="udp_sender" output="screen">-->
 
-		<!-- The destination host name or IP address -->
-		<param name="destination_addr" value="$(arg target)" />
-		<param name="destination_port" value="17003" />
-		<!-- Load the list of topics from a YAML file -->
-		<rosparam param="topics">
-            [{name: "/cameras/main_navigation/image_1280x720/compressed", compress: false, rate: 30.0}]
-        </rosparam>
+		<!--&lt;!&ndash; The destination host name or IP address &ndash;&gt;-->
+		<!--<param name="destination_addr" value="$(arg target)" />-->
+		<!--<param name="destination_port" value="17003" />-->
+		<!--&lt;!&ndash; Load the list of topics from a YAML file &ndash;&gt;-->
+		<!--<rosparam param="topics">-->
+            <!--[{name: "/cameras/main_navigation/image_1280x720/compressed", compress: false, rate: 30.0}]-->
+        <!--</rosparam>-->
 
-	</node>
+	<!--</node>-->
 
     	<!-- The UDP sender node -->
 	<node name="udp_sender4" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
