@@ -36,7 +36,7 @@ class LogitechJoystick(QtCore.QThread):
         # ########## Class Variables ##########
         self.gamepad = None  # type: GamePad
 
-        elf.controller_states = {
+        self.controller_states = {
             "left_stick_x_axis": 0,
             "y_axis": 0,
             "left_stick_center_pressed": 0,
