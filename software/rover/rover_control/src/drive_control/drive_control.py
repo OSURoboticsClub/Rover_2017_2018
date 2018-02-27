@@ -50,6 +50,7 @@ MOTOR_DRIVER_DEFAULT_MESSAGE = [
     1  # Not in sleep mode
 ]
 
+UINT16_MAX = 65535
 
 #####################################
 # DriveControl Class Definition
@@ -96,12 +97,12 @@ class DriveControl(object):
             first_direction = \
                 not drive_control.first_motor_direction if self.first_motor_inverted else drive_control.first_motor_direction
             first_motor_register_data[MODBUS_REGISTERS["DIRECTION"]] = first_direction
-            first_motor_register_data[MODBUS_REGISTERS["SPEED"]] = drive_control.first_motor_speed
+            first_motor_register_data[MODBUS_REGISTERS["SPEED"]] = min(drive_control.first_motor_speed, UINT16_MAX)
 
             second_motor_register_data = list(MOTOR_DRIVER_DEFAULT_MESSAGE)
             second_direction = not drive_control.second_motor_direction if self.second_motor_inverted else drive_control.second_motor_direction
             second_motor_register_data[MODBUS_REGISTERS["DIRECTION"]] = second_direction
-            second_motor_register_data[MODBUS_REGISTERS["SPEED"]] = drive_control.second_motor_speed
+            second_motor_register_data[MODBUS_REGISTERS["SPEED"]] = min(drive_control.second_motor_speed, UINT16_MAX)
 
             self.first_motor.write_registers(0, first_motor_register_data)
             self.second_motor.write_registers(0, second_motor_register_data)
