@@ -75,6 +75,9 @@
             <height>720</height>
            </size>
           </property>
+          <property name="styleSheet">
+           <string notr="true">background-color:black;</string>
+          </property>
          </widget>
         </item>
         <item>
