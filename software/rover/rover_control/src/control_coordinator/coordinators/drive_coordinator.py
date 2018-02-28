@@ -27,10 +27,8 @@ UINT16_MAX = 65535
 #####################################
 # ControlCoordinator Class Definition
 #####################################
-class ControlCoordinator(object):
+class DriveCoordinator(object):
     def __init__(self):
-        rospy.init_node(NODE_NAME)
-
         self.iris_drive_command_topic = rospy.get_param("~iris_drive_command_topic", DEFAULT_IRIS_DRIVE_COMMAND_TOPIC)
         self.ground_station_drive_command_topic = \
             rospy.get_param("~iris_drive_command_topic", DEFAULT_IRIS_DRIVE_COMMAND_TOPIC)
@@ -85,6 +83,3 @@ class ControlCoordinator(object):
         self.rear_bogie_publisher.publish(rear_drive)
         self.left_bogie_publisher.publish(left_drive)
         self.right_bogie_publisher.publish(right_drive)
-
-if __name__ == "__main__":
-    ControlCoordinator()
