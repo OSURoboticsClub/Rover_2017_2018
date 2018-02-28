@@ -15,7 +15,7 @@ from rover_control.msg import DriveCommandMessage
 #####################################
 GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
 
-DEFAULT_DRIVE_COMMAND_TOPIC = "command_control/groundstation_drive"
+DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
 
 DRIVE_COMMAND_HERTZ = 15
 
@@ -149,8 +149,6 @@ class RoverDriveSender(QtCore.QThread):
         self.run_thread_flag = True
 
         self.joystick = LogitechJoystick()
-        while not self.joystick.ready:
-            self.msleep(100)
 
         # ########## Class Variables ##########
         # Publishers

@@ -4,7 +4,7 @@
 #####################################
 # Python native imports
 import rospy
-
+from PyQt5 import QtCore
 from time import time, sleep
 
 # Custom Imports
@@ -13,7 +13,7 @@ from rover_control.msg import DriveCommandMessage, DriveControlMessage
 #####################################
 # Global Variables
 #####################################
-NODE_NAME = "control_coordinator"
+NODE_NAME = "drive_coordinator"
 
 DEFAULT_IRIS_DRIVE_COMMAND_TOPIC = "command_control/iris_drive"
 DEFAULT_GROUND_STATION_DRIVE_COMMAND_TOPIC = "command_control/ground_station_drive"
@@ -23,35 +23,68 @@ DEFAULT_RIGHT_BOGIE_TOPIC = "drive_control/right"
 
 UINT16_MAX = 65535
 
+DEFAULT_HERTZ = 15
+
 
 #####################################
 # ControlCoordinator Class Definition
 #####################################
 class DriveCoordinator(object):
     def __init__(self):
+
+        rospy.init_node(NODE_NAME)
+
         self.iris_drive_command_topic = rospy.get_param("~iris_drive_command_topic", DEFAULT_IRIS_DRIVE_COMMAND_TOPIC)
         self.ground_station_drive_command_topic = \
-            rospy.get_param("~iris_drive_command_topic", DEFAULT_IRIS_DRIVE_COMMAND_TOPIC)
+            rospy.get_param("~ground_station_drive_command_topic", DEFAULT_GROUND_STATION_DRIVE_COMMAND_TOPIC)
         self.rear_bogie_topic = rospy.get_param("~rear_bogie_control_topic", DEFAULT_REAR_BOGIE_TOPIC)
         self.left_bogie_topic = rospy.get_param("~left_bogie_control_topic", DEFAULT_LEFT_BOGIE_TOPIC)
         self.right_bogie_topic = rospy.get_param("~right_bogie_control_topic", DEFAULT_RIGHT_BOGIE_TOPIC)
 
-        self.iris_drive_command_subscriber = \
-            rospy.Subscriber(self.iris_drive_command_topic, DriveCommandMessage, self.iris_drive_command_callback)
+        self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
 
-        self.ground_station_command_subscriber = rospy.Subscriber(self.ground_station_drive_command_topic, )
+        # ########## Class Variables ##########
+        self.iris_drive_command_subscriber = rospy.Subscriber(self.iris_drive_command_topic,
+                                                              DriveCommandMessage,
+                                                              self.iris_drive_command_callback)
+
+        self.ground_station_command_subscriber = rospy.Subscriber(self.ground_station_drive_command_topic,
+                                                                  DriveCommandMessage,
+                                                                  self.ground_station_drive_command_callback)
 
         self.rear_bogie_publisher = rospy.Publisher(self.rear_bogie_topic, DriveControlMessage, queue_size=1)
         self.left_bogie_publisher = rospy.Publisher(self.left_bogie_topic, DriveControlMessage, queue_size=1)
         self.right_bogie_publisher = rospy.Publisher(self.right_bogie_topic, DriveControlMessage, queue_size=1)
 
+        # Other Vars TODO: fix this later
+        self.drive_commands = {
+            "iris": DriveCommandMessage(),
+            "ground_station": DriveCommandMessage()
+        }
+
+        # ########## Run the Class ##########
         self.run()
 
     def run(self):
         while not rospy.is_shutdown():
-            sleep(0.25)
+            start_time = time()
 
-    def iris_drive_command_callback(self, drive_command):
+            try:
+                self.process_drive_commands()
+            except Exception, error:
+                print "Error occurred:", error
+
+            time_diff = time() - start_time
+
+            sleep(max(self.wait_time - time_diff, 0))
+
+    def process_drive_commands(self):
+        if not self.drive_commands["iris"].ignore_drive_control:
+            self.send_drive_control_command(self.drive_commands["iris"])
+        else:
+            self.send_drive_control_command(self.drive_commands["ground_station"])
+
+    def send_drive_control_command(self, drive_command):
         rear_drive = DriveControlMessage()
         left_drive = DriveControlMessage()
         right_drive = DriveControlMessage()
@@ -83,3 +116,16 @@ class DriveCoordinator(object):
         self.rear_bogie_publisher.publish(rear_drive)
         self.left_bogie_publisher.publish(left_drive)
         self.right_bogie_publisher.publish(right_drive)
+
+
+    def iris_drive_command_callback(self, drive_command):
+        self.drive_commands["iris"] = drive_command
+        return
+
+    def ground_station_drive_command_callback(self, drive_command):
+        self.drive_commands["ground_station"] = drive_command
+        return
+
+
+if __name__ == '__main__':
+    DriveCoordinator()

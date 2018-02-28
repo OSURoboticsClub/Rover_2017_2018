@@ -98,3 +98,6 @@ ground_station/resources/core/key
 # Pycharm environment files
 .idea/
 .directory
+
+# Don't commit key file
+key

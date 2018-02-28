@@ -127,6 +127,8 @@ class RoverVideoReceiver(QtCore.QThread):
 
         for topics_group in topics:
             main_topic = topics_group[0]
+            if "heartbeat" in main_topic:
+                continue
             camera_name = main_topic.split("/")[3]
             resolution_options.append(camera_name)
 

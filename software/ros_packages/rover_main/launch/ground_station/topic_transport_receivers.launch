@@ -1,0 +1,27 @@
+<launch>
+    <group ns="cameras">
+        <node name="chassis_640x360" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
+            <param name="port" value="17001" />
+        </node>
+
+        <node name="undercarriage_640x360" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
+            <param name="port" value="17002" />
+        </node>
+
+        <node name="main_navigation_640x360" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
+            <param name="port" value="17003" />
+        </node>
+
+        <node name="chassis_256x144" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
+            <param name="port" value="17004" />
+        </node>
+
+        <node name="undercarriage_256x144" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
+            <param name="port" value="17005" />
+        </node>
+
+        <node name="main_navigation_256x144" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
+            <param name="port" value="17006" />
+        </node>
+    </group>
+</launch>

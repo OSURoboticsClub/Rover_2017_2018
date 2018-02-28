@@ -1,52 +1,14 @@
 <launch>
-<!-- ########## Start Hardware Interface Nodes ########## -->
-<!-- ### Start Drive Interfaces ### -->
-<!-- Start Left Bogie Interface -->
-<!-- Start Right Bogie Interface -->
-<!-- Start Rear Bogie Interface -->
+    <!-- ########## Start Rover Control Nodes ########## -->
+    <include file="$(find rover_main)/launch/rover/control.launch"/>
 
-<!-- ### Start Arm Interfaces ### -->
-<!-- Start Arm Base Interface -->
-<!-- Start Arm End Effector Interface -->
+    <!-- ########## Start All Rover Camera Nodes ########## -->
+    <include file="$(find rover_main)/launch/rover/cameras.launch"/>
 
-<!-- ### Start Miscellaneous Interfaces ### -->
-<!-- Start Sample Containment Interface -->
-<!-- Start Tower Interface -->
-<!-- Start Chassis Pan/Tilt Interface -->
-<!-- Start Iris Interface -->
+    <!-- ########## Start System Status Monitoring Nodes ########## -->
 
-<!-- ########## Start All Rover Camera Nodes ########## -->
-<!-- ### Start 2D Cameras ### -->
-<group ns="cameras">
-<!-- Start Undercarriage Camera -->
-    <node name="undercarriage" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 1" respawn="true" output="screen">
-        <param name="device_path" value="/dev/rover/camera_undercarriage"/>
-    </node>
-
-<!-- Start Main Navigation Camera -->
-    <node name="main_navigation" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 2" respawn="true" output="screen" >
-        <param name="device_path" value="/dev/rover/camera_main_navigation" />
-    </node>
-
-<!-- Start Chassis Camera -->
-    <node name="chassis" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 3" respawn="true" output="screen" >
-        <param name="device_path" value="/dev/rover/camera_chassis" />
-    </node>
-
-
-<!-- ### Start 3D Cameras ### -->
-<!-- Start ZED Camera -->
-    <group ns="zed">
-        <include file="$(find zed_wrapper)/launch/zed_camera.launch">
-            <!-- compliant mode for rviz -->
-            <arg name="odometry_frame"        value="map" />
-        </include>
-    </group>
-</group>
-
-<!-- ########## Start System Status Monitoring Nodes ########## -->
-<!-- Start System CPU / RAM / Filesystem Monitor -->
-<!-- Start System Temperature Monitor -->
-
+    <!-- ########## Start Nimbro Topic Transport Nodes ########## -->
+    <include file="$(find rover_main)/launch/rover/topic_transport_senders.launch"/>
+    <include file="$(find rover_main)/launch/rover/topic_transport_receivers.launch"/>
 
 </launch>

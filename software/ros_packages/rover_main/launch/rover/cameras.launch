@@ -1,0 +1,18 @@
+<launch>
+    <group ns="cameras">
+        <!-- Start Undercarriage Camera -->
+        <node name="undercarriage" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 1" respawn="true" output="screen">
+            <param name="device_path" value="/dev/rover/camera_undercarriage"/>
+        </node>
+
+        <!-- Start Main Navigation Camera -->
+        <node name="main_navigation" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 2" respawn="true" output="screen" >
+            <param name="device_path" value="/dev/rover/camera_main_navigation" />
+        </node>
+
+        <!-- Start Chassis Camera -->
+        <node name="chassis" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 3" respawn="true" output="screen" >
+            <param name="device_path" value="/dev/rover/camera_chassis" />
+        </node>
+    </group>
+</launch>
