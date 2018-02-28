@@ -1,0 +1,7 @@
+<launch>
+    <group ns="rover_control">
+        <node name="ground_station_drive_command" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
+            <param name="port" value="17020" />
+        </node>
+    </group>
+</launch>

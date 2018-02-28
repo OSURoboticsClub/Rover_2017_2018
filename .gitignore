@@ -94,3 +94,10 @@ ground_station/resources/core/key
 # Map Images
 *.jpg
 *.png
+
+# Pycharm environment files
+.idea/
+.directory
+
+# Don't commit key file
+key
