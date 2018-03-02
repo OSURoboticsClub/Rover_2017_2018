@@ -118,6 +118,7 @@ class IrisController(object):
 
     def read_registers(self):
         self.registers = self.iris.read_registers(0, len(MODBUS_REGISTERS))
+        # print self.registers
 
     def broadcast_drive_if_current_mode(self):
         if self.registers[MODBUS_REGISTERS[REGISTER_STATE_MAPPING["DRIVE_VS_ARM"]]] < SBUS_VALUES["SBUS_MID"]:

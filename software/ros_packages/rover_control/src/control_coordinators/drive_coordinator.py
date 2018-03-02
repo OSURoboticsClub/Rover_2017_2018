@@ -117,7 +117,6 @@ class DriveCoordinator(object):
         self.left_bogie_publisher.publish(left_drive)
         self.right_bogie_publisher.publish(right_drive)
 
-
     def iris_drive_command_callback(self, drive_command):
         self.drive_commands["iris"] = drive_command
         return
