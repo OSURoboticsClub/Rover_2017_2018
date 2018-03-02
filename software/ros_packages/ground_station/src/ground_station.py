@@ -105,7 +105,7 @@ class GroundStation(QtCore.QObject):
         self.start_threads_signal.emit()
         
         compass_image = PIL.Image.open("Resources/Images/compass.png").resize((300, 300))  # PIL.Image     
-        self.shared_objects["screens"]["right_screen"].compass_label.setPixmap(QtGui.QPixmap.fromImage(ImageQt(compass_image)))
+        self.shared_objects["screens"]["right_screen"].heading_compass_label.setPixmap(QtGui.QPixmap.fromImage(ImageQt(compass_image)))
 
     def ___ros_master_running(self):
         checker = ROSMasterChecker.ROSMasterChecker()

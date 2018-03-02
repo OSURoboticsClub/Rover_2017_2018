@@ -19,7 +19,7 @@ DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_dri
 
 DRIVE_COMMAND_HERTZ = 15
 
-Y_AXIS_DEADBAND = 0.015
+Y_AXIS_DEADBAND = 0.025
 X_AXIS_DEADBAND = 0.025
 
 THROTTLE_MIN = 0.05
@@ -104,7 +104,6 @@ class LogitechJoystick(QtCore.QThread):
 
     def __setup_controller(self):
         for device in devices.gamepads:
-            print device
             if device.name == GAME_CONTROLLER_NAME:
                 self.gamepad = device
 
