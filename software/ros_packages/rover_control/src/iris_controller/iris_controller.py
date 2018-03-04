@@ -117,8 +117,10 @@ class IrisController(object):
             sleep(max(self.wait_time - time_diff, 0))
 
     def read_registers(self):
-        self.registers = self.iris.read_registers(0, len(MODBUS_REGISTERS))
-        # print self.registers
+        try:
+            self.registers = self.iris.read_registers(0, len(MODBUS_REGISTERS))
+        except Exception, error:
+            print error
 
     def broadcast_drive_if_current_mode(self):
         if self.registers[MODBUS_REGISTERS[REGISTER_STATE_MAPPING["DRIVE_VS_ARM"]]] < SBUS_VALUES["SBUS_MID"]:
@@ -128,6 +130,7 @@ class IrisController(object):
             right_y_axis = self.registers[MODBUS_REGISTERS["RIGHT_STICK_Y_AXIS"]]
 
             if left_y_axis == 0 and right_y_axis == 0:
+                command.controller_present = False
                 command.ignore_drive_control = True
                 command.drive_twist.linear.x = 0
                 command.drive_twist.angular.z = 0
@@ -139,6 +142,7 @@ class IrisController(object):
                 right = (right_y_axis - SBUS_VALUES["SBUS_MID"]) / SBUS_VALUES[
                     "SBUS_RANGE"]
 
+                command.controller_present = True
                 command.ignore_drive_control = \
                     self.registers[MODBUS_REGISTERS[REGISTER_STATE_MAPPING["IGNORE_CONTROL"]]] > SBUS_VALUES["SBUS_MID"]
                 command.drive_twist.linear.x = (left + right) / 2.0
