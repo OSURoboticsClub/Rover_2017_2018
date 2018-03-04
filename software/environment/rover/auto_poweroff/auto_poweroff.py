@@ -11,7 +11,7 @@ import sys
 #####################################
 # Global Variables
 #####################################
-UDEV_RULES_PATHS = ["../UDEV_rules/99-rover-usb-serial.rules", "../UDEV_rules/99-rover-cameras.rules"]
+UDEV_RULES_PATHS = ["../UDEV_rules/99-rover-usb-serial.rules"]
 
 SHUTDOWN_TIMEOUT = 5
 
