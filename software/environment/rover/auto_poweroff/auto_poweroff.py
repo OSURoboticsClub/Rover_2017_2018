@@ -4,15 +4,23 @@
 #####################################
 # Python native imports
 from time import time, sleep
-from os.path import exists
-from os import system
+from os.path import exists, dirname, realpath
+from os import system, chdir
+import sys
 
 #####################################
 # Global Variables
 #####################################
-UDEV_RULES_PATHS = ["../UDEV_rules/99-rover-usb-serial.rules", "../UDEV_rules/99-rover-cameras.rules"]
+UDEV_RULES_PATHS = ["../UDEV_rules/99-rover-usb-serial.rules"]
 
 SHUTDOWN_TIMEOUT = 5
+
+
+#####################################
+# get_script_path Definition
+#####################################
+def get_script_path():
+    return dirname(realpath(sys.argv[0]))
 
 
 #####################################
@@ -20,6 +28,9 @@ SHUTDOWN_TIMEOUT = 5
 #####################################
 def udev_parser(rules_paths):
     device_paths = {}
+
+    script_path = get_script_path()
+    chdir(script_path)
 
     for current_file in rules_paths:
         lines = open(current_file).readlines()
