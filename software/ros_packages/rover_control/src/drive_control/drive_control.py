@@ -153,6 +153,8 @@ class DriveControl(object):
             status.second_motor_fault = second_motor_status[1]
             status.second_motor_temp = second_motor_status[2] / 1000.0
 
+        self.drive_control_status_publisher.publish(status)
+
     def drive_control_callback(self, drive_control):
         self.drive_control_message = drive_control
         self.new_control_message = True
