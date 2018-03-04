@@ -9,6 +9,7 @@
 folders_to_link=(
     rover_camera
     rover_control
+    rover_status
     zed_wrapper
     nimbro_topic_transport
     rover_main
