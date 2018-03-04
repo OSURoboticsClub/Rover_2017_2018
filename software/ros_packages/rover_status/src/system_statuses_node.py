@@ -4,7 +4,7 @@ import os.path
 import psutil
 import subprocess
 from system_statuses.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
-
+from rover_control.msg import DriveCommandMessage
 
 class SystemStatuses:
 
@@ -136,7 +136,10 @@ class SystemStatuses:
 
     # Check FrSky Controller Connection Status (WIP)
     def __set_frsky_controller_connection_status(self):
-        self.FrSky_msg.FrSky_controller_connection_status = 0
+        rospy.Subscriber('/rover_control/command_control/iris_drive', DriveCommandMessage, self.__frsky_callback)
+
+    def __frsky_callback(self, data):
+        self.FrSky_msg.FrSky_controller_connection_status = data.controller_present
 
     # Used mainly for init, sets all previous values in one go
     def __update_all_previous_values(self):
