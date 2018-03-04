@@ -2,7 +2,7 @@
     <group ns="rover_control">
         <node name="iris_controller" pkg="rover_control" type="iris_controller.py" output="screen">
             <param name="port" value="/dev/rover/ttyIRIS"/>
-            <param name="hertz" value="16"/>
+            <param name="hertz" value="14"/>
         </node>
 
         <node name="rear_bogie" pkg="rover_control" type="drive_control.py" output="screen">

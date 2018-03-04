@@ -52,6 +52,7 @@ MOTOR_DRIVER_DEFAULT_MESSAGE = [
 
 UINT16_MAX = 65535
 
+
 #####################################
 # DriveControl Class Definition
 #####################################
