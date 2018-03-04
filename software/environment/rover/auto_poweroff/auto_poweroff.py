@@ -76,6 +76,7 @@ class AutoPoweroffWatchdog(object):
         if self.do_poweroff:
             system("sudo wall -n No devices seen for %s seconds. Powering down. Poweroff script exiting." %
                    self.shutdown_timeout)
+            system("sudo systemctl stop screen@nvidia")
             system("sudo poweroff")
             exit()
         else:
