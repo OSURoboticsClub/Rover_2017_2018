@@ -52,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    DriveCommandMessage.msg
    DriveControlMessage.msg
+   DriveStatusMessage.msg
  )
 
 ## Generate services in the 'srv' folder

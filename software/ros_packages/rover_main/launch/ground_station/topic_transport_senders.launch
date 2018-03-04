@@ -2,7 +2,7 @@
     <group ns="sender_transports">
         <arg name="target" default="192.168.1.10" />
 
-        <node name="udp_sender4" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="ground_staion_drive_udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17020" />
             <rosparam param="topics">
