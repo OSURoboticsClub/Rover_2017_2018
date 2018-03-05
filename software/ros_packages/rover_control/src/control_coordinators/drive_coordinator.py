@@ -23,7 +23,7 @@ DEFAULT_RIGHT_BOGIE_TOPIC = "drive_control/right"
 
 UINT16_MAX = 65535
 
-DEFAULT_HERTZ = 20
+DEFAULT_HERTZ = 30
 
 WATCHDOG_TIMEOUT = 0.3
 
@@ -136,7 +136,7 @@ class DriveCoordinator(object):
 
     def iris_drive_command_callback(self, drive_command):
         self.drive_command_data["iris"]["message"] = drive_command
-        self.drive_command_data["iris"]["last_time"] =  time()
+        self.drive_command_data["iris"]["last_time"] = time()
 
     def ground_station_drive_command_callback(self, drive_command):
         self.drive_command_data["ground_station"]["message"] = drive_command

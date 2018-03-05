@@ -29,10 +29,12 @@ DEFAULT_DRIVE_CONTROL_STATUS_TOPIC = "drive_status/rear"
 FIRST_MOTOR_ID = 1
 SECOND_MOTOR_ID = 2
 
-COMMUNICATIONS_TIMEOUT = 0.15  # Seconds
+COMMUNICATIONS_TIMEOUT = 0.01  # Seconds
 
 RX_DELAY = 0.01
 TX_DELAY = 0.01
+
+DEFAULT_HERTZ = 20
 
 MODBUS_REGISTERS = {
     "DIRECTION": 0,
@@ -71,6 +73,8 @@ class DriveControl(object):
 
         self.drive_control_status_topic = rospy.get_param("~drive_control_status_topic", DEFAULT_DRIVE_CONTROL_STATUS_TOPIC)
 
+        self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
+
         self.first_motor = minimalmodbus.Instrument(self.port, FIRST_MOTOR_ID)
         self.second_motor = minimalmodbus.Instrument(self.port, SECOND_MOTOR_ID)
         self.__setup_minimalmodbus_for_485()
@@ -98,9 +102,18 @@ class DriveControl(object):
 
     def run(self):
         while not rospy.is_shutdown():
-            self.send_drive_control_message()
-            self.get_drive_status()
-            sleep(0.005)
+            start_time = time()
+
+            try:
+                self.send_drive_control_message()
+                self.get_drive_status()
+
+            except Exception, error:
+                print "Error occurred:", error
+
+            time_diff = time() - start_time
+
+            sleep(max(self.wait_time - time_diff, 0))
 
     def send_drive_control_message(self):
         if self.new_control_message:

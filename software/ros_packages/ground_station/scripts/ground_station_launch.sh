@@ -11,7 +11,7 @@ launch_dir_length_without_current_folder=$(($launch_dir_length-$current_folder_n
 script_launch_path="${launch_dir:0:$launch_dir_length_without_current_folder}/src"
 cd $script_launch_path
 
-sleep 5
+sleep 3
 
 export DISPLAY=:0
 python ground_station.py
