@@ -5,14 +5,152 @@
 #include <ros/console.h>
 #include <image_transport/image_transport.h>
 #include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
 
 #include <cv_bridge/cv_bridge.h>
 
-int main(int argc, char** argv)
-{
+#include "rover_camera/CameraControlMessage.h"
+
+// Useful info
+// RTSP stream is 704x480
+// 3 image channels
+// Image type 16
+
+class RoverCamera{
+public:
+    RoverCamera(int argc, char** argv){
+        ros::init(argc, argv, "camera");
+
+        node_handle = new ros::NodeHandle("~");
+
+        node_handle->param("is_rtsp_camera", is_rtsp_camera, false);
+        node_handle->param("device_path", capture_device_path, std::string("/dev/video0"));
+        node_handle->param("fps", fps, 30);
+
+        node_handle->param("large_image_width", large_image_width, 1280);
+        node_handle->param("large_image_height", large_image_height, 720);
+        node_handle->param("medium_image_width", medium_image_width, 640);
+        node_handle->param("medium_image_height", medium_image_height, 360);
+        node_handle->param("small_image_width", small_image_width, 256);
+        node_handle->param("small_image_height", small_image_height, 144);
+
+        broadcast_large_image = true;
+        broadcast_medium_image = false;
+        broadcast_small_image = false;
+
+        if(is_rtsp_camera){
+            cap = new cv::VideoCapture(capture_device_path);
+            ROS_INFO_STREAM("Connecting to RTSP camera with path: " << capture_device_path);
+
+        }else{
+            cap = new cv::VideoCapture(capture_device_path);
+            ROS_INFO_STREAM("Connecting to USB camera with path: " << capture_device_path);
+
+            cap->set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));
+            cap->set(CV_CAP_PROP_FRAME_WIDTH, large_image_width);
+            cap->set(CV_CAP_PROP_FRAME_HEIGHT, large_image_height);
+            cap->set(CV_CAP_PROP_FPS, fps);
+        }
+
+        large_image_node_name = "image_" + std::to_string(large_image_width) + "x" + std::to_string(large_image_height);
+        medium_image_node_name = "image_" + std::to_string(medium_image_width) + "x" + std::to_string(medium_image_height);
+        small_image_node_name = "image_" + std::to_string(small_image_width) + "x" + std::to_string(small_image_height);
+
+        large_image_transport = new image_transport::ImageTransport(*node_handle);
+        medium_image_transport = new image_transport::ImageTransport(*node_handle);
+        small_image_transport = new image_transport::ImageTransport(*node_handle);
+
+        large_image_publisher = large_image_transport->advertise(large_image_node_name, 1);
+        medium_image_publisher = medium_image_transport->advertise(medium_image_node_name, 1);
+        small_image_publisher = small_image_transport->advertise(small_image_node_name, 1);
+
+        control_subscriber = node_handle->subscribe("camera_control", 1, &RoverCamera::control_callback, this);
+
+        if(is_rtsp_camera){
+            loop_rate = new ros::Rate(fps + 10);
+        }else{
+            loop_rate = new ros::Rate(fps + 2);
+        }
+
+        image_black = cv::Mat(large_image_height, large_image_width, CV_8UC3, CvScalar(0, 0, 0));
+    }
+
+    void run(){
+        if(!cap->isOpened()){
+            return;
+        }
+
+        while (ros::ok()) {
+
+            if(!is_rtsp_camera) {
+                cap->read(image_large);
+            }else{
+                cap->read(image_rtsp_raw);
+                image_black.copyTo(image_large);
+
+                float image_scalar = float(image_large.rows) / image_rtsp_raw.rows;
+
+                cv::resize(image_rtsp_raw, image_rtsp_scaled, CvSize(int(image_rtsp_raw.cols * image_scalar), int(image_rtsp_raw.rows * image_scalar)));
+
+                int x = (image_large.cols - image_rtsp_scaled.cols) / 2;
+
+                image_rtsp_scaled.copyTo(image_large(CvRect(x , 0, image_rtsp_scaled.cols, image_rtsp_scaled.rows)));
+            }
+
+            if(!image_large.empty()){
+                bool large_ready_to_broadcast = false;
+                bool medium_ready_to_broadcast = false;
+                bool small_ready_to_broadcast = false;
+
+                if(broadcast_large_image){
+                    large_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_large).toImageMsg();
+                    large_ready_to_broadcast = true;
+                }
+
+                if(broadcast_medium_image){
+                    cv::resize(image_large, image_medium, cv::Size(medium_image_width, medium_image_height));
+                    medium_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_medium).toImageMsg();
+                    medium_ready_to_broadcast = true;
+                }
+
+                if(broadcast_small_image){
+                    cv::resize(image_large, image_small, cv::Size(small_image_width, small_image_height));
+                    small_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_small).toImageMsg();
+                    small_ready_to_broadcast = true;
+                }
+
+                if(large_ready_to_broadcast){ large_image_publisher.publish(large_image_message); };
+                if(medium_ready_to_broadcast){ medium_image_publisher.publish(medium_image_message); };
+                if(small_ready_to_broadcast){ small_image_publisher.publish(small_image_message); };
+            }
+
+            ros::spinOnce();
+            loop_rate->sleep();
+        }
+    }
+
+    void control_callback(const rover_camera::CameraControlMessage::ConstPtr& msg){
+        broadcast_small_image = msg->enable_small_broadcast;
+        broadcast_medium_image = msg->enable_medium_broadcast;
+        broadcast_large_image = msg->enable_large_broadcast;
+    }
+
+    ~RoverCamera(){
+        if(cap->isOpened()){
+            cap->release();
+        }
+    }
+
+private:
+    ros::NodeHandle *node_handle;
+
+    cv::VideoCapture *cap;
+
+    bool is_rtsp_camera;
+
     std::string capture_device_path;
     int fps;
+
+    ros::Rate *loop_rate;
 
     int large_image_width;
     int large_image_height;
@@ -21,68 +159,41 @@ int main(int argc, char** argv)
     int small_image_width;
     int small_image_height;
 
-    ros::init(argc, argv, "camera");
-    ros::NodeHandle node_handle("~");
+    bool broadcast_large_image;
+    bool broadcast_medium_image;
+    bool broadcast_small_image;
 
-    node_handle.param("device_path", capture_device_path, std::string("/dev/video0"));
-    node_handle.param("fps", fps, 30);
+    std::string large_image_node_name;
+    std::string medium_image_node_name;
+    std::string small_image_node_name;
 
-    node_handle.param("large_image_width", large_image_width, 1280);
-    node_handle.param("large_image_height", large_image_height, 720);
-    node_handle.param("medium_image_width", medium_image_width, 640);
-    node_handle.param("medium_image_height", medium_image_height, 360);
-    node_handle.param("small_image_width", small_image_width, 256);
-    node_handle.param("small_image_height", small_image_height, 144);
+    image_transport::ImageTransport *large_image_transport;
+    image_transport::ImageTransport *medium_image_transport;
+    image_transport::ImageTransport *small_image_transport;
 
-    cv::VideoCapture cap(capture_device_path);
+    image_transport::Publisher large_image_publisher;
+    image_transport::Publisher medium_image_publisher;
+    image_transport::Publisher small_image_publisher;
 
-    cap.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));
-    cap.set(CV_CAP_PROP_FRAME_WIDTH, large_image_width);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT, large_image_height);
-    cap.set(CV_CAP_PROP_FPS, fps);
+    ros::Subscriber control_subscriber;
 
-    if(cap.isOpened() == false){
-        return -1;
-    }
+    cv::Mat image_black;
 
-    std::string large_image_node_name = "image_" + std::to_string(large_image_width) + "x" + std::to_string(large_image_height);
-    std::string medium_image_node_name = "image_" + std::to_string(medium_image_width) + "x" + std::to_string(medium_image_height);
-    std::string small_image_node_name = "image_" + std::to_string(small_image_width) + "x" + std::to_string(small_image_height);
-
-    image_transport::ImageTransport large_image_transport(node_handle);
-    image_transport::ImageTransport medium_image_transport(node_handle);
-    image_transport::ImageTransport small_image_transport(node_handle);
-
-    image_transport::Publisher large_image_publisher = large_image_transport.advertise(large_image_node_name, 1);
-    image_transport::Publisher medium_image_publisher = medium_image_transport.advertise(medium_image_node_name, 1);
-    image_transport::Publisher small_image_publisher = small_image_transport.advertise(small_image_node_name, 1);
+    cv::Mat image_rtsp_raw;
+    cv::Mat image_rtsp_scaled;
 
     cv::Mat image_large;
     cv::Mat image_medium;
     cv::Mat image_small;
 
-    ros::Rate loop_rate(fps + 2);
+    sensor_msgs::ImagePtr large_image_message;
+    sensor_msgs::ImagePtr medium_image_message;
+    sensor_msgs::ImagePtr small_image_message;
 
-    while (ros::ok()) {
+};
 
-        cap.read(image_large);
-
-        if(!image_large.empty()){
-            cv::resize(image_large, image_medium, cv::Size(medium_image_width, medium_image_height));
-            cv::resize(image_medium, image_small, cv::Size(small_image_width, small_image_height));
-
-            sensor_msgs::ImagePtr large_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_large).toImageMsg();
-            sensor_msgs::ImagePtr medium_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_medium).toImageMsg();
-            sensor_msgs::ImagePtr small_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_small).toImageMsg();
-
-            large_image_publisher.publish(large_image_message);
-            medium_image_publisher.publish(medium_image_message);
-            small_image_publisher.publish(small_image_message);
-        }
-
-        ros::spinOnce();
-        loop_rate.sleep();
-    }
-
-    cap.release();
+int main(int argc, char** argv)
+{
+    RoverCamera camera(argc, argv);
+    camera.run();
 }

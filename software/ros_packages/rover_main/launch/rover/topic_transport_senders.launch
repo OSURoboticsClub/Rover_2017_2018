@@ -26,9 +26,17 @@
             </rosparam>
         </node>
 
-        <node name="chassis_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="end_effector_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17004" />
+            <rosparam param="topics">
+                [{name: "/cameras/end_effector/image_640x360/compressed", compress: false, rate: 30.0}]
+            </rosparam>
+        </node>
+
+        <node name="chassis_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17005" />
             <rosparam param="topics">
                 [{name: "/cameras/chassis/image_256x144/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -36,7 +44,7 @@
 
         <node name="undercarriage_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17005" />
+            <param name="destination_port" value="17006" />
             <rosparam param="topics">
                 [{name: "/cameras/undercarriage/image_256x144/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -44,9 +52,17 @@
 
         <node name="main_navigation_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17006" />
+            <param name="destination_port" value="17007" />
             <rosparam param="topics">
                 [{name: "/cameras/main_navigation/image_256x144/compressed", compress: false, rate: 30.0}]
+            </rosparam>
+        </node>
+
+        <node name="end_effector_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17008" />
+            <rosparam param="topics">
+                [{name: "/cameras/end_effector/image_256x144/compressed", compress: false, rate: 30.0}]
             </rosparam>
         </node>
     </group>
