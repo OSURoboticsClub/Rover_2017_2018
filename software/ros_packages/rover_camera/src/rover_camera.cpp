@@ -181,7 +181,6 @@ private:
 
     cv::Mat image_rtsp_raw;
     cv::Mat image_rtsp_scaled;
-
     cv::Mat image_large;
     cv::Mat image_medium;
     cv::Mat image_small;
