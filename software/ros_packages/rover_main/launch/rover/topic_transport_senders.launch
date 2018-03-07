@@ -2,9 +2,41 @@
     <group ns="sender_transports">
         <arg name="target" default="192.168.1.15" />
 
-        <node name="chassis_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="chassis_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17001" />
+            <rosparam param="topics">
+                [{name: "/cameras/chassis/image_1280x720/compressed", compress: false, rate: 30.0}]
+            </rosparam>
+        </node>
+
+        <node name="undercarriage_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17002" />
+            <rosparam param="topics">
+                [{name: "/cameras/undercarriage/image_1280x720/compressed", compress: false, rate: 30.0}]
+            </rosparam>
+        </node>
+
+        <node name="main_navigation_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17003" />
+            <rosparam param="topics">
+                [{name: "/cameras/main_navigation/image_1280x720/compressed", compress: false, rate: 30.0}]
+            </rosparam>
+        </node>
+
+        <node name="end_effector_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17004" />
+            <rosparam param="topics">
+                [{name: "/cameras/end_effector/image_1280x720/compressed", compress: false, rate: 30.0}]
+            </rosparam>
+        </node>
+
+        <node name="chassis_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17005" />
             <rosparam param="topics">
                 [{name: "/cameras/chassis/image_640x360/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -12,7 +44,7 @@
 
         <node name="undercarriage_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17002" />
+            <param name="destination_port" value="17006" />
             <rosparam param="topics">
                 [{name: "/cameras/undercarriage/image_640x360/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -20,7 +52,7 @@
 
         <node name="main_navigation_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17003" />
+            <param name="destination_port" value="17007" />
             <rosparam param="topics">
                 [{name: "/cameras/main_navigation/image_640x360/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -28,7 +60,7 @@
 
         <node name="end_effector_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17004" />
+            <param name="destination_port" value="17008" />
             <rosparam param="topics">
                 [{name: "/cameras/end_effector/image_640x360/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -36,7 +68,7 @@
 
         <node name="chassis_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17005" />
+            <param name="destination_port" value="17009" />
             <rosparam param="topics">
                 [{name: "/cameras/chassis/image_256x144/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -44,7 +76,7 @@
 
         <node name="undercarriage_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17006" />
+            <param name="destination_port" value="17010" />
             <rosparam param="topics">
                 [{name: "/cameras/undercarriage/image_256x144/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -52,7 +84,7 @@
 
         <node name="main_navigation_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17007" />
+            <param name="destination_port" value="17011" />
             <rosparam param="topics">
                 [{name: "/cameras/main_navigation/image_256x144/compressed", compress: false, rate: 30.0}]
             </rosparam>
@@ -60,7 +92,7 @@
 
         <node name="end_effector_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17008" />
+            <param name="destination_port" value="17012" />
             <rosparam param="topics">
                 [{name: "/cameras/end_effector/image_256x144/compressed", compress: false, rate: 30.0}]
             </rosparam>

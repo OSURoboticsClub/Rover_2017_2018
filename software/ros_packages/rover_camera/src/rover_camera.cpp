@@ -33,9 +33,9 @@ public:
         node_handle->param("small_image_width", small_image_width, 256);
         node_handle->param("small_image_height", small_image_height, 144);
 
-        broadcast_large_image = true;
+        broadcast_large_image = false;
         broadcast_medium_image = false;
-        broadcast_small_image = false;
+        broadcast_small_image = true;
 
         if(is_rtsp_camera){
             cap = new cv::VideoCapture(capture_device_path);
