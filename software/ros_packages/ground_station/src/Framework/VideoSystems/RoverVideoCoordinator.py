@@ -9,18 +9,15 @@ import rospy
 
 # Custom Imports
 import RoverVideoReceiver
+from rover_camera.msg import CameraControlMessage
 
 #####################################
 # Global Variables
 #####################################
 CAMERA_TOPIC_PATH = "/cameras/"
 EXCLUDED_CAMERAS = ["zed"]
-#
-# PRIMARY_LABEL_MAX = (640, 360)
-# SECONDARY_LABEL_MAX = (256, 144)
-# TERTIARY_LABEL_MAX = (256, 144)
 
-PRIMARY_LABEL_MAX = (1280, 720)
+PRIMARY_LABEL_MAX = (640, 360)
 SECONDARY_LABEL_MAX = (640, 360)
 TERTIARY_LABEL_MAX = (640, 360)
 
@@ -58,25 +55,34 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.valid_cameras = []
         self.disabled_cameras = []
 
+        reset_camera_message = CameraControlMessage()
+        reset_camera_message.enable_small_broadcast = True
+        # Reset default cameras
+        rospy.Publisher("/cameras/chassis/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
+        rospy.Publisher("/cameras/undercarriage/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
+        rospy.Publisher("/cameras/main_navigation/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
+        rospy.Publisher("/cameras/end_effector/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
+
+        self.msleep(3000)
+
         # Setup cameras
         self.__get_cameras()
         self.__setup_video_threads()
 
         self.primary_label_current_setting = 0
-        self.secondary_label_current_setting = 0
-        self.tertiary_label_current_setting = 0
+        self.secondary_label_current_setting = min(self.primary_label_current_setting + 1, len(self.valid_cameras))
+        self.tertiary_label_current_setting = min(self.secondary_label_current_setting + 1, len(self.valid_cameras))
 
         self.primary_label_max_resolution = -1
         self.secondary_label_max_resolution = -1
         self.tertiary_label_max_resolution = -1
 
+        self.set_max_resolutions_flag = True
+
         self.first_image_received = False
 
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
-
-        self.__set_max_resolutions()  # Do this initially so we don't try to disable cameras before they're set up
-        self.msleep(500)
 
         while self.run_thread_flag:
             self.__set_max_resolutions()
@@ -88,37 +94,26 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.logger.debug("Stopping Video Coordinator Thread")
 
     def __set_max_resolutions(self):
-        self.primary_label_max_resolution = self.camera_threads[
-            self.valid_cameras[self.primary_label_current_setting]].current_max_resolution
-        self.secondary_label_max_resolution = self.camera_threads[
-            self.valid_cameras[self.secondary_label_current_setting]].current_max_resolution
-        self.tertiary_label_max_resolution = self.camera_threads[
-            self.valid_cameras[self.tertiary_label_current_setting]].current_max_resolution
+        if self.set_max_resolutions_flag:
+            self.camera_threads[self.valid_cameras[self.primary_label_current_setting]].set_hard_max_resolution(PRIMARY_LABEL_MAX)
 
-        if self.primary_label_max_resolution != PRIMARY_LABEL_MAX:
-            self.camera_threads[self.valid_cameras[self.primary_label_current_setting]].change_max_resolution_setting(
-                PRIMARY_LABEL_MAX)
+            if self.secondary_label_current_setting != self.primary_label_current_setting:
+                self.camera_threads[self.valid_cameras[self.secondary_label_current_setting]].set_hard_max_resolution(SECONDARY_LABEL_MAX)
 
-        if self.secondary_label_max_resolution != SECONDARY_LABEL_MAX and self.secondary_label_current_setting != self.primary_label_current_setting:
-            self.camera_threads[self.valid_cameras[self.secondary_label_current_setting]].change_max_resolution_setting(
-                SECONDARY_LABEL_MAX)
+            if self.tertiary_label_current_setting != self.primary_label_current_setting and self.tertiary_label_current_setting != self.secondary_label_current_setting:
+                self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].set_hard_max_resolution(SECONDARY_LABEL_MAX)
 
-        if self.tertiary_label_max_resolution != TERTIARY_LABEL_MAX and self.tertiary_label_current_setting != self.primary_label_current_setting:
-            self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].change_max_resolution_setting(
-                TERTIARY_LABEL_MAX)
+            self.set_max_resolutions_flag = False
 
     def __toggle_background_cameras_if_needed(self):
-        if self.first_image_received:
-            enabled = list({self.primary_label_current_setting, self.secondary_label_current_setting,
-                            self.tertiary_label_current_setting})
+        enabled = list({self.primary_label_current_setting, self.secondary_label_current_setting,
+                        self.tertiary_label_current_setting})
 
-            for camera_index, camera_name in enumerate(self.valid_cameras):
-                if camera_index not in enabled and camera_index not in self.disabled_cameras:
-                    self.camera_threads[camera_name].toggle_video_display()
-                    self.disabled_cameras.append(camera_index)
-                elif camera_index in enabled and camera_index in self.disabled_cameras:
-                    self.camera_threads[camera_name].toggle_video_display()
-                    self.disabled_cameras.remove(camera_index)
+        for camera_index, camera_name in enumerate(self.valid_cameras):
+            if camera_index not in enabled and camera_index not in self.disabled_cameras and self.camera_threads[camera_name].video_enabled:
+                self.camera_threads[camera_name].toggle_video_display()
+            elif camera_index in enabled and camera_index not in self.disabled_cameras and not self.camera_threads[camera_name].video_enabled:
+                self.camera_threads[camera_name].toggle_video_display()
 
     def __get_cameras(self):
         topics = rospy.get_published_topics(CAMERA_TOPIC_PATH)
@@ -167,33 +162,54 @@ class RoverVideoCoordinator(QtCore.QThread):
     def __change_display_source_primary_mouse_press_event(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.primary_label_current_setting = (self.primary_label_current_setting + 1) % len(self.valid_cameras)
+            self.set_max_resolutions_flag = True
         elif event.button() == QtCore.Qt.RightButton:
+            if self.primary_label_current_setting in self.disabled_cameras:
+                self.disabled_cameras.remove(self.primary_label_current_setting)
+            else:
+                self.disabled_cameras.append(self.primary_label_current_setting)
             self.camera_threads[self.valid_cameras[self.primary_label_current_setting]].toggle_video_display()
 
     def __change_display_source_secondary_mouse_press_event(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.secondary_label_current_setting = (self.secondary_label_current_setting + 1) % len(self.valid_cameras)
+            self.set_max_resolutions_flag = True
         elif event.button() == QtCore.Qt.RightButton:
+            if self.secondary_label_current_setting in self.disabled_cameras:
+                self.disabled_cameras.remove(self.secondary_label_current_setting)
+            else:
+                self.disabled_cameras.append(self.secondary_label_current_setting)
             self.camera_threads[self.valid_cameras[self.secondary_label_current_setting]].toggle_video_display()
 
     def __change_display_source_tertiary_mouse_press_event(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.tertiary_label_current_setting = (self.tertiary_label_current_setting + 1) % len(self.valid_cameras)
+            self.set_max_resolutions_flag = True
         elif event.button() == QtCore.Qt.RightButton:
+            if self.tertiary_label_current_setting in self.disabled_cameras:
+                self.disabled_cameras.remove(self.tertiary_label_current_setting)
+            else:
+                self.disabled_cameras.append(self.tertiary_label_current_setting)
             self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].toggle_video_display()
 
     def pixmap_ready__slot(self, camera):
-        if not self.first_image_received:
-            self.first_image_received = True
-
         if self.valid_cameras[self.primary_label_current_setting] == camera:
-            self.primary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_1280x720_image)
+            try:
+                self.primary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_1280x720_image)
+            except:
+                pass
 
         if self.valid_cameras[self.secondary_label_current_setting] == camera:
-            self.secondary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_640x360_image)
+            try:
+                self.secondary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_640x360_image)
+            except:
+                pass
 
         if self.valid_cameras[self.tertiary_label_current_setting] == camera:
-            self.tertiary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_640x360_image)
+            try:
+                self.tertiary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_640x360_image)
+            except:
+                pass
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False

@@ -7,6 +7,7 @@ import logging
 import cv2
 import numpy as np
 import qimage2ndarray
+from time import time
 
 import rospy
 import dynamic_reconfigure.client
@@ -14,6 +15,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import CompressedImage
 
 # Custom Imports
+from rover_camera.msg import CameraControlMessage
 
 #####################################
 # Global Variables
@@ -23,12 +25,25 @@ CAMERA_TOPIC_PATH = "/cameras/"
 QUALITY_MAX = 80
 QUALITY_MIN = 15
 
+FRAMERATE_AVERAGING_TIME = 10  # seconds
+
+MIN_FRAMERATE_BEFORE_ADJUST = 23
+MAX_FRAMERATE_BEFORE_ADJUST = 28
+
 
 #####################################
 # RoverVideoReceiver Class Definition
 #####################################
 class RoverVideoReceiver(QtCore.QThread):
     image_ready_signal = QtCore.pyqtSignal(str)
+
+    RESOLUTION_OPTIONS = [(256, 144), (640, 360), (1280, 720)]
+
+    RESOLUTION_MAPPINGS = {
+        (1280, 720): None,
+        (640, 360): None,
+        (256, 144): None
+    }
 
     def __init__(self, camera_name):
         super(RoverVideoReceiver, self).__init__()
@@ -49,22 +64,35 @@ class RoverVideoReceiver(QtCore.QThread):
         self.camera_title_name = self.camera_name.replace("_", " ").title()
 
         self.topic_base_path = CAMERA_TOPIC_PATH + self.camera_name
-        self.camera_topics = {}
-
-        self.current_max_resolution = None
-
-        self.current_camera_settings = {
-            "resolution": None,
-            "quality_setting": QUALITY_MAX,
-
-        }
-
-        self.previous_camera_settings = self.current_camera_settings.copy()
-
-        self.temp_topic_path = CAMERA_TOPIC_PATH + self.camera_name + "/image_640x360/compressed"
+        self.control_topic_path = self.topic_base_path + "/camera_control"
 
         # Subscription variables
-        self.video_subscriber = None  # type: rospy.Subscriber
+        self.video_subscribers = []
+
+        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_1280x720/compressed", CompressedImage, self.__image_data_received_callback))
+        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_640x360/compressed", CompressedImage, self.__image_data_received_callback))
+        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_256x144/compressed", CompressedImage, self.__image_data_received_callback))
+
+        # Publisher variables
+        self.camera_control_publisher = rospy.Publisher(self.control_topic_path, CameraControlMessage, queue_size=1)
+
+        # Set up resolution mappings
+        self.RESOLUTION_MAPPINGS[(1280, 720)] = CameraControlMessage()
+        self.RESOLUTION_MAPPINGS[(640, 360)] = CameraControlMessage()
+        self.RESOLUTION_MAPPINGS[(256, 144)] = CameraControlMessage()
+
+        self.RESOLUTION_MAPPINGS[(1280, 720)].enable_large_broadcast = True
+        self.RESOLUTION_MAPPINGS[(640, 360)].enable_medium_broadcast = True
+        self.RESOLUTION_MAPPINGS[(256, 144)].enable_small_broadcast = True
+
+        # Auto resolution adjustment variables
+        self.current_resolution_index = 1
+        self.last_resolution_index = self.current_resolution_index
+        self.max_resolution_index = len(self.RESOLUTION_OPTIONS)
+
+        self.frame_count = 0
+        self.last_framerate_time = time()
+        self.resolution_just_adjusted = False
 
         # Image variables
         self.raw_image = None
@@ -87,16 +115,13 @@ class RoverVideoReceiver(QtCore.QThread):
         self.camera_name_opencv_1280x720_image = None
         self.camera_name_opencv_640x360_image = None
 
-        # ROS Dynamic Reconfigure Client
-        self.reconfigure_clients = {}
-
         # Initial class setup to make text images and get camera resolutions
         self.__create_camera_name_opencv_images()
-        self.__get_camera_available_resolutions()
-        #self.__setup_reconfigure_clients()
 
     def run(self):
         self.logger.debug("Starting \"%s\" Camera Thread" % self.camera_title_name)
+
+        self.__enable_camera_resolution(self.RESOLUTION_OPTIONS[self.current_resolution_index])
 
         while self.run_thread_flag:
             if self.video_enabled:
@@ -108,62 +133,43 @@ class RoverVideoReceiver(QtCore.QThread):
 
         self.logger.debug("Stopping \"%s\" Camera Thread" % self.camera_title_name)
 
-    def __perform_quality_check_and_adjust(self):
-        self.__set_jpeg_quality(self.current_camera_settings["quality_setting"])
+    def __enable_camera_resolution(self, resolution):
+        self.camera_control_publisher.publish(self.RESOLUTION_MAPPINGS[resolution])
 
-    def __set_jpeg_quality(self, quality_setting):
-        self.reconfigure_clients[self.current_camera_settings["resolution"]].update_configuration({"jpeg_quality": quality_setting})
+    def __check_framerate_and_adjust_resolution(self):
+        time_diff = time() - self.last_framerate_time
+        if time_diff > FRAMERATE_AVERAGING_TIME:
+            current_fps = self.frame_count / time_diff
 
-    def __setup_reconfigure_clients(self):
-        for resolution_group in self.camera_topics:
-            image_topic_string = "image_%sx%s" % resolution_group
-            full_topic = self.topic_base_path + "/" + image_topic_string + "/compressed"
-            self.reconfigure_clients[resolution_group] = dynamic_reconfigure.client.Client(full_topic)
+            if current_fps >= MAX_FRAMERATE_BEFORE_ADJUST:
+                self.current_resolution_index = min(self.current_resolution_index + 1, self.max_resolution_index)
+            elif current_fps <= MIN_FRAMERATE_BEFORE_ADJUST:
+                self.current_resolution_index = max(self.current_resolution_index - 1, 0)
 
-    def __get_camera_available_resolutions(self):
-        topics = rospy.get_published_topics(self.topic_base_path)
+            if self.last_resolution_index != self.current_resolution_index:
+                self.camera_control_publisher.publish(
+                    self.RESOLUTION_MAPPINGS[self.RESOLUTION_OPTIONS[self.current_resolution_index]])
+                print "Setting %s to %s" % (self.camera_title_name, self.RESOLUTION_OPTIONS[self.current_resolution_index])
+                self.last_resolution_index = self.current_resolution_index
+                self.resolution_just_adjusted = True
 
-        resolution_options = []
-
-        for topics_group in topics:
-            main_topic = topics_group[0]
-            if "heartbeat" in main_topic:
-                continue
-            camera_name = main_topic.split("/")[3]
-            resolution_options.append(camera_name)
-
-        resolution_options = list(set(resolution_options))
-
-        for resolution in resolution_options:
-            # Creates a tuple in (width, height) format that we can use as the key
-            group = int(resolution.split("image_")[1].split("x")[0]), int(resolution.split("image_")[1].split("x")[1])
-            self.camera_topics[group] = self.topic_base_path + "/" + resolution + "/compressed"
-
-    def __update_camera_subscription_and_settings(self):
-        if self.current_camera_settings["resolution"] != self.previous_camera_settings["resolution"]:
-
-            if self.video_subscriber:
-                self.video_subscriber.unregister()
-            new_topic = self.camera_topics[self.current_camera_settings["resolution"]]
-            self.video_subscriber = rospy.Subscriber(new_topic, CompressedImage, self.__image_data_received_callback)
-
-            self.new_frame = False
-            while not self.new_frame:
-                self.msleep(10)
-
-            self.previous_camera_settings["resolution"] = self.current_camera_settings["resolution"]
+            # print "%s: %s FPS" % (self.camera_title_name, current_fps)
+            self.last_framerate_time = time()
+            self.frame_count = 0
 
     def __show_video_enabled(self):
-        self.__update_camera_subscription_and_settings()
+        if self.new_frame:
+            self.__check_framerate_and_adjust_resolution()
 
-        if self.new_frame and self.current_camera_settings["resolution"]:
-            # self.__perform_quality_check_and_adjust()
+            try:
+                opencv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
 
-            opencv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
+                self.__create_final_pixmaps(opencv_image)
 
-            self.__create_final_pixmaps(opencv_image)
+                self.image_ready_signal.emit(self.camera_name)
+            except Exception, error:
+                print "Failed with error:" + str(error)
 
-            self.image_ready_signal.emit(self.camera_name)
             self.new_frame = False
 
     def __show_video_disabled(self):
@@ -196,7 +202,13 @@ class RoverVideoReceiver(QtCore.QThread):
 
     def __image_data_received_callback(self, raw_image):
         self.raw_image = raw_image
+        self.frame_count += 1
         self.new_frame = True
+
+        if self.resolution_just_adjusted:
+            self.frame_count = 0
+            self.last_framerate_time = time()
+            self.resolution_just_adjusted = False
 
     def __create_camera_name_opencv_images(self):
         camera_name_text_width, camera_name_text_height = \
@@ -224,20 +236,17 @@ class RoverVideoReceiver(QtCore.QThread):
         self.camera_name_opencv_640x360_image = \
             cv2.resize(camera_name_opencv_image, (camera_name_width_buffered / 2, camera_name_height_buffered / 2))
 
-    def change_max_resolution_setting(self, resolution_max):
-        self.current_max_resolution = resolution_max
-        self.current_camera_settings["resolution"] = resolution_max
+    def set_hard_max_resolution(self, resolution):
+        self.max_resolution_index = self.RESOLUTION_OPTIONS.index(resolution)
 
     def toggle_video_display(self):
-        if self.video_enabled:
-            if self.video_subscriber:
-                self.video_subscriber.unregister()
-            self.new_frame = True
-            self.video_enabled = False
-        else:
-            new_topic = self.camera_topics[self.current_camera_settings["resolution"]]
-            self.video_subscriber = rospy.Subscriber(new_topic, CompressedImage, self.__image_data_received_callback)
+        if not self.video_enabled:
+            self.camera_control_publisher.publish(self.RESOLUTION_MAPPINGS[self.RESOLUTION_OPTIONS[self.current_resolution_index]])
             self.video_enabled = True
+            self.new_frame = True
+        else:
+            self.camera_control_publisher.publish(CameraControlMessage())
+            self.video_enabled = False
 
     def connect_signals_and_slots(self):
         pass
