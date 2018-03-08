@@ -11,6 +11,7 @@ folders_to_link=(
     rover_control
     nimbro_topic_transport
     rover_main
+    rover_camera
 )
 
 # Print heading

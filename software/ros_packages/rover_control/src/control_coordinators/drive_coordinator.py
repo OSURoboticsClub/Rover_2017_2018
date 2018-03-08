@@ -23,7 +23,9 @@ DEFAULT_RIGHT_BOGIE_TOPIC = "drive_control/right"
 
 UINT16_MAX = 65535
 
-DEFAULT_HERTZ = 15
+DEFAULT_HERTZ = 30
+
+WATCHDOG_TIMEOUT = 0.3
 
 
 #####################################
@@ -56,11 +58,19 @@ class DriveCoordinator(object):
         self.left_bogie_publisher = rospy.Publisher(self.left_bogie_topic, DriveControlMessage, queue_size=1)
         self.right_bogie_publisher = rospy.Publisher(self.right_bogie_topic, DriveControlMessage, queue_size=1)
 
-        # Other Vars TODO: fix this later
-        self.drive_commands = {
-            "iris": DriveCommandMessage(),
-            "ground_station": DriveCommandMessage()
+        self.drive_command_data = {
+            "iris": {
+                "message": DriveCommandMessage(),
+                "last_time": time()
+            },
+
+            "ground_station": {
+                "message": DriveCommandMessage(),
+                "last_time": time()
+            }
         }
+
+        self.last_message_time = time()
 
         # ########## Run the Class ##########
         self.run()
@@ -79,12 +89,18 @@ class DriveCoordinator(object):
             sleep(max(self.wait_time - time_diff, 0))
 
     def process_drive_commands(self):
-        if not self.drive_commands["iris"].ignore_drive_control:
-            self.send_drive_control_command(self.drive_commands["iris"])
+        if not self.drive_command_data["iris"]["message"].ignore_drive_control:
+            self.send_drive_control_command(self.drive_command_data["iris"])
         else:
-            self.send_drive_control_command(self.drive_commands["ground_station"])
+            self.send_drive_control_command(self.drive_command_data["ground_station"])
 
-    def send_drive_control_command(self, drive_command):
+    def send_drive_control_command(self, drive_command_data):
+
+        if (time() - drive_command_data["last_time"]) > WATCHDOG_TIMEOUT:
+            drive_command = DriveCommandMessage()
+        else:
+            drive_command = drive_command_data["message"]
+
         rear_drive = DriveControlMessage()
         left_drive = DriveControlMessage()
         right_drive = DriveControlMessage()
@@ -117,14 +133,13 @@ class DriveCoordinator(object):
         self.left_bogie_publisher.publish(left_drive)
         self.right_bogie_publisher.publish(right_drive)
 
-
     def iris_drive_command_callback(self, drive_command):
-        self.drive_commands["iris"] = drive_command
-        return
+        self.drive_command_data["iris"]["message"] = drive_command
+        self.drive_command_data["iris"]["last_time"] = time()
 
     def ground_station_drive_command_callback(self, drive_command):
-        self.drive_commands["ground_station"] = drive_command
-        return
+        self.drive_command_data["ground_station"]["message"] = drive_command
+        self.drive_command_data["ground_station"]["last_time"] = time()
 
 
 if __name__ == '__main__':

@@ -98,14 +98,14 @@ class GroundStation(QtCore.QObject):
 
         # ##### Instantiate Threaded Classes ######
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
-        self.__add_thread("Map Coordinator", RoverMapCoordinator.RoverMapCoordinator(self.shared_objects))
+        # self.__add_thread("Map Coordinator", RoverMapCoordinator.RoverMapCoordinator(self.shared_objects))
         self.__add_thread("Rover Drive Sender", RoverDriveSender.RoverDriveSender(self.shared_objects))
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
         self.start_threads_signal.emit()
         
         compass_image = PIL.Image.open("Resources/Images/compass.png").resize((300, 300))  # PIL.Image     
-        self.shared_objects["screens"]["right_screen"].compass_label.setPixmap(QtGui.QPixmap.fromImage(ImageQt(compass_image))) 
+        self.shared_objects["screens"]["right_screen"].heading_compass_label.setPixmap(QtGui.QPixmap.fromImage(ImageQt(compass_image)))
 
     def ___ros_master_running(self):
         checker = ROSMasterChecker.ROSMasterChecker()

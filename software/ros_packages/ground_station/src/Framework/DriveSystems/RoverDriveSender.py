@@ -19,6 +19,11 @@ DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_dri
 
 DRIVE_COMMAND_HERTZ = 15
 
+Y_AXIS_DEADBAND = 0.05
+X_AXIS_DEADBAND = 0.05
+
+THROTTLE_MIN = 0.05
+
 
 #####################################
 # Controller Class Definition
@@ -37,59 +42,51 @@ class LogitechJoystick(QtCore.QThread):
         self.gamepad = None  # type: GamePad
 
         self.controller_states = {
-            "left_stick_x_axis": 0,
+            "x_axis": 512,
             "y_axis": 512,
-            "left_stick_center_pressed": 0,
-
-            "right_stick_x_axis": 0,
-            "right_stick_y_axis": 0,
-            "right_stick_center_pressed": 0,
-
-            "left_trigger_z_axis": 0,
-            "left_bumper_pressed": 0,
-
             "z_axis": 128,
-            "right_bumper_pressed": 0,
+            "throttle_axis": 128,
 
-            "dpad_x": 0,
-            "dpad_y": 0,
+            "hat_x_axis": 0,
+            "hat_y_axis": 0,
 
-            "select_pressed": 0,
-            "start_pressed": 0,
-            "home_pressed": 0,
+            "trigger_pressed": 0,
+            "thumb_pressed": 0,
+            "three_pressed": 0,
+            "four_pressed": 0,
+            "five_pressed": 0,
+            "six_pressed": 0,
 
-            "a_pressed": 0,
-            "b_pressed": 0,
-            "x_pressed": 0,
-            "y_pressed": 0
+            "eleven_pressed": 0,
+            "twelve_pressed": 0,
+            "thirteen_pressed": 0,
+            "fourteen_pressed": 0,
+            "fifteen_pressed": 0,
+            "sixteen_pressed": 0,
         }
 
         self.raw_mapping_to_class_mapping = {
-            "ABS_X": "left_stick_x_axis",
+            "ABS_X": "x_axis",
             "ABS_Y": "y_axis",
-            "BTN_THUMBL": "left_stick_center_pressed",
-
-            "ABS_RX": "right_stick_x_axis",
-            "ABS_RY": "right_stick_y_axis",
-            "BTN_THUMBR": "right_stick_center_pressed",
-
-            "ABS_Z": "left_trigger_z_axis",
-            "BTN_TL": "left_bumper_pressed",
-
             "ABS_RZ": "z_axis",
-            "BTN_TR": "right_bumper_pressed",
+            "ABS_THROTTLE": "throttle_axis",
 
-            "ABS_HAT0X": "dpad_x",
-            "ABS_HAT0Y": "dpad_y",
+            "ABS_HAT0X": "hat_x_axis",
+            "ABS_HAT0Y": "hat_y_axis",
 
-            "BTN_SELECT": "select_pressed",
-            "BTN_START": "start_pressed",
-            "BTN_MODE": "home_pressed",
+            "BTN_TRIGGER": "trigger_pressed",
+            "BTN_THUMB": "thumb_pressed",
+            "BTN_THUMB2": "three_pressed",
+            "BTN_TOP": "four_pressed",
+            "BTN_TOP2": "five_pressed",
+            "BTN_PINKIE": "six_pressed",
 
-            "BTN_SOUTH": "a_pressed",
-            "BTN_EAST": "b_pressed",
-            "BTN_NORTH": "x_pressed",
-            "BTN_WEST": "y_pressed"
+            "BTN_BASE5": "eleven_pressed",
+            "BTN_BASE6": "twelve_pressed",
+            "BTN_BASE3": "thirteen_pressed",
+            "BTN_BASE4": "fourteen_pressed",
+            "BTN_BASE": "fifteen_pressed",
+            "BTN_BASE2": "sixteen_pressed",
         }
 
         self.ready = False
@@ -107,7 +104,6 @@ class LogitechJoystick(QtCore.QThread):
 
     def __setup_controller(self):
         for device in devices.gamepads:
-            print device
             if device.name == GAME_CONTROLLER_NAME:
                 self.gamepad = device
 
@@ -121,23 +117,27 @@ class LogitechJoystick(QtCore.QThread):
             for event in events:
                 if event.code in self.raw_mapping_to_class_mapping:
                     self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
+
             self.ready = True
-            # print "Logitech: %s" % self.controller_states
 
 
 #####################################
 # Controller Class Definition
 #####################################
 class RoverDriveSender(QtCore.QThread):
+    set_speed_limit__signal = QtCore.pyqtSignal(int)
+    set_left_drive_output__signal = QtCore.pyqtSignal(int)
+    set_right_drive_output__signal = QtCore.pyqtSignal(int)
+
     def __init__(self, shared_objects):
         super(RoverDriveSender, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
         self.right_screen = self.shared_objects["screens"]["right_screen"]
-        self.primary_video_display_label = self.right_screen.primary_video_label  # type:QtWidgets.QLabel
-        self.secondary_video_display_label = self.right_screen.secondary_video_label  # type:QtWidgets.QLabel
-        self.tertiary_video_display_label = self.right_screen.tertiary_video_label  # type:QtWidgets.QLabel
+        self.speed_limit_progress_bar = self.right_screen.speed_limit_progress_bar  # type: QtWidgets.QProgressBar
+        self.left_drive_progress_bar = self.right_screen.left_drive_progress_bar  # type: QtWidgets.QProgressBar
+        self.right_drive_progress_bar = self.right_screen.right_drive_progress_bar  # type: QtWidgets.QProgressBar
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -154,34 +154,82 @@ class RoverDriveSender(QtCore.QThread):
         # Publishers
         self.drive_command_publisher = rospy.Publisher(DEFAULT_DRIVE_COMMAND_TOPIC, DriveCommandMessage, queue_size=1)
 
-        self.wait_time = 1 / DRIVE_COMMAND_HERTZ
+        self.wait_time = 1.0 / DRIVE_COMMAND_HERTZ
+
+        self.drive_paused = True
 
     def run(self):
         while self.run_thread_flag:
 
             start_time = time()
 
+            self.check_and_set_pause_state()
             self.__update_and_publish()
 
             time_diff = time() - start_time
 
-            self.msleep(max(self.wait_time - time_diff, 0))
+            self.msleep(max(int(self.wait_time - time_diff), 0))
 
     def connect_signals_and_slots(self):
-        pass
+        self.set_speed_limit__signal.connect(self.speed_limit_progress_bar.setValue)
+        self.set_left_drive_output__signal.connect(self.left_drive_progress_bar.setValue)
+        self.set_right_drive_output__signal.connect(self.right_drive_progress_bar.setValue)
+
+    def check_and_set_pause_state(self):
+        if self.joystick.controller_states["thumb_pressed"]:
+            self.drive_paused = not self.drive_paused
+            self.msleep(350)
+            self.show_changed_pause_state()
 
     def __update_and_publish(self):
+        throttle_axis = max((255 - self.joystick.controller_states["throttle_axis"]) / 255.0, THROTTLE_MIN)
+
+        if self.drive_paused:
+            drive_message = DriveCommandMessage()
+        else:
+            drive_message = self.get_drive_message(throttle_axis)
+
+        left_output = abs(drive_message.drive_twist.linear.x - drive_message.drive_twist.angular.z)
+        right_output = abs(drive_message.drive_twist.linear.x + drive_message.drive_twist.angular.z)
+
+        self.set_speed_limit__signal.emit(throttle_axis * 100)
+        self.set_left_drive_output__signal.emit(left_output * 100)
+        self.set_right_drive_output__signal.emit(right_output * 100)
+
+        self.drive_command_publisher.publish(drive_message)
+
+    def get_drive_message(self, throttle_axis):
         drive_message = DriveCommandMessage()
 
-        drive_message.drive_twist.linear.x = -(self.joystick.controller_states["y_axis"] - 512) / 1024.0
-        drive_message.drive_twist.angular.z = -(self.joystick.controller_states["z_axis"] - 128) / 255.0
-        self.drive_command_publisher.publish(drive_message)
-        # print self.joystick.controller_states["y_axis"], self.joystick.controller_states["z_axis"]
+        y_axis = throttle_axis * (-(self.joystick.controller_states["y_axis"] - 512) / 512.0)
+        z_axis = throttle_axis * (-(self.joystick.controller_states["z_axis"] - 128) / 128.0)
+        x_axis = throttle_axis * (-(self.joystick.controller_states["x_axis"] - 512) / 512.0)
+
+        if abs(y_axis) < Y_AXIS_DEADBAND:
+            y_axis = 0
+
+        if abs(x_axis) < X_AXIS_DEADBAND and y_axis == 0:
+            twist = z_axis
+        else:
+            twist = x_axis if y_axis >= 0 else -x_axis
+
+        drive_message.drive_twist.linear.x = y_axis
+        drive_message.drive_twist.angular.z = twist
+
+        return drive_message
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
         signals_and_slots_signal.connect(self.connect_signals_and_slots)
         kill_signal.connect(self.on_kill_threads_requested__slot)
+
+    def show_changed_pause_state(self):
+        if self.drive_paused:
+            self.left_drive_progress_bar.setStyleSheet("background-color:darkred;")
+            self.right_drive_progress_bar.setStyleSheet("background-color:darkred;")
+        else:
+            self.left_drive_progress_bar.setStyleSheet("background-color: transparent;")
+            self.right_drive_progress_bar.setStyleSheet("background-color: transparent;")
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False

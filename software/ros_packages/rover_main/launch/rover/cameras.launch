@@ -14,5 +14,11 @@
         <node name="chassis" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 3" respawn="true" output="screen" >
             <param name="device_path" value="/dev/rover/camera_chassis" />
         </node>
+
+        <!-- Start End Effector Camera -->
+        <node name="end_effector" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 4" respawn="true" output="screen" >
+            <param name="is_rtsp_camera" value="True" />
+            <param name="device_path" value="rtsp://192.168.1.11" />
+        </node>
     </group>
 </launch>
