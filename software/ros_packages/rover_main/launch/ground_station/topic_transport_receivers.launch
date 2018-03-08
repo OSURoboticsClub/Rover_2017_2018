@@ -47,5 +47,9 @@
         <node name="end_effector_256x144" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
             <param name="port" value="17012" />
         </node>
+
+        <node name="rover_status" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+            <param name="port" value="17013" />
+        </node>
     </group>
 </launch>

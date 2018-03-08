@@ -1,3 +1,3 @@
-int8 bogie_connection_1
-int8 bogie_connection_2
-int8 bogie_connection_3
+bool bogie_connection_1
+bool bogie_connection_2
+bool bogie_connection_3
