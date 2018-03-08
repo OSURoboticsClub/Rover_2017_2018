@@ -39,7 +39,16 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -68,18 +77,27 @@
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <property name="spacing">
           <number>0</number>
          </property>
-         <item row="1" column="4">
+         <item row="0" column="3">
           <layout class="QGridLayout" name="gridLayout_5">
            <property name="spacing">
             <number>0</number>
            </property>
-           <item row="1" column="2">
+           <item row="2" column="2">
             <widget class="QLabel" name="label_9">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -121,7 +139,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
+           <item row="1" column="2">
             <widget class="QLabel" name="label_4">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -166,7 +184,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
+           <item row="2" column="3">
             <widget class="QLabel" name="label_10">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -208,7 +226,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="label_8">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -250,7 +268,7 @@ Fix</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="4">
+           <item row="1" column="4">
             <widget class="QLabel" name="label_19">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -292,7 +310,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="4">
+           <item row="2" column="4">
             <widget class="QLabel" name="label_20">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -334,7 +352,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -376,7 +394,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
+           <item row="1" column="3">
             <widget class="QLabel" name="label_5">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -418,7 +436,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="label_7">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -459,7 +477,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
+           <item row="3" column="2">
             <widget class="QLabel" name="label_21">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -501,7 +519,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="3">
+           <item row="3" column="3">
             <widget class="QLabel" name="label_11">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -546,7 +564,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="4">
+           <item row="3" column="4">
             <widget class="QLabel" name="label_6">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -590,6 +608,12 @@ Connected</string>
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
+           </item>
+           <item row="0" column="0" colspan="3">
+            <widget class="QLCDNumber" name="clock"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLCDNumber" name="timer"/>
            </item>
           </layout>
          </item>
@@ -747,7 +771,16 @@ Connected</string>
            </size>
           </property>
           <layout class="QGridLayout" name="gridLayout">
-           <property name="margin">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
             <number>0</number>
            </property>
            <property name="spacing">
