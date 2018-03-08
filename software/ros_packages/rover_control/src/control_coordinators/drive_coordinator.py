@@ -45,6 +45,19 @@ class DriveCoordinator(object):
 
         self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
 
+        # Drive data
+        self.drive_command_data = {
+            "iris": {
+                "message": DriveCommandMessage(),
+                "last_time": time()
+            },
+
+            "ground_station": {
+                "message": DriveCommandMessage(),
+                "last_time": time()
+            }
+        }
+
         # ########## Class Variables ##########
         self.iris_drive_command_subscriber = rospy.Subscriber(self.iris_drive_command_topic,
                                                               DriveCommandMessage,
@@ -58,17 +71,6 @@ class DriveCoordinator(object):
         self.left_bogie_publisher = rospy.Publisher(self.left_bogie_topic, DriveControlMessage, queue_size=1)
         self.right_bogie_publisher = rospy.Publisher(self.right_bogie_topic, DriveControlMessage, queue_size=1)
 
-        self.drive_command_data = {
-            "iris": {
-                "message": DriveCommandMessage(),
-                "last_time": time()
-            },
-
-            "ground_station": {
-                "message": DriveCommandMessage(),
-                "last_time": time()
-            }
-        }
 
         self.last_message_time = time()
 

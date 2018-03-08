@@ -12,6 +12,7 @@ folders_to_link=(
     nimbro_topic_transport
     rover_main
     rover_camera
+    rover_status
 )
 
 # Print heading

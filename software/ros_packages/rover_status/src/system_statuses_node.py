@@ -1,13 +1,34 @@
 #!/usr/bin/env python
+#####################################
+# Imports
+#####################################
+# Python native imports
 import rospy
 import os.path
 import psutil
 import subprocess
-from system_statuses.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
+from rover_status.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
 from rover_control.msg import DriveCommandMessage
+from std_msgs.msg import Empty
 
+
+#####################################
+# Global Variables
+#####################################
+DEFAULT_CAMERA_TOPIC_NAME = "camera_status"
+DEFAULT_BOGIE_TOPIC_NAME = "bogie_status"
+DEFAULT_FRSKY_TOPIC_NAME = "frsky_status"
+DEFAULT_GPS_TOPIC_NAME = "gps_status"
+DEFAULT_JETSON_TOPIC_NAME = "jetson_status"
+DEFAULT_MISC_TOPIC_NAME = "misc_status"
+
+DEFAULT_REQUEST_UPDATE_TOPIC_NAME = "update_requested"
+
+
+#####################################
+# SystemStatuses Class Definition
+#####################################
 class SystemStatuses:
-
     def __init__(self):
         # Camera path locations
         self.system_path_locations = [
@@ -26,13 +47,31 @@ class SystemStatuses:
 
         rospy.init_node('SystemStatuses')
 
+        # Get Topic Names
+        self.camera_topic_name = rospy.get_param("~camera_status_topic", DEFAULT_CAMERA_TOPIC_NAME)
+        self.bogie_topic_name = rospy.get_param("~bogie_status_topic", DEFAULT_BOGIE_TOPIC_NAME)
+        self.frsky_topic_name = rospy.get_param("~frsky_status_topic", DEFAULT_FRSKY_TOPIC_NAME)
+        self.gps_topic_name = rospy.get_param("~gps_status_topic", DEFAULT_GPS_TOPIC_NAME)
+        self.jetson_topic_name = rospy.get_param("~jetson_status_topic", DEFAULT_JETSON_TOPIC_NAME)
+        self.misc_topic_name = rospy.get_param("~misc_status_topic", DEFAULT_MISC_TOPIC_NAME)
+
+        self.request_update_topic_name = rospy.get_param("~request_update_status_topic",
+                                                         DEFAULT_REQUEST_UPDATE_TOPIC_NAME)
+
         # init all publisher functions
-        self.pub_camera = rospy.Publisher('camera_system_status_chatter', CameraStatuses, queue_size=10)
-        self.pub_bogie = rospy.Publisher('bogie_system_status_chatter', BogieStatuses, queue_size=10)
-        self.pub_FrSky = rospy.Publisher('FrSky_system_status_chatter', FrSkyStatus, queue_size=10)
-        self.pub_GPS = rospy.Publisher('GPS_system_status_chatter', GPSInfo, queue_size=10)
-        self.pub_jetson = rospy.Publisher('jetson_system_status_chatter', JetsonInfo, queue_size=10)
-        self.pub_Misc = rospy.Publisher('misc_system_status_chatter', MiscStatuses, queue_size=10)
+        self.pub_camera = rospy.Publisher(self.camera_topic_name, CameraStatuses, queue_size=1)
+        self.pub_bogie = rospy.Publisher(self.bogie_topic_name, BogieStatuses, queue_size=1)
+        self.pub_FrSky = rospy.Publisher(self.frsky_topic_name, FrSkyStatus, queue_size=1)
+        self.pub_GPS = rospy.Publisher(self.gps_topic_name, GPSInfo, queue_size=1)
+        self.pub_jetson = rospy.Publisher(self.jetson_topic_name, JetsonInfo, queue_size=1)
+        self.pub_Misc = rospy.Publisher(self.misc_topic_name, MiscStatuses, queue_size=1)
+
+        # Subscribers
+        self.request_update_subscriber = rospy.Subscriber(self.request_update_topic_name, Empty,
+                                                          self.on_update_requested)
+
+        # Manual update variable
+        self.manual_update_requested = False
 
         # init all message variables
         self.camera_msg = CameraStatuses()
@@ -116,8 +155,8 @@ class SystemStatuses:
         try:
             sensor_temperatures = subprocess.check_output("sensors | grep temp", shell=True)
             parsed_temps = sensor_temperatures.replace("\xc2\xb0C","").replace("(crit = ","").replace("temp1:","")\
-                .replace("\n","").replace("+","").split()
-            self.jetson_msg.jetson_GPU_temp = parsed_temps[4]
+                .replace("\n", "").replace("+", "").split()
+            self.jetson_msg.jetson_GPU_temp = float(parsed_temps[4])
         except subprocess.CalledProcessError:
             print 'sensors call failed (potential reason: on VM)'
             self.jetson_msg.jetson_GPU_temp = -1.0
@@ -182,6 +221,9 @@ class SystemStatuses:
         self.previous_sample_containment_connection_status = self.misc_msg.sample_containment_connection_status
         self.previous_tower_connection_status = self.misc_msg.tower_connection_status
 
+    def on_update_requested(self,  _):
+        self.manual_update_requested = True
+
     def run(self):
         r = rospy.Rate(10)  # 10Hz
         while not rospy.is_shutdown():
@@ -193,7 +235,8 @@ class SystemStatuses:
             if (self.camera_msg.camera_zed != self.previous_camera_zed or
                     self.camera_msg.camera_undercarriage != self.previous_camera_undercarriage or
                     self.camera_msg.camera_chassis != self.previous_camera_chassis or
-                    self.camera_msg.camera_main_navigation != self.previous_camera_main_navigation):
+                    self.camera_msg.camera_main_navigation != self.previous_camera_main_navigation or
+                    self.manual_update_requested):
                 self.__set_previous_camera_values()
                 self.pub_camera.publish(self.camera_msg)
 
@@ -202,25 +245,29 @@ class SystemStatuses:
                     self.jetson_msg.jetson_RAM != self.previous_jetson_RAM or
                     self.jetson_msg.jetson_EMMC != self.previous_jetson_EMMC or
                     self.jetson_msg.jetson_NVME_SSD != self.previous_jetson_NVME_SSD or
-                    self.jetson_msg.jetson_GPU_temp != self.previous_jetson_GPU_temp):
+                    self.jetson_msg.jetson_GPU_temp != self.previous_jetson_GPU_temp or
+                    self.manual_update_requested):
                 self.__set_previous_jetson_values()
                 self.pub_jetson.publish(self.jetson_msg)
 
             # Placeholder FrSky Controller Check
-            if self.FrSky_msg.FrSky_controller_connection_status != self.previous_FrSky_controller_connection_status:
+            if (self.FrSky_msg.FrSky_controller_connection_status != self.previous_FrSky_controller_connection_status or
+                    self.manual_update_requested):
                 self.__set_previous_frsky_value()
                 self.pub_FrSky.publish(self.FrSky_msg)
 
             # Placeholder bogie status check
             if (self.bogie_msg.bogie_connection_1 != self.previous_bogie_connection_1 or
                     self.bogie_msg.bogie_connection_2 != self.previous_bogie_connection_2 or
-                    self.bogie_msg.bogie_connection_3 != self.previous_bogie_connection_3):
+                    self.bogie_msg.bogie_connection_3 != self.previous_bogie_connection_3 or
+                    self.manual_update_requested):
                 self.__set_previous_bogie_values()
                 self.pub_bogie.publish(self.bogie_msg)
 
             # Placeholder GPS Information check
             if (self.GPS_msg.UTC_GPS_time != self.previous_UTC_GPS_time or
-                    self.GPS_msg.UTC_GPS_time != self.previous_GPS_connection_status):
+                    self.GPS_msg.UTC_GPS_time != self.previous_GPS_connection_status or
+                    self.manual_update_requested):
                 self.__set_previous_gps_values()
                 self.pub_GPS.publish(self.GPS_msg)
 
@@ -233,12 +280,14 @@ class SystemStatuses:
                     self.previous_chassis_pan_tilt_connection_status or
                     self.misc_msg.sample_containment_connection_status !=
                     self.previous_sample_containment_connection_status or
-                    self.misc_msg.tower_connection_status !=
-                    self.previous_tower_connection_status):
+                    self.misc_msg.tower_connection_status != self.previous_tower_connection_status or
+                    self.manual_update_requested):
                 self.__set_previous_misc_values()
                 self.pub_Misc.publish(self.misc_msg)
 
-            # rospy.loginfo(self.msg)
+            if self.manual_update_requested:
+                self.manual_update_requested = False
+
             r.sleep()
 
 

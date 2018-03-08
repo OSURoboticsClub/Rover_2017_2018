@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from system_statuses.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
-
+from rover_status.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
 
 # THIS IS A SUPER ROUGH EXAMPLE OF HOW TO PULL THE DATA
 # You can create your own message formats in the msg folder
@@ -9,8 +8,8 @@ from system_statuses.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSI
 # and storing them into self values.
 # The ground control code sounds like it'll be fairly different in format.
 
-class RoverStatuses:
 
+class RoverStatuses:
     def __init__(self):
 
         rospy.init_node('RoverStatuses')
@@ -73,7 +72,6 @@ class RoverStatuses:
         rospy.Subscriber('jetson_system_status_chatter', JetsonInfo, self.__jetson_callback)
         rospy.Subscriber('misc_system_status_chatter', MiscStatuses, self.__misc_callback)
         rospy.spin()
-
 
 if __name__ == '__main__':
     rover_statuses = RoverStatuses()

@@ -1,4 +1,4 @@
-int8 camera_zed
-int8 camera_undercarriage
-int8 camera_chassis
-int8 camera_main_navigation
+bool camera_zed
+bool camera_undercarriage
+bool camera_chassis
+bool camera_main_navigation
