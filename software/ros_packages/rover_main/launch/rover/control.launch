@@ -26,6 +26,5 @@
         </node>
 
         <node name="drive_coordinator" pkg="rover_control" type="drive_coordinator.py" output="screen"/>
-
     </group>
 </launch>

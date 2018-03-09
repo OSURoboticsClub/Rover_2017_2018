@@ -28,6 +28,8 @@ TERTIARY_LABEL_MAX = (640, 360)
 class RoverVideoCoordinator(QtCore.QThread):
     pixmap_ready_signal = QtCore.pyqtSignal(str)
 
+    update_element_stylesheet__signal = QtCore.pyqtSignal()
+
     def __init__(self, shared_objects):
         super(RoverVideoCoordinator, self).__init__()
 
@@ -130,15 +132,18 @@ class RoverVideoCoordinator(QtCore.QThread):
 
     def __update_gui_element_selection(self):
         if self.gui_selection_update_needed:
-            elements_to_reset = range(len(self.index_to_label_element))
-            elements_to_reset.remove(self.current_label_for_joystick_adjust)
+            self.update_element_stylesheet__signal.emit()
 
-            for index in elements_to_reset:
-                self.index_to_label_element[index].setStyleSheet("")
+    def __on_gui_element_stylesheet_update__slot(self):
+        elements_to_reset = range(len(self.index_to_label_element))
+        elements_to_reset.remove(self.current_label_for_joystick_adjust)
 
-            self.index_to_label_element[self.current_label_for_joystick_adjust].setStyleSheet("border: 2px solid orange")
+        for index in elements_to_reset:
+            self.index_to_label_element[index].setStyleSheet("background-color:black;")
 
-            self.gui_selection_update_needed = False
+        self.index_to_label_element[self.current_label_for_joystick_adjust].setStyleSheet("border: 2px solid orange;")
+
+        self.gui_selection_update_needed = False
 
     def __get_cameras(self):
         topics = rospy.get_published_topics(CAMERA_TOPIC_PATH)
@@ -180,6 +185,10 @@ class RoverVideoCoordinator(QtCore.QThread):
             self.on_camera_gui_element_selection_changed)
         self.shared_objects["threaded_classes"]["Joystick Sender"].change_camera_selection__signal.connect(
             self.on_camera_selection_for_current_gui_element_changed)
+        self.shared_objects["threaded_classes"]["Joystick Sender"].toggle_selected_gui_camera__signal.connect(
+            self.on_gui_selected_camera_toggled)
+
+        self.update_element_stylesheet__signal.connect(self.__on_gui_element_stylesheet_update__slot)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
@@ -254,14 +263,34 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.gui_selection_update_needed = True
 
     def on_camera_selection_for_current_gui_element_changed(self, direction):
-        new_label_setting = self.index_to_label_current_setting[self.current_label_for_joystick_adjust] + direction
+        if self.current_label_for_joystick_adjust == 0: # primary
+            self.primary_label_current_setting = (self.primary_label_current_setting + direction) % len(self.valid_cameras)
+        elif self.current_label_for_joystick_adjust == 1:  # secondary
+            self.secondary_label_current_setting = (self.secondary_label_current_setting + direction) % len(self.valid_cameras)
+        elif self.current_label_for_joystick_adjust == 2:  # tertiary
+            self.tertiary_label_current_setting = (self.tertiary_label_current_setting + direction) % len(self.valid_cameras)
 
-        if new_label_setting < 0:
-            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = len(self.valid_cameras) - 1
-        elif new_label_setting == len(self.valid_cameras):
-            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = 0
-        else:
-            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = new_label_setting
+        self.set_max_resolutions_flag = True
+
+    def on_gui_selected_camera_toggled(self):
+        if self.current_label_for_joystick_adjust == 0: # primary
+            if self.primary_label_current_setting in self.disabled_cameras:
+                self.disabled_cameras.remove(self.primary_label_current_setting)
+            else:
+                self.disabled_cameras.append(self.primary_label_current_setting)
+            self.camera_threads[self.valid_cameras[self.primary_label_current_setting]].toggle_video_display()
+        elif self.current_label_for_joystick_adjust == 1:  # secondary
+            if self.secondary_label_current_setting in self.disabled_cameras:
+                self.disabled_cameras.remove(self.secondary_label_current_setting)
+            else:
+                self.disabled_cameras.append(self.secondary_label_current_setting)
+            self.camera_threads[self.valid_cameras[self.secondary_label_current_setting]].toggle_video_display()
+        elif self.current_label_for_joystick_adjust == 2:  # tertiary
+            if self.tertiary_label_current_setting in self.disabled_cameras:
+                self.disabled_cameras.remove(self.tertiary_label_current_setting)
+            else:
+                self.disabled_cameras.append(self.tertiary_label_current_setting)
+            self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].toggle_video_display()
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False

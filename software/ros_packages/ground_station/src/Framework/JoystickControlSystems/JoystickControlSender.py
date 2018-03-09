@@ -24,8 +24,11 @@ X_AXIS_DEADBAND = 0.05
 
 THROTTLE_MIN = 0.05
 
-CAMERA_CHANGE_TIME = 0.25
-GUI_ELEMENT_CHANGE_TIME = 0.25
+PAUSE_STATE_CHANGE_TIME = 0.5
+
+CAMERA_CHANGE_TIME = 0.2
+GUI_ELEMENT_CHANGE_TIME = 0.2
+CAMERA_TOGGLE_CHANGE_TIME = 0.35
 
 
 #####################################
@@ -134,6 +137,7 @@ class JoystickControlSender(QtCore.QThread):
 
     change_gui_element_selection__signal = QtCore.pyqtSignal(int)
     change_camera_selection__signal = QtCore.pyqtSignal(int)
+    toggle_selected_gui_camera__signal = QtCore.pyqtSignal()
 
     def __init__(self, shared_objects):
         super(JoystickControlSender, self).__init__()
@@ -164,8 +168,10 @@ class JoystickControlSender(QtCore.QThread):
 
         self.drive_paused = True
 
+        self.last_pause_state_time = time()
         self.last_gui_element_change_time = time()
         self.last_camera_change_time = time()
+        self.last_camera_toggle_time = time()
 
     def run(self):
         while self.run_thread_flag:
@@ -185,10 +191,11 @@ class JoystickControlSender(QtCore.QThread):
         self.set_right_drive_output__signal.connect(self.right_drive_progress_bar.setValue)
 
     def check_and_set_pause_state(self):
-        if self.joystick.controller_states["thumb_pressed"]:
+        thumb_pressed = self.joystick.controller_states["thumb_pressed"]
+        if thumb_pressed and (time() - self.last_pause_state_time) > PAUSE_STATE_CHANGE_TIME:
             self.drive_paused = not self.drive_paused
-            self.msleep(350)
             self.show_changed_pause_state()
+            self.last_pause_state_time = time()
 
     def __update_and_publish(self):
         self.publish_drive_command()
@@ -212,6 +219,7 @@ class JoystickControlSender(QtCore.QThread):
         self.drive_command_publisher.publish(drive_message)
 
     def publish_camera_control_commands(self):
+        trigger_pressed = self.joystick.controller_states["trigger_pressed"]
         three_pressed = self.joystick.controller_states["three_pressed"]
         four_pressed = self.joystick.controller_states["four_pressed"]
         five_pressed = self.joystick.controller_states["five_pressed"]
@@ -226,6 +234,10 @@ class JoystickControlSender(QtCore.QThread):
             change = -1 if three_pressed else 1
             self.change_gui_element_selection__signal.emit(change)
             self.last_gui_element_change_time = time()
+
+        if trigger_pressed and (time() - self.last_camera_toggle_time) > CAMERA_TOGGLE_CHANGE_TIME:
+            self.toggle_selected_gui_camera__signal.emit()
+            self.last_camera_toggle_time = time()
 
     def get_drive_message(self, throttle_axis):
         drive_message = DriveCommandMessage()

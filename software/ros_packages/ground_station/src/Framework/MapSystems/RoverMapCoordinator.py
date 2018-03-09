@@ -62,7 +62,7 @@ class RoverMapCoordinator(QtCore.QThread):
                                                          44.567161,
                                                          -123.278432,
                                                          18,
-                                                         'terrain',
+                                                         'satellite',
                                                          None, 20)
 
     def _map_setup(self):
@@ -71,7 +71,7 @@ class RoverMapCoordinator(QtCore.QThread):
                                                          44.567161,
                                                          -123.278432,
                                                          18,
-                                                         'terrain',
+                                                         'satellite',
                                                          None, 20)
         self.overlay_image_object = (
             RoverMap.OverlayImage(44.567161, -123.278432,
