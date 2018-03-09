@@ -24,6 +24,9 @@ X_AXIS_DEADBAND = 0.05
 
 THROTTLE_MIN = 0.05
 
+CAMERA_CHANGE_TIME = 0.25
+GUI_ELEMENT_CHANGE_TIME = 0.25
+
 
 #####################################
 # Controller Class Definition
@@ -124,13 +127,16 @@ class LogitechJoystick(QtCore.QThread):
 #####################################
 # Controller Class Definition
 #####################################
-class RoverDriveSender(QtCore.QThread):
+class JoystickControlSender(QtCore.QThread):
     set_speed_limit__signal = QtCore.pyqtSignal(int)
     set_left_drive_output__signal = QtCore.pyqtSignal(int)
     set_right_drive_output__signal = QtCore.pyqtSignal(int)
 
+    change_gui_element_selection__signal = QtCore.pyqtSignal(int)
+    change_camera_selection__signal = QtCore.pyqtSignal(int)
+
     def __init__(self, shared_objects):
-        super(RoverDriveSender, self).__init__()
+        super(JoystickControlSender, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
@@ -158,6 +164,9 @@ class RoverDriveSender(QtCore.QThread):
 
         self.drive_paused = True
 
+        self.last_gui_element_change_time = time()
+        self.last_camera_change_time = time()
+
     def run(self):
         while self.run_thread_flag:
 
@@ -182,6 +191,10 @@ class RoverDriveSender(QtCore.QThread):
             self.show_changed_pause_state()
 
     def __update_and_publish(self):
+        self.publish_drive_command()
+        self.publish_camera_control_commands()
+
+    def publish_drive_command(self):
         throttle_axis = max((255 - self.joystick.controller_states["throttle_axis"]) / 255.0, THROTTLE_MIN)
 
         if self.drive_paused:
@@ -197,6 +210,22 @@ class RoverDriveSender(QtCore.QThread):
         self.set_right_drive_output__signal.emit(right_output * 100)
 
         self.drive_command_publisher.publish(drive_message)
+
+    def publish_camera_control_commands(self):
+        three_pressed = self.joystick.controller_states["three_pressed"]
+        four_pressed = self.joystick.controller_states["four_pressed"]
+        five_pressed = self.joystick.controller_states["five_pressed"]
+        six_pressed = self.joystick.controller_states["six_pressed"]
+
+        if (five_pressed or six_pressed) and (time() - self.last_camera_change_time) > CAMERA_CHANGE_TIME:
+            change = -1 if five_pressed else 1
+            self.change_camera_selection__signal.emit(change)
+            self.last_camera_change_time = time()
+
+        if (three_pressed or four_pressed) and (time() - self.last_gui_element_change_time) > GUI_ELEMENT_CHANGE_TIME:
+            change = -1 if three_pressed else 1
+            self.change_gui_element_selection__signal.emit(change)
+            self.last_gui_element_change_time = time()
 
     def get_drive_message(self, throttle_axis):
         drive_message = DriveCommandMessage()

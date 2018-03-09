@@ -38,6 +38,12 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.secondary_video_display_label = self.right_screen.secondary_video_label  # type:QtWidgets.QLabel
         self.tertiary_video_display_label = self.right_screen.tertiary_video_label  # type:QtWidgets.QLabel
 
+        self.index_to_label_element = {
+            0: self.primary_video_display_label,
+            1: self.secondary_video_display_label,
+            2: self.tertiary_video_display_label
+        }
+
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
 
@@ -57,13 +63,14 @@ class RoverVideoCoordinator(QtCore.QThread):
 
         reset_camera_message = CameraControlMessage()
         reset_camera_message.enable_small_broadcast = True
+
         # Reset default cameras
         rospy.Publisher("/cameras/chassis/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
         rospy.Publisher("/cameras/undercarriage/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
         rospy.Publisher("/cameras/main_navigation/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
         rospy.Publisher("/cameras/end_effector/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
 
-        self.msleep(3000)
+        # self.msleep(3000)
 
         # Setup cameras
         self.__get_cameras()
@@ -73,9 +80,14 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.secondary_label_current_setting = min(self.primary_label_current_setting + 1, len(self.valid_cameras))
         self.tertiary_label_current_setting = min(self.secondary_label_current_setting + 1, len(self.valid_cameras))
 
-        self.primary_label_max_resolution = -1
-        self.secondary_label_max_resolution = -1
-        self.tertiary_label_max_resolution = -1
+        self.index_to_label_current_setting = {
+            0, self.primary_label_current_setting,
+            1, self.secondary_label_current_setting,
+            2, self.tertiary_label_current_setting
+        }
+
+        self.current_label_for_joystick_adjust = 0
+        self.gui_selection_update_needed = True
 
         self.set_max_resolutions_flag = True
 
@@ -87,6 +99,7 @@ class RoverVideoCoordinator(QtCore.QThread):
         while self.run_thread_flag:
             self.__set_max_resolutions()
             self.__toggle_background_cameras_if_needed()
+            self.__update_gui_element_selection()
             self.msleep(10)
 
         self.__wait_for_camera_threads()
@@ -114,6 +127,18 @@ class RoverVideoCoordinator(QtCore.QThread):
                 self.camera_threads[camera_name].toggle_video_display()
             elif camera_index in enabled and camera_index not in self.disabled_cameras and not self.camera_threads[camera_name].video_enabled:
                 self.camera_threads[camera_name].toggle_video_display()
+
+    def __update_gui_element_selection(self):
+        if self.gui_selection_update_needed:
+            elements_to_reset = range(len(self.valid_cameras))
+            elements_to_reset.remove(self.current_label_for_joystick_adjust)
+
+            for index in elements_to_reset:
+                self.index_to_label_element[index].setStyleSheet("background-color: transparent;")
+
+            self.index_to_label_element[self.current_label_for_joystick_adjust].setStyleSheet("border: 2px solid orange")
+
+            self.gui_selection_update_needed = False
 
     def __get_cameras(self):
         topics = rospy.get_published_topics(CAMERA_TOPIC_PATH)
@@ -150,6 +175,11 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.primary_video_display_label.mousePressEvent = self.__change_display_source_primary_mouse_press_event
         self.secondary_video_display_label.mousePressEvent = self.__change_display_source_secondary_mouse_press_event
         self.tertiary_video_display_label.mousePressEvent = self.__change_display_source_tertiary_mouse_press_event
+
+        self.shared_objects["threaded_classes"]["Joystick Sender"].change_gui_element_selection__signal.connect(
+            self.on_camera_gui_element_selection_changed)
+        self.shared_objects["threaded_classes"]["Joystick Sender"].change_camera_selection__signal.connect(
+            self.on_camera_selection_for_current_gui_element_changed)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
@@ -210,6 +240,28 @@ class RoverVideoCoordinator(QtCore.QThread):
                 self.tertiary_video_display_label.setPixmap(self.camera_threads[camera].pixmap_640x360_image)
             except:
                 pass
+
+    def on_camera_gui_element_selection_changed(self, direction):
+        new_selection = self.current_label_for_joystick_adjust + direction
+
+        if new_selection < 0:
+            self.current_label_for_joystick_adjust = len(self.valid_cameras)
+        elif new_selection > len(self.valid_cameras):
+            self.current_label_for_joystick_adjust = 0
+        else:
+            self.current_label_for_joystick_adjust = new_selection
+
+        self.gui_selection_update_needed = True
+
+    def on_camera_selection_for_current_gui_element_changed(self, direction):
+        new_label_setting = self.index_to_label_current_setting[self.current_label_for_joystick_adjust] + direction
+
+        if new_label_setting < 0:
+            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = len(self.valid_cameras)
+        elif new_label_setting > len(self.valid_cameras):
+            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = 0
+        else:
+            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = new_label_setting
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False
