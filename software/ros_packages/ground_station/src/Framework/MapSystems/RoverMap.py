@@ -358,6 +358,8 @@ class OverlayImage(object):
         self.left_x = (self.center_x - (self.width/2))
         self.upper_y = (self.center_y - (self.height/2))
 
+        self.generate_image_files()
+
     def generate_image_files(self):
         """
         Creates big_image and display image sizes
@@ -410,17 +412,21 @@ class OverlayImage(object):
     def _draw_rover(self, lat, lon, size, scaler):
         x, y = self._get_cartesian(lat, lon)
         draw = PIL.ImageDraw.Draw(self.big_image)
-        draw.ellipsis((x-size, y-size, x+size, y+size), (255, 255, 255, 0))
+        draw.ellipse((x-size, y-size, x+size, y+size), fill="red")
+        point_1 = tuple((math.cos(x-2*size * scaler), math.sin(y * scaler)))
+        point_2 = tuple((math.cos(x * scaler), math.sin(y+2*size * scaler)))
+        point_3 = (math.cos(x+2*size * scaler), math.sin(y * scaler))
+        draw.line( 
+            (point_1,
+            point_2), 
+            fill="red",
+            width=600)
         draw.line(
-            math.cos(x-2*size * scaler),
-            math.sin(y * scaler),
-            math.cos(x * scaler),
-            math.sin(y+2*size * scaler), (255, 255, 255, 0), 25)
-        draw.line(
-            math.cos(x+2*size * scaler),
-            math.sin(y * scaler),
-            math.cos(x * scaler),
-            math.sin(y+2*size * scaler), (255, 255, 255, 0), 25)
+            (point_2,
+            point_3), 
+            fill="red", 
+            width=600)
+        self.display_image.save("Something.png")
 
     def update(self):
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))

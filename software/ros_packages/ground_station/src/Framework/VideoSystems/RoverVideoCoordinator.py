@@ -70,7 +70,7 @@ class RoverVideoCoordinator(QtCore.QThread):
         rospy.Publisher("/cameras/main_navigation/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
         rospy.Publisher("/cameras/end_effector/camera_control", CameraControlMessage, queue_size=1).publish(reset_camera_message)
 
-        # self.msleep(3000)
+        self.msleep(3000)
 
         # Setup cameras
         self.__get_cameras()
@@ -81,9 +81,9 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.tertiary_label_current_setting = min(self.secondary_label_current_setting + 1, len(self.valid_cameras))
 
         self.index_to_label_current_setting = {
-            0, self.primary_label_current_setting,
-            1, self.secondary_label_current_setting,
-            2, self.tertiary_label_current_setting
+            0: self.primary_label_current_setting,
+            1: self.secondary_label_current_setting,
+            2: self.tertiary_label_current_setting
         }
 
         self.current_label_for_joystick_adjust = 0
@@ -130,11 +130,11 @@ class RoverVideoCoordinator(QtCore.QThread):
 
     def __update_gui_element_selection(self):
         if self.gui_selection_update_needed:
-            elements_to_reset = range(len(self.valid_cameras))
+            elements_to_reset = range(len(self.index_to_label_element))
             elements_to_reset.remove(self.current_label_for_joystick_adjust)
 
             for index in elements_to_reset:
-                self.index_to_label_element[index].setStyleSheet("background-color: transparent;")
+                self.index_to_label_element[index].setStyleSheet("")
 
             self.index_to_label_element[self.current_label_for_joystick_adjust].setStyleSheet("border: 2px solid orange")
 
@@ -242,11 +242,11 @@ class RoverVideoCoordinator(QtCore.QThread):
                 pass
 
     def on_camera_gui_element_selection_changed(self, direction):
-        new_selection = self.current_label_for_joystick_adjust + direction
+        new_selection = self.current_label_for_joystick_adjust - direction
 
         if new_selection < 0:
-            self.current_label_for_joystick_adjust = len(self.valid_cameras)
-        elif new_selection > len(self.valid_cameras):
+            self.current_label_for_joystick_adjust = len(self.index_to_label_element) - 1
+        elif new_selection == len(self.index_to_label_element):
             self.current_label_for_joystick_adjust = 0
         else:
             self.current_label_for_joystick_adjust = new_selection
@@ -257,8 +257,8 @@ class RoverVideoCoordinator(QtCore.QThread):
         new_label_setting = self.index_to_label_current_setting[self.current_label_for_joystick_adjust] + direction
 
         if new_label_setting < 0:
-            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = len(self.valid_cameras)
-        elif new_label_setting > len(self.valid_cameras):
+            self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = len(self.valid_cameras) - 1
+        elif new_label_setting == len(self.valid_cameras):
             self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = 0
         else:
             self.index_to_label_current_setting[self.current_label_for_joystick_adjust] = new_label_setting

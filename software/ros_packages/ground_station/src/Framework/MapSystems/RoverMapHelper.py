@@ -12,7 +12,7 @@ class MapHelper(object):
         returns PIL.IMAGE OBJECT
         """
         if alpha is True:
-            return PIL.Image.new('RGBA', (width, height), (0, 0, 0, 255))
+            return PIL.Image.new('RGBA', (width, height), (0, 0, 0, 0))
         else:
             return PIL.Image.new('RGBA', (width, height))
 

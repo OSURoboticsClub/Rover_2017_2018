@@ -98,7 +98,7 @@ class GroundStation(QtCore.QObject):
 
         # ##### Instantiate Threaded Classes ######
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
-        # self.__add_thread("Map Coordinator", RoverMapCoordinator.RoverMapCoordinator(self.shared_objects))
+        self.__add_thread("Map Coordinator", RoverMapCoordinator.RoverMapCoordinator(self.shared_objects))
         self.__add_thread("Joystick Sender", JoystickControlSender.JoystickControlSender(self.shared_objects))
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
