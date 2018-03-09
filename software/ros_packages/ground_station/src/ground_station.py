@@ -8,8 +8,7 @@ import signal
 import rospy
 import logging
 import qdarkstyle
-import PIL.Image
-from PIL.ImageQt import ImageQt
+
 
 # Custom Imports
 import Framework.StartupSystems.ROSMasterChecker as ROSMasterChecker
@@ -17,6 +16,7 @@ import Framework.LoggingSystems.Logger as Logger
 import Framework.VideoSystems.RoverVideoCoordinator as RoverVideoCoordinator
 import Framework.MapSystems.RoverMapCoordinator as RoverMapCoordinator
 import Framework.JoystickControlSystems.JoystickControlSender as JoystickControlSender
+import Framework.NavigationSystems.SpeedAndHeadingIndication as SpeedAndHeading
 
 #####################################
 # Global Variables
@@ -100,12 +100,10 @@ class GroundStation(QtCore.QObject):
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
         self.__add_thread("Map Coordinator", RoverMapCoordinator.RoverMapCoordinator(self.shared_objects))
         self.__add_thread("Joystick Sender", JoystickControlSender.JoystickControlSender(self.shared_objects))
+        self.__add_thread("Speed and Heading", SpeedAndHeading.SpeedAndHeadingIndication(self.shared_objects))
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
         self.start_threads_signal.emit()
-        
-        compass_image = PIL.Image.open("Resources/Images/compass.png").resize((300, 300))  # PIL.Image     
-        self.shared_objects["screens"]["right_screen"].heading_compass_label.setPixmap(QtGui.QPixmap.fromImage(ImageQt(compass_image)))
 
     def ___ros_master_running(self):
         checker = ROSMasterChecker.ROSMasterChecker()
