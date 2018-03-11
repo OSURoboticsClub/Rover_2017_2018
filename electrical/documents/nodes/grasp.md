@@ -1,4 +1,4 @@
-# Grasping Node
+# Grasp Node
 
 Pictures here.
 
@@ -24,7 +24,40 @@ Controls 4 DC motors with quadrature encoder and current feedback. Has four anal
 
 [3D Model V1 (STEP)](files/grasp.step)
 
+### Firmware Info
+
+#### Pinouts
+
+| Pin Name | Arduino Pin Number |
+| -------- | :----------------: |
+| PWM 1.1 | 25 |
+| PWM 1.2 | 22 |
+| PWM 2.1 | 23 |
+| PWM 2.2 | 9 |
+| PWM 3.1 | 10 |
+| PWM 3.2 | 20 |
+| PWM 4.1 | 5 |
+| PWM 4.2 | 21 |
+| Motor Current 1 | 16/A2 |
+| Motor Current 2 | 17/A3 |
+| Motor Current 3 | 19/A5 |
+| Motor Current 4 | 18/A4 |
+| Encoder 1A | 2 |
+| Encoder 1B | 30 |
+| Encoder 2A | 29 |
+| Encoder 2B | 27 |
+| Encoder 3A | 28 |
+| Encoder 3B | 12 |
+| Encoder 4A | 11 |
+| Encoder 4B | 13 |
+| Force 1 | A14 |
+| Force 2 | A13 |
+| Force 3 | A12 |
+| Force 4 | A1| 
+
 ### Known Issues
 
 #### Version 1
 - Missing 3v3 rail connection to VBAT pin on Teensy. Will program without it, but will not boot without it.
+- 12V supply is outputting about 22V
+- Motors are not turning :(
