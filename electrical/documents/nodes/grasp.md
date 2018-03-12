@@ -2,7 +2,7 @@
 
 Pictures here.
 
-Designed by [Dylan Thrush](www.dylanthrush.com)..
+Designed by [Dylan Thrush](www.dylanthrush.com).
 
 ## Summary
 
