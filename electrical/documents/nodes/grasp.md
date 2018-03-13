@@ -54,10 +54,14 @@ Controls 4 DC motors with quadrature encoder and current feedback. Has four anal
 | Force 2 | A13 |
 | Force 3 | A12 |
 | Force 4 | A1| 
+| Red LED | 6 |
+| Green LED | 32 |
+| Blue LED | 1 |
 
 ### Known Issues
 
 #### Version 1
 - Missing 3v3 rail connection to VBAT pin on Teensy. Will program without it, but will not boot without it.
-- 12V switching supply GND is not connected to board GND >.<
+- 12V switching supply GND is not connected to board GND.
 - Motor controller needs a thermal pad in the footprint, will not work otherwise because thermal pad is connected to GND. Scrape away silkscreen below package before soldering.
+- LED needs to be rotated 90 deg CCW for power pin to line up.
