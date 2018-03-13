@@ -64,4 +64,5 @@ Controls 4 DC motors with quadrature encoder and current feedback. Has four anal
 - Missing 3v3 rail connection to VBAT pin on Teensy. Will program without it, but will not boot without it.
 - 12V switching supply GND is not connected to board GND.
 - Motor controller needs a thermal pad in the footprint, will not work otherwise because thermal pad is connected to GND. Scrape away silkscreen below package before soldering.
+-- Motors 2-4 are still not working...
 - LED needs to be rotated 90 deg CCW for power pin to line up.
