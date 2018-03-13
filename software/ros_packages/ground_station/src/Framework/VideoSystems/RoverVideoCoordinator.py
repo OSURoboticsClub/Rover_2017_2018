@@ -4,6 +4,7 @@
 # Python native imports
 from PyQt5 import QtCore, QtWidgets
 import logging
+from time import time
 
 import rospy
 
@@ -20,6 +21,11 @@ EXCLUDED_CAMERAS = ["zed"]
 PRIMARY_LABEL_MAX = (640, 360)
 SECONDARY_LABEL_MAX = (640, 360)
 TERTIARY_LABEL_MAX = (640, 360)
+
+GUI_SELECTION_CHANGE_TIMEOUT = 3  # Seconds
+
+STYLESHEET_SELECTED = "border: 2px solid orange; background-color:black;"
+STYLESHEET_UNSELECTED = "background-color:black;"
 
 
 #####################################
@@ -89,7 +95,8 @@ class RoverVideoCoordinator(QtCore.QThread):
         }
 
         self.current_label_for_joystick_adjust = 0
-        self.gui_selection_update_needed = True
+        self.gui_selection_changed = True
+        self.last_gui_selection_changed_time = time()
 
         self.set_max_resolutions_flag = True
 
@@ -131,19 +138,27 @@ class RoverVideoCoordinator(QtCore.QThread):
                 self.camera_threads[camera_name].toggle_video_display()
 
     def __update_gui_element_selection(self):
-        if self.gui_selection_update_needed:
-            self.update_element_stylesheet__signal.emit()
+        if (time() - self.last_gui_selection_changed_time) > GUI_SELECTION_CHANGE_TIMEOUT \
+                and self.gui_selection_changed:
+
+            elements_to_reset = range(len(self.index_to_label_element))
+
+            for index in elements_to_reset:
+                self.index_to_label_element[index].setStyleSheet(STYLESHEET_UNSELECTED)
+
+            self.gui_selection_changed = False
 
     def __on_gui_element_stylesheet_update__slot(self):
         elements_to_reset = range(len(self.index_to_label_element))
         elements_to_reset.remove(self.current_label_for_joystick_adjust)
 
         for index in elements_to_reset:
-            self.index_to_label_element[index].setStyleSheet("background-color:black;")
+            self.index_to_label_element[index].setStyleSheet(STYLESHEET_UNSELECTED)
 
-        self.index_to_label_element[self.current_label_for_joystick_adjust].setStyleSheet("border: 2px solid orange;")
+        self.index_to_label_element[self.current_label_for_joystick_adjust].setStyleSheet(STYLESHEET_SELECTED)
 
-        self.gui_selection_update_needed = False
+        self.gui_selection_changed = True
+        self.last_gui_selection_changed_time = time()
 
     def __get_cameras(self):
         topics = rospy.get_published_topics(CAMERA_TOPIC_PATH)
@@ -260,7 +275,7 @@ class RoverVideoCoordinator(QtCore.QThread):
         else:
             self.current_label_for_joystick_adjust = new_selection
 
-        self.gui_selection_update_needed = True
+        self.update_element_stylesheet__signal.emit()
 
     def on_camera_selection_for_current_gui_element_changed(self, direction):
         if self.current_label_for_joystick_adjust == 0: # primary
@@ -271,6 +286,7 @@ class RoverVideoCoordinator(QtCore.QThread):
             self.tertiary_label_current_setting = (self.tertiary_label_current_setting + direction) % len(self.valid_cameras)
 
         self.set_max_resolutions_flag = True
+        self.update_element_stylesheet__signal.emit()
 
     def on_gui_selected_camera_toggled(self):
         if self.current_label_for_joystick_adjust == 0: # primary
@@ -291,6 +307,8 @@ class RoverVideoCoordinator(QtCore.QThread):
             else:
                 self.disabled_cameras.append(self.tertiary_label_current_setting)
             self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].toggle_video_display()
+
+        self.update_element_stylesheet__signal.emit()
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False
