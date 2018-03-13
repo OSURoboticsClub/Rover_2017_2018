@@ -8,6 +8,7 @@ import logging
 from time import time
 import PIL.Image
 from PIL.ImageQt import ImageQt
+from random import random
 
 #####################################
 # Global Variables
@@ -23,6 +24,7 @@ ROTATION_SPEED_MODIFIER = 1
 class SpeedAndHeadingIndication(QtCore.QThread):
     show_compass_image__signal = QtCore.pyqtSignal()
     heading_text_update_ready__signal = QtCore.pyqtSignal(str)
+    new_speed_update_ready__signal = QtCore.pyqtSignal(str)
 
     def __init__(self, shared_objects):
         super(SpeedAndHeadingIndication, self).__init__()
@@ -110,7 +112,10 @@ class SpeedAndHeadingIndication(QtCore.QThread):
             new_heading = (self.current_heading - 10) % 360
 
         self.on_heading_changed__slot(new_heading)
+        self.new_speed_update_ready__signal.emit("%.2f" % (random() * 2.5))
         self.heading_text_update_ready__signal.emit(str(new_heading) + "°")
+
+
 
     def on_new_compass_image_ready__slot(self):
         self.heading_compass_label.setPixmap(self.compass_pixmap)
@@ -118,6 +123,8 @@ class SpeedAndHeadingIndication(QtCore.QThread):
     def connect_signals_and_slots(self):
         self.show_compass_image__signal.connect(self.on_new_compass_image_ready__slot)
         self.heading_text_update_ready__signal.connect(self.heading_text_label.setText)
+        self.heading_text_update_ready__signal.connect(self.next_goal_label.setText)
+        self.new_speed_update_ready__signal.connect(self.current_speed_label.setText)
 
         self.heading_compass_label.mousePressEvent = self.__on_heading_clicked__slot
 
