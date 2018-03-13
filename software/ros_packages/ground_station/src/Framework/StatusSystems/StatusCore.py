@@ -17,6 +17,21 @@ class SensorCore(QtCore.QThread):
         self.cpu_read = self.screen_main_window.lineEdit  # type: QtWidgets.QLabel
         self.ram_read = self.screen_main_window.lineEdit_2  # type: QtWidgets.QLabel
 
+        self.rover_conn = self.screen_main_window.rover  # type: QtWidgets.QLabel
+        self.frsky = self.screen_main_window.frsky  # type: QtWidgets.QLabel
+        self.nav_mouse = self.screen_main_window.nav_mouse  # type: QtWidgets.QLabel
+        self.joystick = self.screen_main_window.joystick  # type: QtWidgets.QLabel
+        self.gps = self.screen_main_window.gps  # type: QtWidgets.QLabel
+        self.zed = self.screen_main_window.zed  # type: QtWidgets.QLabel
+        self.main_cam = self.screen_main_window.main_cam  # type: QtWidgets.QLabel
+        self.chassis_cam = self.screen_main_window.chassis_cam  # type: QtWidgets.QLabel
+        self.under_cam = self.screen_main_window.under_cam  # type: QtWidgets.QLabel
+        self.bogie_right = self.screen_main_window.right_bogie  # type: QtWidgets.QLabel
+        self.bogie_left = self.screen_main_window.left_bogie  # type: QtWidgets.QLabel
+        self.bogie_rear = self.screen_main_window.rear_bogie  # type: QtWidgets.QLabel
+        self.clock = self.screen_main_window.clock  # type: QtWidgets.QLCDNumber
+
+
         rospy.init_node('SensorCore')
 
         # self.pub = rospy.Publisher('rover_statuses_chatter', RoverSysStatus, queue_size=10)
@@ -42,13 +57,52 @@ class SensorCore(QtCore.QThread):
         self.camera_msg.camera_chassis = data.camera_chassis
         self.camera_msg.camera_main_navigation = data.camera_main_navigation
 
+        if self.camera_msg.camera_zed is False:
+            self.zed.setStyleSheet("background-color: red;")
+        else:
+            self.zed.setStyleSheet("")
+
+        if self.camera_msg.camera_undercarriage is False:
+            self.under_cam.setStyleSheet("background-color: red;")
+        else:
+            self.under_cam.setStyleSheet("")
+
+        if self.camera_msg.camera_chassis is False:
+            self.chassis_cam.setStyleSheet("background-color: red;")
+        else:
+            self.chassis_cam.setStyleSheet("")
+
+        if self.camera_msg.camera_main_navigation is False:
+            self.main_cam.setStyleSheet("background-color: red;")
+        else:
+            self.main_cam.setStyleSheet("")
+
     def __frsky_callback(self, data):
         self.FrSky_msg.FrSky_controller_connection_status = data.FrSky_controller_connection_status
+        if self.FrSky_msg.FrSky_controller_connection_status is False:
+            self.frsky.setStyleSheet("background-color: red;")
+        else:
+            self.frsky.setStyleSheet("")
 
     def __bogie_callback(self, data):
         self.bogie_msg.bogie_connection_1 = data.bogie_connection_1
         self.bogie_msg.bogie_connection_2 = data.bogie_connection_2
         self.bogie_msg.bogie_connection_3 = data.bogie_connection_3
+
+        if self.bogie_msg.bogie_connection_1 is False:
+            self.bogie_right.setStyleSheet("background-color: red;")
+        else:
+            self.bogie_right.setStyleSheet("")
+
+        if self.bogie_msg.bogie_connection_2 is False:
+            self.bogie_left.setStyleSheet("background-color: red;")
+        else:
+            self.bogie_left.setStyleSheet("")
+
+        if self.bogie_msg.bogie_connection_3 is False:
+            self.bogie_rear.setStyleSheet("background-color: red;")
+        else:
+            self.bogie_rear.setStyleSheet("")
 
     def __jetson_callback(self, data):
         self.jetson_msg.jetson_CPU = data.jetson_CPU
@@ -62,6 +116,11 @@ class SensorCore(QtCore.QThread):
     def __gps_callback(self, data):
         self.GPS_msg.UTC_GPS_time = data.UTC_GPS_time
         self.GPS_msg.GPS_connection_status = data.GPS_connection_status
+
+        if self.GPS_msg.GPS_connection_status is False:
+            self.gps.setStyleSheet("background-color: red")
+        else:
+            self.gps.setStyleSheet("")
 
     def __misc_callback(self, data):
         self.misc_msg.arm_connection_status = data.arm_connection_status
@@ -80,7 +139,6 @@ class SensorCore(QtCore.QThread):
         #self.gui_element = self.jetson_msg.jetson_CPU
         #print(self.jetson_msg.jetson_CPU)
         rospy.spin()
-
 
     def on_kill_threads_requested__slot(self):
         self.not_abort = False

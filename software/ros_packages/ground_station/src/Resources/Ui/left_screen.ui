@@ -98,7 +98,7 @@
             <number>0</number>
            </property>
            <item row="2" column="2">
-            <widget class="QLabel" name="label_9">
+            <widget class="QLabel" name="left_bogie">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -140,7 +140,7 @@ Connected</string>
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="frsky">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -185,7 +185,7 @@ Connected</string>
             </widget>
            </item>
            <item row="2" column="3">
-            <widget class="QLabel" name="label_10">
+            <widget class="QLabel" name="right_bogie">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -227,7 +227,7 @@ Connected</string>
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="label_8">
+            <widget class="QLabel" name="gps">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -269,7 +269,7 @@ Fix</string>
             </widget>
            </item>
            <item row="1" column="4">
-            <widget class="QLabel" name="label_19">
+            <widget class="QLabel" name="joystick">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -311,7 +311,7 @@ Connected</string>
             </widget>
            </item>
            <item row="2" column="4">
-            <widget class="QLabel" name="label_20">
+            <widget class="QLabel" name="rear_bogie">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -353,7 +353,7 @@ Connected</string>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label">
+            <widget class="QLabel" name="rover">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -395,7 +395,7 @@ Connected</string>
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="nav_mouse">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -437,7 +437,7 @@ Connected</string>
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="zed">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -478,7 +478,7 @@ Connected</string>
             </widget>
            </item>
            <item row="3" column="2">
-            <widget class="QLabel" name="label_21">
+            <widget class="QLabel" name="main_cam">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -520,7 +520,7 @@ Connected</string>
             </widget>
            </item>
            <item row="3" column="3">
-            <widget class="QLabel" name="label_11">
+            <widget class="QLabel" name="chassis_cam">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -565,7 +565,7 @@ Connected</string>
             </widget>
            </item>
            <item row="3" column="4">
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="under_cam">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
