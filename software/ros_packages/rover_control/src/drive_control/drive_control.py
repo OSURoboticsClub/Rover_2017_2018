@@ -55,6 +55,8 @@ MOTOR_DRIVER_DEFAULT_MESSAGE = [
 
 UINT16_MAX = 65535
 
+BOGIE_LAST_SEEN_TIMEOUT = 2  # seconds
+
 
 #####################################
 # DriveControl Class Definition
@@ -75,9 +77,10 @@ class DriveControl(object):
 
         self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
 
-        self.first_motor = minimalmodbus.Instrument(self.port, FIRST_MOTOR_ID)
-        self.second_motor = minimalmodbus.Instrument(self.port, SECOND_MOTOR_ID)
-        self.__setup_minimalmodbus_for_485()
+        self.first_motor = None
+        self.second_motor = None
+
+        self.connect_to_bogie()
 
         self.drive_control_subscriber = \
             rospy.Subscriber(self.drive_control_subscriber_topic, DriveControlMessage, self.drive_control_callback)
@@ -86,6 +89,8 @@ class DriveControl(object):
 
         self.drive_control_message = DriveControlMessage()
         self.new_control_message = False
+
+        self.bogie_last_seen = time()
 
         self.run()
 
@@ -111,9 +116,17 @@ class DriveControl(object):
             except Exception, error:
                 print "Error occurred:", error
 
+            if (time() - self.bogie_last_seen) > BOGIE_LAST_SEEN_TIMEOUT:
+                return  # Exit so respawn can take over
+
             time_diff = time() - start_time
 
             sleep(max(self.wait_time - time_diff, 0))
+
+    def connect_to_bogie(self):
+        self.first_motor = minimalmodbus.Instrument(self.port, FIRST_MOTOR_ID)
+        self.second_motor = minimalmodbus.Instrument(self.port, SECOND_MOTOR_ID)
+        self.__setup_minimalmodbus_for_485()
 
     def send_drive_control_message(self):
         if self.new_control_message:
@@ -155,6 +168,9 @@ class DriveControl(object):
             status.second_motor_connected = True
         except Exception:
             status.second_motor_connected = False
+
+        if status.first_motor_connected or status.second_motor_connected:
+            self.bogie_last_seen = time()
 
         if status.first_motor_connected:
             status.first_motor_current = first_motor_status[0] / 1000.0

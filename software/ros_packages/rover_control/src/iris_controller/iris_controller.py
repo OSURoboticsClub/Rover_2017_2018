@@ -111,6 +111,7 @@ class IrisController(object):
 
             except Exception, error:
                 print "Error occurred:", error
+                return
 
             time_diff = time() - start_time
 

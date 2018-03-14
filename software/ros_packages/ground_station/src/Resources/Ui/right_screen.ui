@@ -150,7 +150,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDial" name="dial_31">
+                <widget class="QDial" name="base_rotation_dial">
                  <property name="minimumSize">
                   <size>
                    <width>305</width>
@@ -158,10 +158,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-180</number>
+                  <number>0</number>
                  </property>
                  <property name="maximum">
-                  <number>180</number>
+                  <number>360</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -217,7 +217,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDial" name="dial_32">
+                <widget class="QDial" name="shoulder_pitch_dial">
                  <property name="minimumSize">
                   <size>
                    <width>305</width>
@@ -225,10 +225,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-180</number>
+                  <number>0</number>
                  </property>
                  <property name="maximum">
-                  <number>180</number>
+                  <number>360</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -258,7 +258,7 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -268,19 +268,6 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_11">
-             <item>
-              <spacer name="horizontalSpacer_7">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_41">
                <item>
@@ -301,7 +288,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDial" name="dial_33">
+                <widget class="QDial" name="elbow_pitch_dial">
                  <property name="minimumSize">
                   <size>
                    <width>305</width>
@@ -309,10 +296,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-180</number>
+                  <number>0</number>
                  </property>
                  <property name="maximum">
-                  <number>180</number>
+                  <number>360</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -342,24 +329,82 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
               </layout>
              </item>
              <item>
-              <spacer name="horizontalSpacer_8">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
+              <layout class="QHBoxLayout" name="horizontalLayout_13">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_45">
+                 <item>
+                  <widget class="QLabel" name="label_50">
+                   <property name="font">
+                    <font>
+                     <pointsize>14</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Elbow Roll</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDial" name="elbow_roll_dial">
+                   <property name="minimumSize">
+                    <size>
+                     <width>305</width>
+                     <height>185</height>
+                    </size>
+                   </property>
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>360</number>
+                   </property>
+                   <property name="pageStep">
+                    <number>10</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                   <property name="sliderPosition">
+                    <number>0</number>
+                   </property>
+                   <property name="tracking">
+                    <bool>true</bool>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="invertedAppearance">
+                    <bool>false</bool>
+                   </property>
+                   <property name="invertedControls">
+                    <bool>false</bool>
+                   </property>
+                   <property name="wrapping">
+                    <bool>true</bool>
+                   </property>
+                   <property name="notchTarget">
+                    <double>90.000000000000000</double>
+                   </property>
+                   <property name="notchesVisible">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
@@ -385,7 +430,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDial" name="dial_34">
+                <widget class="QDial" name="end_effector_pitch_dial">
                  <property name="minimumSize">
                   <size>
                    <width>305</width>
@@ -393,10 +438,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-180</number>
+                  <number>0</number>
                  </property>
                  <property name="maximum">
-                  <number>180</number>
+                  <number>360</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -426,7 +471,7 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -452,7 +497,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDial" name="dial_35">
+                <widget class="QDial" name="end_effector_rotation_dial">
                  <property name="minimumSize">
                   <size>
                    <width>305</width>
@@ -460,10 +505,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-180</number>
+                  <number>0</number>
                  </property>
                  <property name="maximum">
-                  <number>180</number>
+                  <number>360</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -493,7 +538,7 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>

@@ -60,9 +60,6 @@ class SpeedAndHeadingIndication(QtCore.QThread):
         self.current_heading_shown_rotation_angle = 0
         self.rotation_direction = 1
 
-        # compass_image = PIL.Image.open("Resources/Images/compass.png").resize((300, 300)).rotate(45)  # PIL.Image
-        # self.shared_objects["screens"]["right_screen"].heading_compass_label.setPixmap(QtGui.QPixmap.fromImage(ImageQt(compass_image)))
-
     def run(self):
         self.on_heading_changed__slot(self.current_heading)
 
@@ -107,15 +104,13 @@ class SpeedAndHeadingIndication(QtCore.QThread):
     def __on_heading_clicked__slot(self, event):
         new_heading = self.current_heading
         if event.button() == QtCore.Qt.LeftButton:
-            new_heading = (self.current_heading + 10) % 360
+            new_heading = (self.current_heading + 5) % 360
         elif event.button() == QtCore.Qt.RightButton:
-            new_heading = (self.current_heading - 10) % 360
+            new_heading = (self.current_heading - 5) % 360
 
         self.on_heading_changed__slot(new_heading)
         self.new_speed_update_ready__signal.emit("%.2f" % (random() * 2.5))
         self.heading_text_update_ready__signal.emit(str(new_heading) + "°")
-
-
 
     def on_new_compass_image_ready__slot(self):
         self.heading_compass_label.setPixmap(self.compass_pixmap)
