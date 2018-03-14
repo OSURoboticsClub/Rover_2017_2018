@@ -106,7 +106,7 @@
                 {name: "/rover_status/camera_status", compress: true, rate: 1.0},
                 {name: "/rover_status/frsky_status", compress: true, rate: 1.0},
                 {name: "/rover_status/gps_status", compress: true, rate: 1.0},
-                {name: "/rover_status/jetson_status", compress: true, rate: 0.2},
+                {name: "/rover_status/jetson_status", compress: true, rate: 1.0},
                 {name: "/rover_status/misc_status", compress: true, rate: 1.0}]
             </rosparam>
         </node>

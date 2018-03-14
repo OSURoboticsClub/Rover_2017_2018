@@ -10,9 +10,9 @@ from time import time
 #####################################
 # Global Variables
 #####################################
-THREAD_HERTZ = 10
+THREAD_HERTZ = 2
 
-ROTATION_SPEED_MODIFIER = 0.015
+ROTATION_SPEED_MODIFIER = 0.15
 
 
 #####################################

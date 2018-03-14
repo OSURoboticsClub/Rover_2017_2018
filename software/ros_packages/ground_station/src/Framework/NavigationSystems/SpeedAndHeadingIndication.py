@@ -15,7 +15,7 @@ from random import random
 #####################################
 THREAD_HERTZ = 20
 
-ROTATION_SPEED_MODIFIER = 1
+ROTATION_SPEED_MODIFIER = 2.5
 
 
 #####################################
@@ -56,8 +56,9 @@ class SpeedAndHeadingIndication(QtCore.QThread):
         self.current_heading = 0
         self.current_heading_changed = True
 
-        self.shown_heading = (self.current_heading + 1) % 360
+        self.shown_heading = (self.current_heading + (1.5 * ROTATION_SPEED_MODIFIER)) % 360
         self.current_heading_shown_rotation_angle = 0
+        self.last_current_heading_shown = 0
         self.rotation_direction = 1
 
     def run(self):
@@ -77,16 +78,26 @@ class SpeedAndHeadingIndication(QtCore.QThread):
             self.msleep(max(int(self.wait_time - time_diff), 0))
 
     def rotate_compass_if_needed(self):
-        if int(self.shown_heading) != self.current_heading:
+        heading_difference = abs(int(self.shown_heading) - self.current_heading)
+        should_update = False
+
+        if heading_difference > ROTATION_SPEED_MODIFIER:
             self.shown_heading += self.rotation_direction * ROTATION_SPEED_MODIFIER
             self.shown_heading %= 360
+            should_update = True
+        elif heading_difference != 0:
+            self.shown_heading = self.current_heading
+            should_update = True
 
+        if should_update:
             self.current_heading_shown_rotation_angle = int(self.shown_heading)
 
-            new_compass_image = self.main_compass_image.rotate(self.current_heading_shown_rotation_angle, resample=PIL.Image.BICUBIC)
+            if self.current_heading_shown_rotation_angle != self.last_current_heading_shown:
+                new_compass_image = self.main_compass_image.rotate(self.current_heading_shown_rotation_angle, resample=PIL.Image.BICUBIC)
+                self.last_current_heading_shown = self.current_heading_shown_rotation_angle
 
-            self.compass_pixmap = QtGui.QPixmap.fromImage(ImageQt(new_compass_image))
-            self.show_compass_image__signal.emit()
+                self.compass_pixmap = QtGui.QPixmap.fromImage(ImageQt(new_compass_image))
+                self.show_compass_image__signal.emit()
 
     def update_heading_movement(self):
         current_minus_shown = (self.current_heading - self.shown_heading) % 360
