@@ -158,7 +158,7 @@ class SystemStatuses:
                 .replace("\n", "").replace("+", "").split()
             self.jetson_msg.jetson_GPU_temp = float(parsed_temps[4])
         except subprocess.CalledProcessError:
-            print 'sensors call failed (potential reason: on VM)'
+            print('sensors call failed (potential reason: on VM)')
             self.jetson_msg.jetson_GPU_temp = -1.0
 
     # EMMC and NVMe_SSD used % calculation
