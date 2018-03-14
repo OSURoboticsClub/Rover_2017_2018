@@ -3,6 +3,9 @@
 import rospy
 from rover_status.msg import *
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
+from std_msgs.msg import Empty
+
+REQUEST_UPDATE_TOPIC = "/rover_status/update_requested"
 
 
 class SensorCore(QtCore.QThread):
@@ -52,6 +55,10 @@ class SensorCore(QtCore.QThread):
         self.GPS_msg = GPSInfo()
         self.jetson_msg = JetsonInfo()
         self.misc_msg = MiscStatuses()
+
+        self.req = rospy.Publisher(REQUEST_UPDATE_TOPIC, Empty, queue_size=1)
+
+        self.req.publish(Empty())
 
     def __camera_callback(self, data):
         self.camera_msg.camera_zed = data.camera_zed
