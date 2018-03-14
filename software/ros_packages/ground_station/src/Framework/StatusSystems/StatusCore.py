@@ -31,6 +31,7 @@ class SensorCore(QtCore.QThread):
         self.bogie_rear = self.screen_main_window.rear_bogie  # type: QtWidgets.QLabel
         self.clock = self.screen_main_window.clock  # type: QtWidgets.QLCDNumber
         self.cpu = self.screen_main_window.cpu  # type: QtWidgets.QLabel
+        self.ram = self.screen_main_window.ram  # type: QtWidgets.QLabel
 
 
         rospy.init_node('SensorCore')
@@ -119,8 +120,13 @@ class SensorCore(QtCore.QThread):
             self.cpu.setStyleSheet("")
 
         self.jetson_msg.jetson_RAM = data.jetson_RAM
-
-        self.ram_read.setText(str(self.jetson_msg.jetson_RAM))
+        self.ram.setText(str(self.jetson_msg.jetson_RAM))
+        if self.jetson_msg.jetson_RAM > 79:
+            self.ram.setStyleSheet("background-color: orange;")
+        elif self.jetson_msg.jetson_RAM > 89:
+            self.ram.setStyleSheet("background-color: red;")
+        else:
+            self.ram.setStyleSheet("")
 
         self.jetson_msg.jetson_EMMC = data.jetson_EMMC
         self.jetson_msg.jetson_NVME_SSD = data.jetson_NVME_SSD
