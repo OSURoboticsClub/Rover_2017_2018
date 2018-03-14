@@ -30,6 +30,7 @@ class SensorCore(QtCore.QThread):
         self.bogie_left = self.screen_main_window.left_bogie  # type: QtWidgets.QLabel
         self.bogie_rear = self.screen_main_window.rear_bogie  # type: QtWidgets.QLabel
         self.clock = self.screen_main_window.clock  # type: QtWidgets.QLCDNumber
+        self.cpu = self.screen_main_window.cpu  # type: QtWidgets.QLabel
 
 
         rospy.init_node('SensorCore')
@@ -79,6 +80,7 @@ class SensorCore(QtCore.QThread):
 
     def __frsky_callback(self, data):
         self.FrSky_msg.FrSky_controller_connection_status = data.FrSky_controller_connection_status
+
         if self.FrSky_msg.FrSky_controller_connection_status is False:
             self.frsky.setStyleSheet("background-color: red;")
         else:
@@ -106,9 +108,20 @@ class SensorCore(QtCore.QThread):
 
     def __jetson_callback(self, data):
         self.jetson_msg.jetson_CPU = data.jetson_CPU
-        self.cpu_read.setText(str(self.jetson_msg.jetson_CPU))
+
+        # self.cpu_read.setText(str(self.jetson_msg.jetson_CPU))
+        self.cpu.setText(str(self.jetson_msg.jetson_CPU))
+        if self.jetson_msg.jetson_CPU > 79:
+            self.cpu.setStyleSheet("background-color: orange;")
+        elif self.jetson_msg.jetson_CPU > 89:
+            self.cpu.setStyleSheet("background-color: red;")
+        else:
+            self.cpu.setStyleSheet("")
+
         self.jetson_msg.jetson_RAM = data.jetson_RAM
+
         self.ram_read.setText(str(self.jetson_msg.jetson_RAM))
+
         self.jetson_msg.jetson_EMMC = data.jetson_EMMC
         self.jetson_msg.jetson_NVME_SSD = data.jetson_NVME_SSD
         #rospy.loginfo(self.jetson_msg)
@@ -128,6 +141,11 @@ class SensorCore(QtCore.QThread):
         self.misc_msg.sample_containment_connection_status = data.sample_containment_connection_status
         self.misc_msg.tower_connection_status = data.tower_connection_status
         self.misc_msg.chassis_pan_tilt_connection_status = data.chassis_pan_tilt_connection_status
+
+    def __display_time(self):
+        time = QtCore.QTime.currentTime()
+        temp = time.toString('hh:mm:ss')
+        self.clock.display(temp)
 
     def run(self):
         rospy.Subscriber('camera_system_status_chatter', CameraStatuses, self.__camera_callback)
