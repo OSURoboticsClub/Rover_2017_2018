@@ -17,6 +17,9 @@ MISC_TOPIC_NAME = "/rover_status/misc_status"
 
 
 class SensorCore(QtCore.QThread):
+    jetson_cpu_update_ready__signal = QtCore.pyqtSignal(str)
+    jetson_cpu_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
     def __init__(self, shared_objects):
         super(SensorCore, self).__init__()
 
@@ -120,25 +123,30 @@ class SensorCore(QtCore.QThread):
         self.jetson_msg.jetson_CPU = data.jetson_CPU
 
         # self.cpu_read.setText(str(self.jetson_msg.jetson_CPU))
-        self.cpu.setText(str(self.jetson_msg.jetson_CPU))
+        # self.cpu.setText(str(self.jetson_msg.jetson_CPU))
+        self.jetson_cpu_update_ready__signal.emit(str(self.jetson_msg.jetson_CPU))
+
         if self.jetson_msg.jetson_CPU > 79:
-            self.cpu.setStyleSheet("background-color: orange;")
+            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: orange;")
+            # self.cpu.setStyleSheet("background-color: orange;")
         elif self.jetson_msg.jetson_CPU > 89:
-            self.cpu.setStyleSheet("background-color: red;")
+            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.cpu.setStyleSheet("background-color: red;")
         else:
-            self.cpu.setStyleSheet("background-color: darkgreen;")
+            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            # self.cpu.setStyleSheet("background-color: darkgreen;")
 
-        self.jetson_msg.jetson_RAM = data.jetson_RAM
-        self.ram.setText(str(self.jetson_msg.jetson_RAM))
-        if self.jetson_msg.jetson_RAM > 79:
-            self.ram.setStyleSheet("background-color: orange;")
-        elif self.jetson_msg.jetson_RAM > 89:
-            self.ram.setStyleSheet("background-color: red;")
-        else:
-            self.ram.setStyleSheet("background-color: darkgreen;")
-
-        self.jetson_msg.jetson_EMMC = data.jetson_EMMC
-        self.jetson_msg.jetson_NVME_SSD = data.jetson_NVME_SSD
+        # self.jetson_msg.jetson_RAM = data.jetson_RAM
+        # self.ram.setText(str(self.jetson_msg.jetson_RAM))
+        # if self.jetson_msg.jetson_RAM > 79:
+        #     self.ram.setStyleSheet("background-color: orange;")
+        # elif self.jetson_msg.jetson_RAM > 89:
+        #     self.ram.setStyleSheet("background-color: red;")
+        # else:
+        #     self.ram.setStyleSheet("background-color: darkgreen;")
+        #
+        # self.jetson_msg.jetson_EMMC = data.jetson_EMMC
+        # self.jetson_msg.jetson_NVME_SSD = data.jetson_NVME_SSD
         #rospy.loginfo(self.jetson_msg)
 
     def __gps_callback(self, data):
@@ -167,7 +175,8 @@ class SensorCore(QtCore.QThread):
             self.msleep(100)
 
     def connect_signals_and_slots(self):
-        pass
+        self.jetson_cpu_update_ready__signal.connect(self.cpu.setText)
+        self.jetson_cpu_stylesheet_change_ready__signal.connect(self.cpu.setStyleSheet)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
