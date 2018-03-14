@@ -8,14 +8,23 @@ from std_msgs.msg import Empty
 REQUEST_UPDATE_TOPIC = "/rover_status/update_requested"
 
 
-class SensorCore(QtCore.QThread):
+CAMERA_TOPIC_NAME = "/rover_status/camera_status"
+BOGIE_TOPIC_NAME = "/rover_status/bogie_status"
+FRSKY_TOPIC_NAME = "/rover_status/frsky_status"
+GPS_TOPIC_NAME = "/rover_status/gps_status"
+JETSON_TOPIC_NAME = "/rover_status/jetson_status"
+MISC_TOPIC_NAME = "/rover_status/misc_status"
 
-    def __init__(self, screen):
+
+class SensorCore(QtCore.QThread):
+    def __init__(self, shared_objects):
         super(SensorCore, self).__init__()
 
-        self.not_abort = True
+        self.run_thread_flag = True
 
-        self.screen_main_window = screen
+        # ########## Reference to class init variables ##########
+        self.shared_objects = shared_objects
+        self.screen_main_window = self.shared_objects["screens"]["left_screen"]
 
         self.cpu_read = self.screen_main_window.lineEdit  # type: QtWidgets.QLabel
         self.ram_read = self.screen_main_window.lineEdit_2  # type: QtWidgets.QLabel
@@ -36,18 +45,13 @@ class SensorCore(QtCore.QThread):
         self.cpu = self.screen_main_window.cpu  # type: QtWidgets.QLabel
         self.ram = self.screen_main_window.ram  # type: QtWidgets.QLabel
 
-
-        rospy.init_node('SensorCore')
-
-        # self.pub = rospy.Publisher('rover_statuses_chatter', RoverSysStatus, queue_size=10)
-
         # Subscription examples on pulling data from system_statuses_node.py
-        rospy.Subscriber('camera_system_status_chatter', CameraStatuses, self.__camera_callback)
-        rospy.Subscriber('bogie_system_status_chatter', BogieStatuses, self.__bogie_callback)
-        rospy.Subscriber('FrSky_system_status_chatter', FrSkyStatus, self.__frsky_callback)
-        rospy.Subscriber('GPS_system_status_chatter', GPSInfo, self.__gps_callback)
-        rospy.Subscriber('jetson_system_status_chatter', JetsonInfo, self.__jetson_callback)
-        rospy.Subscriber('misc_system_status_chatter', MiscStatuses, self.__misc_callback)
+        self.camera_status = rospy.Subscriber(CAMERA_TOPIC_NAME, CameraStatuses, self.__camera_callback)
+        self.bogie_status = rospy.Subscriber(BOGIE_TOPIC_NAME, BogieStatuses, self.__bogie_callback)
+        self.frsky_status = rospy.Subscriber(FRSKY_TOPIC_NAME, FrSkyStatus, self.__frsky_callback)
+        self.gps_status = rospy.Subscriber(GPS_TOPIC_NAME, GPSInfo, self.__gps_callback)
+        self.jetson_status = rospy.Subscriber(JETSON_TOPIC_NAME, JetsonInfo, self.__jetson_callback)
+        self.misc_status = rospy.Subscriber(MISC_TOPIC_NAME, MiscStatuses, self.__misc_callback)
 
         self.camera_msg = CameraStatuses()
         self.bogie_msg = BogieStatuses()
@@ -56,9 +60,7 @@ class SensorCore(QtCore.QThread):
         self.jetson_msg = JetsonInfo()
         self.misc_msg = MiscStatuses()
 
-        self.req = rospy.Publisher(REQUEST_UPDATE_TOPIC, Empty, queue_size=1)
-
-        self.req.publish(Empty())
+        rospy.Publisher(REQUEST_UPDATE_TOPIC, Empty, queue_size=1).publish(Empty())
 
     def __camera_callback(self, data):
         self.camera_msg.camera_zed = data.camera_zed
@@ -161,21 +163,19 @@ class SensorCore(QtCore.QThread):
         self.clock.display(temp)
 
     def run(self):
-        rospy.Subscriber('camera_system_status_chatter', CameraStatuses, self.__camera_callback)
-        rospy.Subscriber('bogie_system_status_chatter', BogieStatuses, self.__bogie_callback)
-        rospy.Subscriber('FrSky_system_status_chatter', FrSkyStatus, self.__frsky_callback)
-        rospy.Subscriber('GPS_system_status_chatter', GPSInfo, self.__gps_callback)
-        rospy.Subscriber('jetson_system_status_chatter', JetsonInfo, self.__jetson_callback)
-        rospy.Subscriber('misc_system_status_chatter', MiscStatuses, self.__misc_callback)
-        #self.gui_element = self.jetson_msg.jetson_CPU
-        #print(self.jetson_msg.jetson_CPU)
-        rospy.spin()
-
-    def on_kill_threads_requested__slot(self):
-        self.not_abort = False
+        while self.run_thread_flag:
+            self.msleep(100)
 
     def connect_signals_and_slots(self):
         pass
+
+    def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
+        start_signal.connect(self.start)
+        signals_and_slots_signal.connect(self.connect_signals_and_slots)
+        kill_signal.connect(self.on_kill_threads_requested__slot)
+
+    def on_kill_threads_requested__slot(self):
+        self.run_thread_flag = False
 
 
 if __name__ == '__main__':

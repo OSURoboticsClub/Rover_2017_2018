@@ -18,6 +18,7 @@ import Framework.MapSystems.RoverMapCoordinator as RoverMapCoordinator
 import Framework.JoystickControlSystems.JoystickControlSender as JoystickControlSender
 import Framework.NavigationSystems.SpeedAndHeadingIndication as SpeedAndHeading
 import Framework.ArmSystems.ArmIndication as ArmIndication
+import Framework.StatusSystems.StatusCore as StatusCore
 
 #####################################
 # Global Variables
@@ -103,6 +104,7 @@ class GroundStation(QtCore.QObject):
         self.__add_thread("Joystick Sender", JoystickControlSender.JoystickControlSender(self.shared_objects))
         self.__add_thread("Speed and Heading", SpeedAndHeading.SpeedAndHeadingIndication(self.shared_objects))
         self.__add_thread("Arm Indication", ArmIndication.ArmIndication(self.shared_objects))
+        self.__add_thread("Rover Status", StatusCore.SensorCore(self.shared_objects))
 
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
