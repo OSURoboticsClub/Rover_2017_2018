@@ -132,11 +132,13 @@ class RoverMapCoordinator(QtCore.QThread):
         return temp_list
 
     def update_overlay(self):
+        longitude = 44.567161,
+        latitude = -123.278432,
         navigation_list = self._get_table_elements(self.navigation_label)
         # landmark_list = self._get_table_elements(self.landmark_label)
         landmark_list = []
-        self.overlay_image_object.update_new_location(self.latitude,
-                                                      self.longitude,
+        self.overlay_image_object.update_new_location(latitude,
+                                                      longitude,
                                                       70,
                                                       navigation_list,
                                                       landmark_list)
