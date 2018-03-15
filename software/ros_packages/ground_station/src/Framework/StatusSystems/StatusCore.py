@@ -17,8 +17,26 @@ MISC_TOPIC_NAME = "/rover_status/misc_status"
 
 
 class SensorCore(QtCore.QThread):
+    # ########## create signals for slots ##########
     jetson_cpu_update_ready__signal = QtCore.pyqtSignal(str)
     jetson_cpu_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
+    jetson_ram_update_ready__signal = QtCore.pyqtSignal(str)
+    jetson_ram_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
+    bogie_connection_1_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+    bogie_connection_2_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+    bogie_connection_3_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
+    camera_zed_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+    camera_under_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+    camera_chassis_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+    camera_main_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
+    gps_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
+    frsky_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
 
     def __init__(self, shared_objects):
         super(SensorCore, self).__init__()
@@ -32,6 +50,7 @@ class SensorCore(QtCore.QThread):
         self.cpu_read = self.screen_main_window.lineEdit  # type: QtWidgets.QLabel
         self.ram_read = self.screen_main_window.lineEdit_2  # type: QtWidgets.QLabel
 
+        # ########## set vars to gui elements
         self.rover_conn = self.screen_main_window.rover  # type: QtWidgets.QLabel
         self.frsky = self.screen_main_window.frsky  # type: QtWidgets.QLabel
         self.nav_mouse = self.screen_main_window.nav_mouse  # type: QtWidgets.QLabel
@@ -48,7 +67,7 @@ class SensorCore(QtCore.QThread):
         self.cpu = self.screen_main_window.cpu  # type: QtWidgets.QLabel
         self.ram = self.screen_main_window.ram  # type: QtWidgets.QLabel
 
-        # Subscription examples on pulling data from system_statuses_node.py
+        # ########## subscriptions pulling data from system_statuses_node.py ##########
         self.camera_status = rospy.Subscriber(CAMERA_TOPIC_NAME, CameraStatuses, self.__camera_callback)
         self.bogie_status = rospy.Subscriber(BOGIE_TOPIC_NAME, BogieStatuses, self.__bogie_callback)
         self.frsky_status = rospy.Subscriber(FRSKY_TOPIC_NAME, FrSkyStatus, self.__frsky_callback)
@@ -72,32 +91,40 @@ class SensorCore(QtCore.QThread):
         self.camera_msg.camera_main_navigation = data.camera_main_navigation
 
         if self.camera_msg.camera_zed is False:
-            self.zed.setStyleSheet("background-color: red;")
+            # self.zed.setStyleSheet("background-color: red;")
+            self.camera_zed_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.zed.setStyleSheet("background-color: darkgreen;")
+            # self.zed.setStyleSheet("background-color: darkgreen;")
+            self.camera_zed_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.camera_msg.camera_undercarriage is False:
-            self.under_cam.setStyleSheet("background-color: red;")
+            # self.under_cam.setStyleSheet("background-color: red;")
+            self.camera_under_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.under_cam.setStyleSheet("background-color: darkgreen;")
+            # self.under_cam.setStyleSheet("background-color: darkgreen;")
+            self.camera_under_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.camera_msg.camera_chassis is False:
-            self.chassis_cam.setStyleSheet("background-color: red;")
+            # self.chassis_cam.setStyleSheet("background-color: red;")
+            self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.chassis_cam.setStyleSheet("background-color: darkgreen;")
+            # self.chassis_cam.setStyleSheet("background-color: darkgreen;")
+            self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.camera_msg.camera_main_navigation is False:
-            self.main_cam.setStyleSheet("background-color: red;")
+            # self.main_cam.setStyleSheet("background-color: red;")
+            self.camera_main_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.main_cam.setStyleSheet("background-color: darkgreen;")
+            # self.main_cam.setStyleSheet("background-color: darkgreen;")
+            self.camera_main_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __frsky_callback(self, data):
         self.FrSky_msg.FrSky_controller_connection_status = data.FrSky_controller_connection_status
 
         if self.FrSky_msg.FrSky_controller_connection_status is False:
-            self.frsky.setStyleSheet("background-color: red;")
+            self.frsky_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.frsky.setStyleSheet("background-color: darkgreen;")
+            self.frsky_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __bogie_callback(self, data):
         self.bogie_msg.bogie_connection_1 = data.bogie_connection_1
@@ -105,19 +132,25 @@ class SensorCore(QtCore.QThread):
         self.bogie_msg.bogie_connection_3 = data.bogie_connection_3
 
         if self.bogie_msg.bogie_connection_1 is False:
-            self.bogie_right.setStyleSheet("background-color: red;")
+            # self.bogie_right.setStyleSheet("background-color: red;")
+            self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.bogie_right.setStyleSheet("background-color: darkgreen;")
+            # self.bogie_right.setStyleSheet("background-color: darkgreen;")
+            self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.bogie_msg.bogie_connection_2 is False:
-            self.bogie_left.setStyleSheet("background-color: red;")
+            # self.bogie_left.setStyleSheet("background-color: red;")
+            self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.bogie_left.setStyleSheet("background-color: darkgreen;")
+            # self.bogie_left.setStyleSheet("background-color: darkgreen;")
+            self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.bogie_msg.bogie_connection_3 is False:
-            self.bogie_rear.setStyleSheet("background-color: red;")
+            # self.bogie_rear.setStyleSheet("background-color: red;")
+            self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.bogie_rear.setStyleSheet("background-color: darkgreen;")
+            # self.bogie_rear.setStyleSheet("background-color: darkgreen;")
+            self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __jetson_callback(self, data):
         self.jetson_msg.jetson_CPU = data.jetson_CPU
@@ -128,13 +161,19 @@ class SensorCore(QtCore.QThread):
 
         if self.jetson_msg.jetson_CPU > 79:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: orange;")
-            # self.cpu.setStyleSheet("background-color: orange;")
         elif self.jetson_msg.jetson_CPU > 89:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: red;")
-            # self.cpu.setStyleSheet("background-color: red;")
         else:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
-            # self.cpu.setStyleSheet("background-color: darkgreen;")
+
+        self.jetson_ram_update_ready__signal.emit(str(self.jetson_msg.jetson_RAM))
+
+        if self.jetson_msg.jetson_RAM > 79:
+            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: orange;")
+        elif self.jetson_msg.jetson_RAM > 89:
+            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: red;")
+        else:
+            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         # self.jetson_msg.jetson_RAM = data.jetson_RAM
         # self.ram.setText(str(self.jetson_msg.jetson_RAM))
@@ -154,9 +193,11 @@ class SensorCore(QtCore.QThread):
         self.GPS_msg.GPS_connection_status = data.GPS_connection_status
 
         if self.GPS_msg.GPS_connection_status is False:
-            self.gps.setStyleSheet("background-color: red")
+            # self.gps.setStyleSheet("background-color: red")
+            self.gps_stylesheet_change_ready__signal.emit("background-color: red;")
         else:
-            self.gps.setStyleSheet("background-color: darkgreen;")
+            # self.gps.setStyleSheet("background-color: darkgreen;")
+            self.gps_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __misc_callback(self, data):
         self.misc_msg.arm_connection_status = data.arm_connection_status
@@ -177,6 +218,17 @@ class SensorCore(QtCore.QThread):
     def connect_signals_and_slots(self):
         self.jetson_cpu_update_ready__signal.connect(self.cpu.setText)
         self.jetson_cpu_stylesheet_change_ready__signal.connect(self.cpu.setStyleSheet)
+        self.jetson_ram_update_ready__signal.connect(self.ram.setText)
+        self.jetson_ram_stylesheet_change_ready__signal(self.ram.setStyleSheet)
+        self.bogie_connection_1_stylesheet_change_ready__signal.connect(self.bogie_right.setStyleSheet)
+        self.bogie_connection_2_stylesheet_change_ready__signal.connect(self.bogie_left.setStyleSheet)
+        self.bogie_connection_3_stylesheet_change_ready__signal.connect(self.bogie_rear.setStyleSheet)
+        self.camera_zed_stylesheet_change_ready__signal.connect(self.zed.setStyleSheet)
+        self.camera_under_stylesheet_change_ready__signal.connect(self.under_cam.setStyleSheet)
+        self.camera_chassis_stylesheet_change_ready__signal.connect(self.chassis_cam.setStyleSheet)
+        self.camera_main_stylesheet_change_ready__signal.connect(self.main_cam.setStyleSheet)
+        self.gps_stylesheet_change_ready__signal.connect(self.gps.setStyleSheet)
+        self.frsky_stylesheet_change_ready__signal.connect(self.frsky.setStyleSheet)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
