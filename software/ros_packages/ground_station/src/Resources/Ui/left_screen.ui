@@ -39,7 +39,16 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -68,7 +77,16 @@
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <property name="spacing">
@@ -80,22 +98,22 @@
             <number>0</number>
            </property>
            <item row="1" column="4">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="emmc">
              <property name="styleSheet">
               <string notr="true">background-color: darkgreen;</string>
              </property>
              <property name="text">
-              <string>placeholder</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;EMMC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
            <item row="1" column="5">
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="gpu_temp">
              <property name="styleSheet">
               <string notr="true">background-color: darkgreen;</string>
              </property>
              <property name="text">
-              <string>placeholder</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GPU &lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Temp&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -798,7 +816,16 @@ Fix</string>
            </size>
           </property>
           <layout class="QGridLayout" name="gridLayout">
-           <property name="margin">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
             <number>0</number>
            </property>
            <property name="spacing">

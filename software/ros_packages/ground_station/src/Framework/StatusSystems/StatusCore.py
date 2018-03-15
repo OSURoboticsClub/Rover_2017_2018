@@ -20,7 +20,10 @@ class SensorCore(QtCore.QThread):
     # ########## create signals for slots ##########
     jetson_cpu_update_ready__signal = QtCore.pyqtSignal(str)
     jetson_cpu_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
-
+    jetson_emmc_update_ready__signal = QtCore.pyqtSignal(str)
+    jetson_emmc_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+    jetson_gpu_temp_update_ready__signal = QtCore.pyqtSignal(str)
+    jetson_gpu_temp_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
     jetson_ram_update_ready__signal = QtCore.pyqtSignal(str)
     jetson_ram_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
 
@@ -66,6 +69,8 @@ class SensorCore(QtCore.QThread):
         self.clock = self.screen_main_window.clock  # type: QtWidgets.QLCDNumber
         self.cpu = self.screen_main_window.cpu  # type: QtWidgets.QLabel
         self.ram = self.screen_main_window.ram  # type: QtWidgets.QLabel
+        self.gpu_temp = self.screen_main_window.gpu_temp  # type: QtWidgets.QLabel
+        self.emmc = self.screen_main_window.emmc  # type: QtWidgets.QLabel
 
         # ########## subscriptions pulling data from system_statuses_node.py ##########
         self.camera_status = rospy.Subscriber(CAMERA_TOPIC_NAME, CameraStatuses, self.__camera_callback)
@@ -175,18 +180,23 @@ class SensorCore(QtCore.QThread):
         else:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        # self.jetson_msg.jetson_RAM = data.jetson_RAM
-        # self.ram.setText(str(self.jetson_msg.jetson_RAM))
-        # if self.jetson_msg.jetson_RAM > 79:
-        #     self.ram.setStyleSheet("background-color: orange;")
-        # elif self.jetson_msg.jetson_RAM > 89:
-        #     self.ram.setStyleSheet("background-color: red;")
-        # else:
-        #     self.ram.setStyleSheet("background-color: darkgreen;")
-        #
-        # self.jetson_msg.jetson_EMMC = data.jetson_EMMC
-        # self.jetson_msg.jetson_NVME_SSD = data.jetson_NVME_SSD
-        #rospy.loginfo(self.jetson_msg)
+        self.jetson_gpu_temp_update_ready__signal.emit(str(self.jetson_msg.jetson_GPU_temp))
+
+        if self.jetson_msg.jetson_GPU_temp > 64:
+            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: orange;")
+        elif self.jetson_msg.jetson_GPU_temp > 79:
+            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: red;")
+        else:
+            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+
+        self.jetson_emmc_update_ready__signal.emit(str(self.jetson_msg.jetson_EMMC))
+
+        if self.jetson_msg.jetson_EMMC > 79:
+            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: orange;")
+        elif self.jetson_msg.jetson_EMMC > 89:
+            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: red;")
+        else:
+            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: darkgreen")
 
     def __gps_callback(self, data):
         self.GPS_msg.UTC_GPS_time = data.UTC_GPS_time
@@ -220,6 +230,10 @@ class SensorCore(QtCore.QThread):
         self.jetson_cpu_stylesheet_change_ready__signal.connect(self.cpu.setStyleSheet)
         self.jetson_ram_update_ready__signal.connect(self.ram.setText)
         self.jetson_ram_stylesheet_change_ready__signal(self.ram.setStyleSheet)
+        self.jetson_emmc_update_ready__signal.connect(self.emmc.setText)
+        self.jetson_emmc_stylesheet_change_ready__signal.connect(self.emmc.setStyleSheet)
+        self.jetson_gpu_temp_update_ready__signal.connect(self.gpu_temp.setText)
+        self.jetson_gpu_temp_stylesheet_change_ready__signal(self.gpu_temp.setStyleSheet)
         self.bogie_connection_1_stylesheet_change_ready__signal.connect(self.bogie_right.setStyleSheet)
         self.bogie_connection_2_stylesheet_change_ready__signal.connect(self.bogie_left.setStyleSheet)
         self.bogie_connection_3_stylesheet_change_ready__signal.connect(self.bogie_rear.setStyleSheet)
