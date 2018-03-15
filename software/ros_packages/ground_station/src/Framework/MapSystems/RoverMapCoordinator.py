@@ -106,7 +106,7 @@ class RoverMapCoordinator(QtCore.QThread):
 
     def connect_signals_and_slots(self):
         self.pixmap_ready_signal.connect(self.pixmap_ready__slot)
-        self.change_waypoint_signal.connect(self.update_waypoints)
+        self.change_waypoint_signal.connect(self.update_overlay)
 
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
