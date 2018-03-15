@@ -80,17 +80,27 @@
             <number>0</number>
            </property>
            <item row="1" column="4">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="emmc">
              <property name="styleSheet">
-              <string notr="true">background-color: darkgreen;</string>
+              <string notr="true">background-color: darkred;</string>
              </property>
              <property name="text">
-              <string>placeholder</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;EMMC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="5">
-            <widget class="QLabel" name="under_cam">
+           <item row="1" column="5">
+            <widget class="QLabel" name="gpu_temp">
+             <property name="styleSheet">
+              <string notr="true">background-color: darkred;</string>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GPU &lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Temp&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLabel" name="left_bogie">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -123,7 +133,7 @@
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>Undercarriage Camera
@@ -175,7 +185,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>Right Bogie
@@ -237,7 +247,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -282,7 +292,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>GPS
@@ -365,7 +375,7 @@ Fix</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -407,7 +417,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -452,7 +462,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>3D Nav Mouse
@@ -491,7 +501,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -505,8 +515,31 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="4">
-            <widget class="QLabel" name="chassis_cam">
+           <item row="0" column="5">
+            <widget class="QLCDNumber" name="timer"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="ram">
+             <property name="styleSheet">
+              <string notr="true">background-color: darkred;</string>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;RAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="cpu">
+             <property name="styleSheet">
+              <string notr="true">background-color: darkred;</string>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;CPU %&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="rover">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -539,7 +572,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>Chassis Camera
@@ -584,7 +617,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>FrSky
@@ -998,7 +1031,7 @@ Connected</string>
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">Connection
         <property name="spacing">
          <number>0</number>
         </property>

@@ -349,6 +349,7 @@ class OverlayImage(object):
         self.height = height
         self.big_image = None
         self.display_image = None
+        self.indicator = None
         self.helper = MapHelper.MapHelper()
 
         x, y = self._get_cartesian(latitude, longitude)
@@ -370,6 +371,7 @@ class OverlayImage(object):
                                                True)
         self.display_image = self.helper.new_image(self.width, self.height,
                                                    True)
+        self.generate_dot_and_hat()
 
     def _get_cartesian(self, lat, lon):
         """
@@ -403,30 +405,38 @@ class OverlayImage(object):
 
         return int(x), int(y)
 
-    def update_new_location(self, latitude, longitude, compass):
-        self._draw_rover(latitude, longitude, 10, compass)
+    def update_new_location(self, latitude, longitude, 
+                            compass, navigation_list, landmark_list):
+        size = 5
+        draw = PIL.ImageDraw.Draw(self.big_image)
+        for element in navigation_list:
+            x, y = self._get_cartesian(element[1], element[2])
+            draw.ellipsis((x-size, y-size, x+size, y+size), fill="red")
+        for element in navigation_list:
+            x, y = self._get_cartesian(element[1], element[2])
+            draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
+        self._draw_rover(latitude, longitude, compass)
         self.update()
 
         return self.display_image
 
-    def _draw_rover(self, lat, lon, size, scaler):
+    def generate_dot_and_hat(self):
+        self.indicator = self.helper.new_image(100, 100, True)
+        draw = PIL.ImageDraw.Draw(self.indicator)
+        draw.ellipse((50-12, 50-12, 50+12, 50+12), fill="red")
+        draw.line((25, 40, 50, 12), fill="red", width=7)
+        draw.line((50, 12, 75, 40), fill="red", width=7)
+
+    def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
-        draw = PIL.ImageDraw.Draw(self.big_image)
-        draw.ellipse((x-size, y-size, x+size, y+size), fill="red")
-        point_1 = tuple((math.cos(x-2*size * scaler), math.sin(y * scaler)))
-        point_2 = tuple((math.cos(x * scaler), math.sin(y+2*size * scaler)))
-        point_3 = (math.cos(x+2*size * scaler), math.sin(y * scaler))
-        draw.line( 
-            (point_1,
-            point_2), 
-            fill="red",
-            width=600)
-        draw.line(
-            (point_2,
-            point_3), 
-            fill="red", 
-            width=600)
-        self.display_image.save("Something.png")
+        # Center of the circle on the indicator is (12.5, 37.5)
+        x = x - 50
+        y = y - 50
+        rotated = self.indicator.copy()
+        rotated = rotated.rotate(angle, expand=True)
+        self.display_image.paste(self.indicator, (x, y))
+        # self.display_image.save("Something.png")
 
     def update(self):
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
+
