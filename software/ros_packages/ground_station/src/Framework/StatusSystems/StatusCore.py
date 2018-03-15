@@ -50,8 +50,8 @@ class SensorCore(QtCore.QThread):
         self.shared_objects = shared_objects
         self.screen_main_window = self.shared_objects["screens"]["left_screen"]
 
-        self.cpu_read = self.screen_main_window.lineEdit  # type: QtWidgets.QLabel
-        self.ram_read = self.screen_main_window.lineEdit_2  # type: QtWidgets.QLabel
+        # self.cpu_read = self.screen_main_window.lineEdit  # type: QtWidgets.QLabel
+        # self.ram_read = self.screen_main_window.lineEdit_2  # type: QtWidgets.QLabel
 
         # ########## set vars to gui elements
         self.rover_conn = self.screen_main_window.rover  # type: QtWidgets.QLabel
