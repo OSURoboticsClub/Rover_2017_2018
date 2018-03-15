@@ -406,26 +406,27 @@ class OverlayImage(object):
         return int(x), int(y)
 
     def update_new_location(self, latitude, longitude, compass):
-        self._draw_rover(latitude, longitude, 10, compass)
+        self._draw_rover(latitude, longitude, compass)
         self.update()
 
         return self.display_image
 
     def generate_dot_and_hat(self):
-        self.indicator = self.helper.new_image(25, 50, True)
+        self.indicator = self.helper.new_image(100, 100, True)
         draw = PIL.ImageDraw.Draw(self.indicator)
-        draw.ellipse((0, 25, 25, 50), fill="red")
-        draw.line((0, 24, 13, 1), fill="red", width=5)
-        draw.line((13, 1, 24, 24), fill="red", width=5)
+        draw.ellipse((50-12, 50-12, 50+12, 50+12), fill="red")
+        draw.line((25, 40, 50, 12), fill="red", width=7)
+        draw.line((50, 12, 75, 40), fill="red", width=7)
 
-    def _draw_rover(self, lat, lon, size, scaler):
+    def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
         # Center of the circle on the indicator is (12.5, 37.5)
-        x = x - 12
-        y = y - 37
+        x = x - 50
+        y = y - 50
+        rotated = self.indicator.copy()
+        rotated = rotated.rotate(angle, expand=True)
         self.display_image.paste(self.indicator, (x, y))
-
-        self.display_image.save("Something.png")
+        # self.display_image.save("Something.png")
 
     def update(self):
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
