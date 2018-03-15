@@ -10,6 +10,7 @@ import subprocess
 from rover_status.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
 from rover_control.msg import DriveCommandMessage
 from std_msgs.msg import Empty
+from time import time
 
 
 #####################################
@@ -23,6 +24,8 @@ DEFAULT_JETSON_TOPIC_NAME = "jetson_status"
 DEFAULT_MISC_TOPIC_NAME = "misc_status"
 
 DEFAULT_REQUEST_UPDATE_TOPIC_NAME = "update_requested"
+
+MAX_JETSON_UPDATE_HERTZ = 0.2
 
 
 #####################################
@@ -86,6 +89,8 @@ class SystemStatuses:
 
         # init all previous values
         self.__update_all_previous_values()
+
+        self.last_jetson_message_sent = time()
 
     # init all RoverSysMessage values
     def __pull_new_message_values(self):
@@ -247,8 +252,10 @@ class SystemStatuses:
                     self.jetson_msg.jetson_NVME_SSD != self.previous_jetson_NVME_SSD or
                     self.jetson_msg.jetson_GPU_temp != self.previous_jetson_GPU_temp or
                     self.manual_update_requested):
-                self.__set_previous_jetson_values()
-                self.pub_jetson.publish(self.jetson_msg)
+                if (time() - self.last_jetson_message_sent) > (1.0 / MAX_JETSON_UPDATE_HERTZ):
+                    self.__set_previous_jetson_values()
+                    self.pub_jetson.publish(self.jetson_msg)
+                    self.last_jetson_message_sent = time()
 
             # Placeholder FrSky Controller Check
             if (self.FrSky_msg.FrSky_controller_connection_status != self.previous_FrSky_controller_connection_status or
