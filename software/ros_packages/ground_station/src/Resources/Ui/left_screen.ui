@@ -39,16 +39,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -77,16 +68,7 @@
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>0</number>
          </property>
          <property name="spacing">
@@ -100,7 +82,7 @@
            <item row="1" column="4">
             <widget class="QLabel" name="emmc">
              <property name="styleSheet">
-              <string notr="true">background-color: darkgreen;</string>
+              <string notr="true">background-color: darkred;</string>
              </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;EMMC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -110,7 +92,7 @@
            <item row="1" column="5">
             <widget class="QLabel" name="gpu_temp">
              <property name="styleSheet">
-              <string notr="true">background-color: darkgreen;</string>
+              <string notr="true">background-color: darkred;</string>
              </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GPU &lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Temp&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -145,7 +127,7 @@
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -193,7 +175,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>FrSky
@@ -235,7 +217,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>Right Bogie
@@ -274,7 +256,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -316,7 +298,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -361,7 +343,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>3D Nav Mouse
@@ -400,7 +382,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -448,7 +430,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>Chassis Camera
@@ -493,7 +475,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>Undercarriage Camera
@@ -510,7 +492,7 @@ Connected</string>
            <item row="1" column="2">
             <widget class="QLabel" name="ram">
              <property name="styleSheet">
-              <string notr="true">background-color: darkgreen;</string>
+              <string notr="true">background-color: darkred;</string>
              </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;RAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -520,7 +502,7 @@ Connected</string>
            <item row="1" column="1">
             <widget class="QLabel" name="cpu">
              <property name="styleSheet">
-              <string notr="true">background-color: darkgreen;</string>
+              <string notr="true">background-color: darkred;</string>
              </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;CPU %&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -555,7 +537,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -600,7 +582,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkred;</string>
              </property>
              <property name="text">
               <string>GPS
@@ -816,16 +798,7 @@ Fix</string>
            </size>
           </property>
           <layout class="QGridLayout" name="gridLayout">
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>0</number>
            </property>
            <property name="spacing">

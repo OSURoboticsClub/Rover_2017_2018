@@ -97,28 +97,28 @@ class SensorCore(QtCore.QThread):
 
         if self.camera_msg.camera_zed is False:
             # self.zed.setStyleSheet("background-color: red;")
-            self.camera_zed_stylesheet_change_ready__signal.emit("background-color: red;")
+            self.camera_zed_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.zed.setStyleSheet("background-color: darkgreen;")
             self.camera_zed_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.camera_msg.camera_undercarriage is False:
-            # self.under_cam.setStyleSheet("background-color: red;")
-            self.camera_under_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.under_cam.setStyleSheet("background-color: darkred;")
+            self.camera_under_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.under_cam.setStyleSheet("background-color: darkgreen;")
             self.camera_under_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.camera_msg.camera_chassis is False:
-            # self.chassis_cam.setStyleSheet("background-color: red;")
-            self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.chassis_cam.setStyleSheet("background-color: darkred;")
+            self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.chassis_cam.setStyleSheet("background-color: darkgreen;")
             self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.camera_msg.camera_main_navigation is False:
-            # self.main_cam.setStyleSheet("background-color: red;")
-            self.camera_main_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.main_cam.setStyleSheet("background-color: darkred;")
+            self.camera_main_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.main_cam.setStyleSheet("background-color: darkgreen;")
             self.camera_main_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
@@ -127,7 +127,7 @@ class SensorCore(QtCore.QThread):
         self.FrSky_msg.FrSky_controller_connection_status = data.FrSky_controller_connection_status
 
         if self.FrSky_msg.FrSky_controller_connection_status is False:
-            self.frsky_stylesheet_change_ready__signal.emit("background-color: red;")
+            self.frsky_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.frsky_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
@@ -137,22 +137,22 @@ class SensorCore(QtCore.QThread):
         self.bogie_msg.bogie_connection_3 = data.bogie_connection_3
 
         if self.bogie_msg.bogie_connection_1 is False:
-            # self.bogie_right.setStyleSheet("background-color: red;")
-            self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.bogie_right.setStyleSheet("background-color: darkred;")
+            self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.bogie_right.setStyleSheet("background-color: darkgreen;")
             self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.bogie_msg.bogie_connection_2 is False:
-            # self.bogie_left.setStyleSheet("background-color: red;")
-            self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.bogie_left.setStyleSheet("background-color: darkred;")
+            self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.bogie_left.setStyleSheet("background-color: darkgreen;")
             self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
         if self.bogie_msg.bogie_connection_3 is False:
-            # self.bogie_rear.setStyleSheet("background-color: red;")
-            self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.bogie_rear.setStyleSheet("background-color: darkred;")
+            self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.bogie_rear.setStyleSheet("background-color: darkgreen;")
             self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
@@ -167,7 +167,7 @@ class SensorCore(QtCore.QThread):
         if self.jetson_msg.jetson_CPU > 79:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: orange;")
         elif self.jetson_msg.jetson_CPU > 89:
-            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: red;")
+            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
@@ -176,7 +176,7 @@ class SensorCore(QtCore.QThread):
         if self.jetson_msg.jetson_RAM > 79:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: orange;")
         elif self.jetson_msg.jetson_RAM > 89:
-            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: red;")
+            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
@@ -185,7 +185,7 @@ class SensorCore(QtCore.QThread):
         if self.jetson_msg.jetson_GPU_temp > 64:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: orange;")
         elif self.jetson_msg.jetson_GPU_temp > 79:
-            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: red;")
+            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
@@ -194,7 +194,7 @@ class SensorCore(QtCore.QThread):
         if self.jetson_msg.jetson_EMMC > 79:
             self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: orange;")
         elif self.jetson_msg.jetson_EMMC > 89:
-            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: red;")
+            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: darkgreen")
 
@@ -203,8 +203,8 @@ class SensorCore(QtCore.QThread):
         self.GPS_msg.GPS_connection_status = data.GPS_connection_status
 
         if self.GPS_msg.GPS_connection_status is False:
-            # self.gps.setStyleSheet("background-color: red")
-            self.gps_stylesheet_change_ready__signal.emit("background-color: red;")
+            # self.gps.setStyleSheet("background-color: darkred")
+            self.gps_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.gps.setStyleSheet("background-color: darkgreen;")
             self.gps_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
