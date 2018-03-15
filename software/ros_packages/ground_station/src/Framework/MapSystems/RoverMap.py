@@ -410,11 +410,11 @@ class OverlayImage(object):
         size = 5
         draw = PIL.ImageDraw.Draw(self.big_image)
         for element in navigation_list:
-            x, y = self._get_cartesian(element[1], element[2])
+            x, y = self._get_cartesian(float(element[1]), float(element[2]))
             draw.ellipsis((x-size, y-size, x+size, y+size), fill="red")
-        for element in navigation_list:
-            x, y = self._get_cartesian(element[1], element[2])
-            draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
+        # for element in landmark_list:
+        #     x, y = self._get_cartesian(element[1], element[2])
+        #     draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
         self._draw_rover(latitude, longitude, compass)
         self.update()
 
