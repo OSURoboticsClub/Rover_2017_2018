@@ -84,9 +84,15 @@ class RoverMapCoordinator(QtCore.QThread):
     def _get_map_image(self):
         while self.map_image is None:
             self.map_image = self.google_maps_object.display_image
-        self.overlay_image_object.update_new_location(44.567161,-123.278432, .7)
-        self.map_image.paste(self.overlay_image_object.display_image, (0,0), self.overlay_image_object.display_image)
-        # self.map_image = Image.alpha_composite(self.google_maps_object.display_image, self.overlay_image_object.display_image)
+        self.overlay_image_object.update_new_location(44.567161,
+                                                      -123.278432,
+                                                      .7)
+        self.map_image.paste(self.overlay_image_object.display_image,
+                             (0, 0),
+                             self.overlay_image_object.display_image)
+        # self.map_image = Image.alpha_composite(
+        #                   self.google_maps_object.display_image,
+        #                   self.overlay_image_object.display_image)
         # get overlay here
         qim = ImageQt(self.map_image)
         self.map_pixmap = QtGui.QPixmap.fromImage(qim)

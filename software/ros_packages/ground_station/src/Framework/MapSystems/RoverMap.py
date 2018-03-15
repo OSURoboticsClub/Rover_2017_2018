@@ -349,6 +349,7 @@ class OverlayImage(object):
         self.height = height
         self.big_image = None
         self.display_image = None
+        self.indicator = None
         self.helper = MapHelper.MapHelper()
 
         x, y = self._get_cartesian(latitude, longitude)
@@ -370,6 +371,7 @@ class OverlayImage(object):
                                                True)
         self.display_image = self.helper.new_image(self.width, self.height,
                                                    True)
+        self.generate_dot_and_hat()
 
     def _get_cartesian(self, lat, lon):
         """
@@ -409,23 +411,20 @@ class OverlayImage(object):
 
         return self.display_image
 
+    def generate_dot_and_hat(self):
+        self.indicator = self.helper.new_image(25, 50, True)
+        draw = PIL.ImageDraw.Draw(self.indicator)
+        draw.ellipse((0, 25, 25, 50), fill="red")
+        draw.line((0, 24, 13, 1), fill="red", width=5)
+        draw.line((13, 1, 24, 24), fill="red", width=5)
+
     def _draw_rover(self, lat, lon, size, scaler):
         x, y = self._get_cartesian(lat, lon)
-        draw = PIL.ImageDraw.Draw(self.big_image)
-        draw.ellipse((x-size, y-size, x+size, y+size), fill="red")
-        point_1 = tuple((math.cos(x-2*size * scaler), math.sin(y * scaler)))
-        point_2 = tuple((math.cos(x * scaler), math.sin(y+2*size * scaler)))
-        point_3 = (math.cos(x+2*size * scaler), math.sin(y * scaler))
-        draw.line( 
-            (point_1,
-            point_2), 
-            fill="red",
-            width=600)
-        draw.line(
-            (point_2,
-            point_3), 
-            fill="red", 
-            width=600)
+        # Center of the circle on the indicator is (12.5, 37.5)
+        x = x - 12
+        y = y - 37
+        self.display_image.paste(self.indicator, (x, y))
+
         self.display_image.save("Something.png")
 
     def update(self):
