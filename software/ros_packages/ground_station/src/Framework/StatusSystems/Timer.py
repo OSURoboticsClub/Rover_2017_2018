@@ -10,11 +10,11 @@ TICK_TIME = 2**6
 
 
 class Timer(Qt.QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self):
+        super(Timer, self).__init__()
 
-        self.reset.clicked.connect(self.do_reset)
-        self.start.clicked.connect(self.do_start)
+        # self.reset.clicked.connect(self.do_reset)
+        # self.start.clicked.connect(self.do_start)
 
         self.timer = Qt.QTimer()
         self.timer.setInterval(TICK_TIME)
@@ -22,14 +22,8 @@ class Timer(Qt.QMainWindow):
 
         self.do_reset()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Qt.Key_Escape:
-            self.close()
-        else:
-            super().keyPressEvent(event)
-
     def display(self):
-        self.lcd.display("%d:%05.2f" % (self.time // 60, self.time % 60))
+        self.timer.display("%d:%05.2f" % (self.time // 60, self.time % 60))
 
     @Qt.pyqtSlot()
     def tick(self):
@@ -39,16 +33,16 @@ class Timer(Qt.QMainWindow):
     @Qt.pyqtSlot()
     def do_start(self):
         self.timer.start()
-        self.start.setText("Pause")
-        self.start.clicked.disconnect()
-        self.start.clicked.connect(self.do_pause)
+        # self.start.setText("Pause")
+        # self.start.clicked.disconnect()
+        # self.start.clicked.connect(self.do_pause)
 
     @Qt.pyqtSlot()
     def do_pause(self):
         self.timer.stop()
-        self.start.setText("Start")
-        self.start.clicked.disconnect()
-        self.start.clicked.connect(self.do_start)
+        # self.start.setText("Start")
+        # self.start.clicked.disconnect()
+        # self.start.clicked.connect(self.do_start)
 
     @Qt.pyqtSlot()
     def do_reset(self):

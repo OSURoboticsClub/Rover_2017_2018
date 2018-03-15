@@ -360,6 +360,7 @@ class OverlayImage(object):
         self.upper_y = (self.center_y - (self.height/2))
 
         self.generate_image_files()
+        self.write_once = True
 
     def generate_image_files(self):
         """
@@ -372,6 +373,7 @@ class OverlayImage(object):
         self.display_image = self.helper.new_image(self.width, self.height,
                                                    True)
         self.generate_dot_and_hat()
+        self.indicator.save("location.png")
 
     def _get_cartesian(self, lat, lon):
         """
@@ -389,11 +391,8 @@ class OverlayImage(object):
 
         # print viewport_lon_diff, viewport_lat_diff
 
-        bigimage_width = self.width
-        bigimage_height = self.height
-
-        pixel_per_lat = bigimage_height / viewport_lat_diff
-        pixel_per_lon = bigimage_width / viewport_lon_diff
+        pixel_per_lat = self.big_height / viewport_lat_diff
+        pixel_per_lon = self.big_width / viewport_lon_diff
         # print "Pixel per:", pixel_per_lat, pixel_per_lon
 
         new_lat_gps_range_percentage = (viewport_lat_nw - lat)
@@ -410,12 +409,12 @@ class OverlayImage(object):
         size = 5
         draw = PIL.ImageDraw.Draw(self.big_image)
         for element in navigation_list:
-            x, y = self._get_cartesian(element[1], element[2])
-            draw.ellipsis((x-size, y-size, x+size, y+size), fill="red")
-        for element in navigation_list:
-            x, y = self._get_cartesian(element[1], element[2])
-            draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
-        self._draw_rover(latitude, longitude, compass)
+            x, y = self._get_cartesian(float(element[2]), float(element[1]))
+            draw.ellipse((x-size, y-size, x+size, y+size), fill="red")
+        # for element in landmark_list:
+        #     x, y = self._get_cartesian(element[1], element[2])
+        #     draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
+        self._draw_rover(longitude, latitude, compass)
         self.update()
 
         return self.display_image
@@ -429,14 +428,21 @@ class OverlayImage(object):
 
     def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
+        print x,y
         # Center of the circle on the indicator is (12.5, 37.5)
         x = x - 50
         y = y - 50
         rotated = self.indicator.copy()
         rotated = rotated.rotate(angle, expand=True)
-        self.display_image.paste(self.indicator, (x, y))
-        # self.display_image.save("Something.png")
+        rotated.save("rotated.png")
+        self.big_image.paste(rotated, (x, y), rotated)
+        if self.write_once:
+            self.display_image.save("Something.png")
+            self.write_once = False
 
     def update(self):
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
+
+    def connect_signals_and_slots(self):
+        pass
 

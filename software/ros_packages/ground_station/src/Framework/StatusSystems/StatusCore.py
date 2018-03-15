@@ -4,6 +4,7 @@ import rospy
 from rover_status.msg import *
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from std_msgs.msg import Empty
+# import Timer
 
 REQUEST_UPDATE_TOPIC = "/rover_status/update_requested"
 
@@ -39,7 +40,6 @@ class SensorCore(QtCore.QThread):
     gps_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
 
     frsky_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
-
 
     def __init__(self, shared_objects):
         super(SensorCore, self).__init__()
@@ -87,7 +87,7 @@ class SensorCore(QtCore.QThread):
         self.jetson_msg = JetsonInfo()
         self.misc_msg = MiscStatuses()
 
-        rospy.Publisher(REQUEST_UPDATE_TOPIC, Empty, queue_size=1).publish(Empty())
+        self.update_requester = rospy.Publisher(REQUEST_UPDATE_TOPIC, Empty, queue_size=10)
 
     def __camera_callback(self, data):
         self.camera_msg.camera_zed = data.camera_zed
@@ -95,28 +95,28 @@ class SensorCore(QtCore.QThread):
         self.camera_msg.camera_chassis = data.camera_chassis
         self.camera_msg.camera_main_navigation = data.camera_main_navigation
 
-        if self.camera_msg.camera_zed is False:
+        if data.camera_zed is False:
             # self.zed.setStyleSheet("background-color: red;")
             self.camera_zed_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.zed.setStyleSheet("background-color: darkgreen;")
             self.camera_zed_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        if self.camera_msg.camera_undercarriage is False:
+        if data.camera_undercarriage is False:
             # self.under_cam.setStyleSheet("background-color: darkred;")
             self.camera_under_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.under_cam.setStyleSheet("background-color: darkgreen;")
             self.camera_under_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        if self.camera_msg.camera_chassis is False:
+        if data.camera_chassis is False:
             # self.chassis_cam.setStyleSheet("background-color: darkred;")
             self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.chassis_cam.setStyleSheet("background-color: darkgreen;")
             self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        if self.camera_msg.camera_main_navigation is False:
+        if data.camera_main_navigation is False:
             # self.main_cam.setStyleSheet("background-color: darkred;")
             self.camera_main_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
@@ -136,21 +136,21 @@ class SensorCore(QtCore.QThread):
         self.bogie_msg.bogie_connection_2 = data.bogie_connection_2
         self.bogie_msg.bogie_connection_3 = data.bogie_connection_3
 
-        if self.bogie_msg.bogie_connection_1 is False:
+        if data.bogie_connection_1 is False:
             # self.bogie_right.setStyleSheet("background-color: darkred;")
             self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.bogie_right.setStyleSheet("background-color: darkgreen;")
             self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        if self.bogie_msg.bogie_connection_2 is False:
+        if data.bogie_connection_2 is False:
             # self.bogie_left.setStyleSheet("background-color: darkred;")
             self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             # self.bogie_left.setStyleSheet("background-color: darkgreen;")
             self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        if self.bogie_msg.bogie_connection_3 is False:
+        if data.bogie_connection_3 is False:
             # self.bogie_rear.setStyleSheet("background-color: darkred;")
             self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
@@ -158,55 +158,48 @@ class SensorCore(QtCore.QThread):
             self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __jetson_callback(self, data):
-        self.jetson_msg.jetson_CPU = data.jetson_CPU
+        self.jetson_cpu_update_ready__signal.emit(str(data.jetson_CPU))
 
-        # self.cpu_read.setText(str(self.jetson_msg.jetson_CPU))
-        # self.cpu.setText(str(self.jetson_msg.jetson_CPU))
-        self.jetson_cpu_update_ready__signal.emit(str(self.jetson_msg.jetson_CPU))
-
-        if self.jetson_msg.jetson_CPU > 79:
+        if data.jetson_CPU > 79:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: orange;")
-        elif self.jetson_msg.jetson_CPU > 89:
+        elif data.jetson_CPU > 89:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        self.jetson_ram_update_ready__signal.emit(str(self.jetson_msg.jetson_RAM))
+        self.jetson_ram_update_ready__signal.emit(str(data.jetson_RAM))
 
-        if self.jetson_msg.jetson_RAM > 79:
+        if data.jetson_RAM > 79:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: orange;")
-        elif self.jetson_msg.jetson_RAM > 89:
+        elif data.jetson_RAM > 89:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        self.jetson_gpu_temp_update_ready__signal.emit(str(self.jetson_msg.jetson_GPU_temp))
+        self.jetson_gpu_temp_update_ready__signal.emit(str(data.jetson_GPU_temp))
 
-        if self.jetson_msg.jetson_GPU_temp > 64:
+        if data.jetson_GPU_temp > 64:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: orange;")
-        elif self.jetson_msg.jetson_GPU_temp > 79:
+        elif data.jetson_GPU_temp > 79:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        self.jetson_emmc_update_ready__signal.emit(str(self.jetson_msg.jetson_EMMC))
+        self.jetson_emmc_update_ready__signal.emit(str(data.jetson_EMMC))
 
-        if self.jetson_msg.jetson_EMMC > 79:
+        if data.jetson_EMMC > 79:
             self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: orange;")
-        elif self.jetson_msg.jetson_EMMC > 89:
+        elif data.jetson_EMMC > 89:
             self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: darkgreen")
 
     def __gps_callback(self, data):
         self.GPS_msg.UTC_GPS_time = data.UTC_GPS_time
-        self.GPS_msg.GPS_connection_status = data.GPS_connection_status
 
-        if self.GPS_msg.GPS_connection_status is False:
-            # self.gps.setStyleSheet("background-color: darkred")
+        if not data.GPS_connection_status:
             self.gps_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
-            # self.gps.setStyleSheet("background-color: darkgreen;")
             self.gps_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __misc_callback(self, data):
@@ -218,12 +211,14 @@ class SensorCore(QtCore.QThread):
 
     def __display_time(self):
         time = QtCore.QTime.currentTime()
-        temp = time.toString('hh:mm:ss')
+        temp = time.toString('hh:mm')
         self.clock.display(temp)
 
     def run(self):
         while self.run_thread_flag:
-            self.msleep(100)
+            self.update_requester.publish(Empty())
+            self.__display_time()
+            self.msleep(1000)
 
     def connect_signals_and_slots(self):
         self.jetson_cpu_update_ready__signal.connect(self.cpu.setText)
