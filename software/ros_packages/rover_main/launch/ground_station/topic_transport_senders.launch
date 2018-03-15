@@ -4,7 +4,7 @@
 
         <node name="ground_station_drive_udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17020" />
+            <param name="destination_port" value="17100" />
             <rosparam param="topics">
                 [{name: "/rover_control/command_control/ground_station_drive", compress: true, rate: 15.0}]
             </rosparam>
@@ -12,14 +12,13 @@
 
         <node name="ground_station_tcp_sender" pkg="nimbro_topic_transport" type="tcp_sender" output="screen">
             <param name="destination_addr" value="$(arg target)" />
-            <param name="destination_port" value="17021" />
+            <param name="destination_port" value="17101" />
             <rosparam param="topics">
-                [{name: "/cameras/chassis/camera_control", compress: true, rate: 5.0},
-                {name: "/cameras/undercarriage/camera_control", compress: true, rate: 5.0},
-                {name: "/cameras/main_navigation/camera_control", compress: true, rate: 5.0},
-                {name: "/cameras/end_effector/camera_control", compress: true, rate: 5.0},
-                {name: "/cameras/chassis/camera_control", compress: true, rate: 1.0},
-                {name: "/rover_status/update_requested", compress: true, rate: 1.0}]
+                [{name: "/cameras/chassis/camera_control", compress: false, rate: 5.0},
+                {name: "/cameras/undercarriage/camera_control", compress: false, rate: 5.0},
+                {name: "/cameras/main_navigation/camera_control", compress: false, rate: 5.0},
+                {name: "/cameras/end_effector/camera_control", compress: false, rate: 5.0},
+                {name: "/rover_status/update_requested", compress: false, rate: 5.0}]
             </rosparam>
         </node>
     </group>

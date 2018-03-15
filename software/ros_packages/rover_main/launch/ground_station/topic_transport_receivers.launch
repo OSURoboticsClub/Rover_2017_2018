@@ -48,8 +48,28 @@
             <param name="port" value="17012" />
         </node>
 
-        <node name="rover_status" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+        <node name="bogie_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
             <param name="port" value="17013" />
+        </node>
+
+        <node name="camera_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+            <param name="port" value="17014" />
+        </node>
+
+        <node name="frsky_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+            <param name="port" value="17015" />
+        </node>
+
+        <node name="gps_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+            <param name="port" value="17016" />
+        </node>
+
+        <node name="jetson_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+            <param name="port" value="17017" />
+        </node>
+
+        <node name="misc_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+            <param name="port" value="17018" />
         </node>
     </group>
 </launch>

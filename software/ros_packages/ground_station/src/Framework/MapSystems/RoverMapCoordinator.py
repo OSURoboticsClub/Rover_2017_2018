@@ -45,6 +45,7 @@ class RoverMapCoordinator(QtCore.QThread):
         self.overlay_image_object = None
 
         self.map_pixmap = None
+        self.last_map_pixmap_cache_key = None
 
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
@@ -102,7 +103,10 @@ class RoverMapCoordinator(QtCore.QThread):
         # get overlay here
         qim = ImageQt(self.map_image)
         self.map_pixmap = QtGui.QPixmap.fromImage(qim)
-        self.pixmap_ready_signal.emit()
+
+        if self.map_pixmap.cacheKey() != self.last_map_pixmap_cache_key:
+            self.last_map_pixmap_cache_key = self.map_pixmap.cacheKey()
+            self.pixmap_ready_signal.emit()
 
     def connect_signals_and_slots(self):
         self.pixmap_ready_signal.connect(self.pixmap_ready__slot)
