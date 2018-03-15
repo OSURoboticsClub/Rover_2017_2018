@@ -124,9 +124,9 @@ class RoverMapCoordinator(QtCore.QThread):
         temp_list = []
         count = UI_element.rowCount()
         for row in range(0, count):
-            num = UI_element.item(row, 0)
-            lat = UI_element.cellWidget(row, 1)
-            lng = UI_element.cellWidget(row, 2)
+            num = UI_element.itemAt(row, 0)
+            lat = UI_element.itemAt(row, 1)
+            lng = UI_element.itemAt(row, 2)
             temp_tuple = (num, lat, lng)
             temp_list.append(temp_tuple)
         return temp_list
