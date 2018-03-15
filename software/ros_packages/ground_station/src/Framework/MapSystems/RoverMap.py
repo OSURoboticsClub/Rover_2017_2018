@@ -405,7 +405,16 @@ class OverlayImage(object):
 
         return int(x), int(y)
 
-    def update_new_location(self, latitude, longitude, compass):
+    def update_new_location(self, latitude, longitude, 
+                            compass, navigation_list, landmark_list):
+        size = 5
+        draw = PIL.ImageDraw.Draw(self.big_image)
+        for element in navigation_list:
+            x, y = self._get_cartesian(element[1], element[2])
+            draw.ellipsis((x-size, y-size, x+size, y+size), fill="red")
+        for element in navigation_list:
+            x, y = self._get_cartesian(element[1], element[2])
+            draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
         self._draw_rover(latitude, longitude, compass)
         self.update()
 
@@ -430,3 +439,4 @@ class OverlayImage(object):
 
     def update(self):
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
+

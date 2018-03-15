@@ -21,6 +21,7 @@ import RoverMap
 
 class RoverMapCoordinator(QtCore.QThread):
     pixmap_ready_signal = QtCore.pyqtSignal()
+    change_waypoint_signal = QtCore.pyqtSignal()
 
     def __init__(self, shared_objects):
         super(RoverMapCoordinator, self).__init__()
@@ -28,6 +29,8 @@ class RoverMapCoordinator(QtCore.QThread):
         self.shared_objects = shared_objects
         self.left_screen = self.shared_objects["screens"]["left_screen"]
         self.mapping_label = self.left_screen.mapping_label
+        self.navigation_label = self.left_screen.tableWidget
+        self.landmark_label = self.left_screen.tableWidget_2
 
         self.setings = QtCore.QSettings()
 
@@ -84,9 +87,12 @@ class RoverMapCoordinator(QtCore.QThread):
     def _get_map_image(self):
         while self.map_image is None:
             self.map_image = self.google_maps_object.display_image
-        self.overlay_image_object.update_new_location(44.567161,
-                                                      -123.278432,
-                                                      .7)
+        # self.overlay_image_object.update_new_location(44.567161,
+        #                                               -123.278432,
+        #                                               .7,
+        #                                               [],
+        #                                               [])
+        self.update_overlay()
         self.map_image.paste(self.overlay_image_object.display_image,
                              (0, 0),
                              self.overlay_image_object.display_image)
@@ -100,6 +106,7 @@ class RoverMapCoordinator(QtCore.QThread):
 
     def connect_signals_and_slots(self):
         self.pixmap_ready_signal.connect(self.pixmap_ready__slot)
+        self.change_waypoint_signal.connect(self.update_waypoints)
 
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
@@ -112,3 +119,23 @@ class RoverMapCoordinator(QtCore.QThread):
 
     def pixmap_ready__slot(self):
         self.mapping_label.setPixmap(self.map_pixmap)
+
+    def _get_table_elements(self, UI_element):
+        temp_list = []
+        count = UI_element.rowCount()
+        for row in range(0, count):
+            num = UI_element.item(row, 0)
+            lat = UI_element.cellWidget(row, 1)
+            lng = UI_element.cellWidget(row, 2)
+            temp_tuple = (num, lat, lng)
+            temp_list.append(temp_tuple)
+        return temp_list
+
+    def update_overlay(self):
+        navigation_list = self._get_table_elements(self.navigation_label)
+        landmark_list = self._get_table_elements(self.landmark_label)
+        self.overlay_image_object.update_new_location(self.latitude,
+                                                      self.longitude,
+                                                      70,
+                                                      navigation_list,
+                                                      landmark_list)
