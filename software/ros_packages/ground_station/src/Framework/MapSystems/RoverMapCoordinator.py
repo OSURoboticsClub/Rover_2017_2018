@@ -55,7 +55,7 @@ class RoverMapCoordinator(QtCore.QThread):
                 self.setup_map_flag = False
             else:
                 self._get_map_image()
-            self.msleep(3)
+            self.msleep(30)
 
         self.logger.debug("Stopping Map Coordinator Thread")
 
@@ -73,7 +73,7 @@ class RoverMapCoordinator(QtCore.QThread):
                                                          720,
                                                          44.567161,
                                                          -123.278432,
-                                                         14,
+                                                         18,
                                                          'satellite',
                                                          None, 20)
         self.overlay_image_object = (
@@ -124,23 +124,22 @@ class RoverMapCoordinator(QtCore.QThread):
         temp_list = []
         count = UI_element.rowCount()
         for row in range(0, count):
-            num = UI_element.itemAt(row, 0).data
-            lat = UI_element.itemAt(row, 1).data
-            lng = UI_element.itemAt(row, 2).data
+            num = UI_element.item(row, 0).text()
+            lat = float(UI_element.item(row, 1).text())
+            lng = float(UI_element.item(row, 2).text())
             temp_tuple = (num, lat, lng)
             temp_list.append(temp_tuple)
         return temp_list
 
     def update_overlay(self):
-        longitude = 44.567161,
-        latitude = -123.278432,
+        longitude = 44.567161
+        latitude = -123.278432
         navigation_list = self._get_table_elements(self.navigation_label)
-        for x in navigation_list:
-            self.logger.debug(str(x))
         # landmark_list = self._get_table_elements(self.landmark_label)
         landmark_list = []
-        self.overlay_image_object.update_new_location(latitude,
+        self.overlay_image = self.overlay_image_object.update_new_location(latitude,
                                                       longitude,
                                                       70,
                                                       navigation_list,
                                                       landmark_list)
+        # self.overlay_image.save("something.png")
