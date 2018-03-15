@@ -59,21 +59,21 @@ class RoverMapCoordinator(QtCore.QThread):
 
         self.logger.debug("Stopping Map Coordinator Thread")
 
-    def _setup_map_threads(self):
-        self.google_maps_object = RoverMap.GMapsStitcher(1280,
-                                                         720,
-                                                         44.567161,
-                                                         -123.278432,
-                                                         18,
-                                                         'satellite',
-                                                         None, 20)
+    # def _setup_map_threads(self):
+    #     self.google_maps_object = RoverMap.GMapsStitcher(1280,
+    #                                                      720,
+    #                                                      44.567161,
+    #                                                      -123.278432,
+    #                                                      18,
+    #                                                      'satellite',
+    #                                                      None, 20)
 
     def _map_setup(self):
         self.google_maps_object = RoverMap.GMapsStitcher(1280,
                                                          720,
                                                          44.567161,
                                                          -123.278432,
-                                                         18,
+                                                         14,
                                                          'satellite',
                                                          None, 20)
         self.overlay_image_object = (
@@ -133,7 +133,8 @@ class RoverMapCoordinator(QtCore.QThread):
 
     def update_overlay(self):
         navigation_list = self._get_table_elements(self.navigation_label)
-        landmark_list = self._get_table_elements(self.landmark_label)
+        # landmark_list = self._get_table_elements(self.landmark_label)
+        landmark_list = []
         self.overlay_image_object.update_new_location(self.latitude,
                                                       self.longitude,
                                                       70,
