@@ -159,16 +159,16 @@ class SensorCore(QtCore.QThread):
             self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __jetson_callback(self, data):
-        self.jetson_cpu_update_ready__signal.emit("Jetson CPU\n" + str(data.jetson_CPU) + "%")
+        self.jetson_cpu_update_ready__signal.emit("TX2 CPU\n" + str(data.jetson_CPU) + "%")
 
-        if data.jetson_CPU > 79:
+        if data.jetson_CPU > 85:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: orange;")
-        elif data.jetson_CPU > 89:
+        elif data.jetson_CPU > 95:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        self.jetson_ram_update_ready__signal.emit("Jetson RAM\n" + str(data.jetson_RAM) + "%")
+        self.jetson_ram_update_ready__signal.emit("TX2 RAM\n" + str(data.jetson_RAM) + "%")
 
         if data.jetson_RAM > 79:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: orange;")
@@ -177,7 +177,7 @@ class SensorCore(QtCore.QThread):
         else:
             self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        self.jetson_gpu_temp_update_ready__signal.emit("Jetson EMMC Used\n" + str(data.jetson_GPU_temp) + "%")
+        self.jetson_gpu_temp_update_ready__signal.emit("TX2 TEMP\n" + str(data.jetson_GPU_temp) + "°C")
 
         if data.jetson_GPU_temp > 64:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: orange;")
@@ -186,7 +186,7 @@ class SensorCore(QtCore.QThread):
         else:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
-        self.jetson_emmc_update_ready__signal.emit("Jetson Max Temp\n" + str(data.jetson_EMMC) + "°C")
+        self.jetson_emmc_update_ready__signal.emit("TX2 EMMC\n" + str(data.jetson_EMMC) + "%")
 
         if data.jetson_EMMC > 79:
             self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: orange;")
