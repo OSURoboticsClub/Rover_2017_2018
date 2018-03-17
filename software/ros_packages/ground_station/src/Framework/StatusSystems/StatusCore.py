@@ -5,6 +5,8 @@ import rospy
 from rover_status.msg import *
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from std_msgs.msg import Empty
+import PIL.Image
+from PIL.ImageQt import ImageQt
 # import Timer
 
 REQUEST_UPDATE_TOPIC = "/rover_status/update_requested"
@@ -55,6 +57,7 @@ class SensorCore(QtCore.QThread):
         # self.ram_read = self.screen_main_window.lineEdit_2  # type: QtWidgets.QLabel
 
         # ########## set vars to gui elements
+        self.osurc_logo_label = self.screen_main_window.osurc_logo_label  # type: QtWidgets.QLabel
         self.rover_conn = self.screen_main_window.rover  # type: QtWidgets.QLabel
         self.frsky = self.screen_main_window.frsky  # type: QtWidgets.QLabel
         self.nav_mouse = self.screen_main_window.nav_mouse  # type: QtWidgets.QLabel
@@ -89,6 +92,11 @@ class SensorCore(QtCore.QThread):
         self.misc_msg = MiscStatuses()
 
         self.update_requester = rospy.Publisher(REQUEST_UPDATE_TOPIC, Empty, queue_size=10)
+
+        # Apply OSURC Logo
+        self.osurc_logo_pil = PIL.Image.open("Resources/Images/osurclogo.png").resize((150, 75), PIL.Image.ANTIALIAS)
+        self.osurc_logo_pixmap = QtGui.QPixmap.fromImage(ImageQt(self.osurc_logo_pil))
+        self.osurc_logo_label.setPixmap(self.osurc_logo_pixmap)  # Init should be in main thread, should be fine
 
     def __camera_callback(self, data):
         self.camera_msg.camera_zed = data.camera_zed
