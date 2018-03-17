@@ -72,10 +72,10 @@
          </widget>
         </item>
         <item>
-         <widget class="QLCDNumber" name="clock_2"/>
+         <widget class="QLCDNumber" name="clock_qlcdnumber"/>
         </item>
         <item>
-         <widget class="QLCDNumber" name="timer_2"/>
+         <widget class="QLCDNumber" name="timer_qlcdnumber"/>
         </item>
        </layout>
       </item>
