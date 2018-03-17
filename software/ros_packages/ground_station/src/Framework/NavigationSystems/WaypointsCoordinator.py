@@ -55,10 +55,10 @@ class WaypointsCoordinator(QtCore.QThread):
     def _add_to_table(self, name, lat, lng, dist, table):
         count = table.rowCount()
         table.insertRow(count)
-        table.setItem(count, 0, QtGui.QTableWidgetItem(name))
-        table.setItem(count, 1, QtGui.QTableWidgetItem(lat))
-        table.setItem(count, 2, QtGui.QTableWidgetItem(lng))
-        table.setItem(count, 3, QtGui.QTableWidgetItem(dist))
+        table.setItem(count, 0, QtWidgets.QTableWidgetItem(name))
+        table.setItem(count, 1, QtWidgets.QTableWidgetItem(lat))
+        table.setItem(count, 2, QtWidgets.QTableWidgetItem(lng))
+        table.setItem(count, 3, QtWidgets.QTableWidgetItem(dist))
 
     def _nav_add_gps(self):
         # request GPS data
