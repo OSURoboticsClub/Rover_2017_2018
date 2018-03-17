@@ -70,7 +70,7 @@ class SensorCore(QtCore.QThread):
         self.bogie_right = self.screen_main_window.right_bogie  # type: QtWidgets.QLabel
         self.bogie_left = self.screen_main_window.left_bogie  # type: QtWidgets.QLabel
         self.bogie_rear = self.screen_main_window.rear_bogie  # type: QtWidgets.QLabel
-        self.clock = self.screen_main_window.clock  # type: QtWidgets.QLCDNumber
+        self.clock = self.screen_main_window.clock_qlcdnumber  # type: QtWidgets.QLCDNumber
         self.cpu = self.screen_main_window.cpu  # type: QtWidgets.QLabel
         self.ram = self.screen_main_window.ram  # type: QtWidgets.QLabel
         self.gpu_temp = self.screen_main_window.gpu_temp  # type: QtWidgets.QLabel

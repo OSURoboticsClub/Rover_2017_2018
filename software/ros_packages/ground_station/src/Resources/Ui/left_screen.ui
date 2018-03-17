@@ -72,10 +72,10 @@
          </widget>
         </item>
         <item>
-         <widget class="QLCDNumber" name="clock_2"/>
+         <widget class="QLCDNumber" name="clock_qlcdnumber"/>
         </item>
         <item>
-         <widget class="QLCDNumber" name="timer_2"/>
+         <widget class="QLCDNumber" name="timer_qlcdnumber"/>
         </item>
        </layout>
       </item>
@@ -1981,6 +1981,11 @@ QTableView QTableCornerButton::section{
                  <string>Dist</string>
                 </property>
                </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string>Astronaut</string>
+                </property>
+               </item>
                <item row="0" column="1">
                 <property name="text">
                  <string>32.1665</string>
@@ -1994,6 +1999,11 @@ QTableView QTableCornerButton::section{
                <item row="0" column="3">
                 <property name="text">
                  <string>2.4 KM</string>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>Water</string>
                 </property>
                </item>
                <item row="1" column="1">
