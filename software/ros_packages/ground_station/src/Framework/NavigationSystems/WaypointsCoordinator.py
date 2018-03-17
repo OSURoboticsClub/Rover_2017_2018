@@ -56,9 +56,9 @@ class WaypointsCoordinator(QtCore.QThread):
         count = table.rowCount()
         table.insertRow(count)
         table.setItem(count, 0, QtWidgets.QTableWidgetItem(name))
-        table.setItem(count, 1, QtWidgets.QTableWidgetItem(lat))
-        table.setItem(count, 2, QtWidgets.QTableWidgetItem(lng))
-        table.setItem(count, 3, QtWidgets.QTableWidgetItem(dist))
+        table.setItem(count, 1, QtWidgets.QTableWidgetItem(str(lat)))
+        table.setItem(count, 2, QtWidgets.QTableWidgetItem(str(lng)))
+        table.setItem(count, 3, QtWidgets.QTableWidgetItem(str(dist)))
 
     def _nav_add_gps(self):
         # request GPS data
@@ -66,7 +66,7 @@ class WaypointsCoordinator(QtCore.QThread):
         lat = 44.567200
         lng = -123.27860
         distance = 200
-        self._add_to_table(name, lat, lng, distance, self.navigation_label)
+        self._add_to_table(str(name), lat, lng, distance, self.navigation_label)
 
     def setup_signals(self, start_signal,
                       signals_and_slots_signal, kill_signal):
