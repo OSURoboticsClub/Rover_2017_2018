@@ -13,8 +13,8 @@ class WaypointsCoordinator(QtCore.QThread):
         self.shared_objects = shared_objects
         self.left_screen = self.shared_objects["screens"]["left_screen"]
 
-        self.navigation_label = self.left_screen.tableWidget
-        self.landmark_label = self.left_screen.tableWidget_2
+        self.navigation_label = self.left_screen.navigation_waypoints_table_widget
+        self.landmark_label = self.left_screen.landmark_waypoints_table_widget
 
         self.name_edit_label = (self.left_screen.
                                 manual_waypoint_landmark_name_line_edit)

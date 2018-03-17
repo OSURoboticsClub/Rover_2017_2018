@@ -29,8 +29,8 @@ class RoverMapCoordinator(QtCore.QThread):
         self.shared_objects = shared_objects
         self.left_screen = self.shared_objects["screens"]["left_screen"]
         self.mapping_label = self.left_screen.mapping_label
-        self.navigation_label = self.left_screen.tableWidget
-        self.landmark_label = self.left_screen.tableWidget_2
+        self.navigation_label = self.left_screen.navigation_waypoints_table_widget
+        self.landmark_label = self.left_screen.landmark_waypoints_table_widget
 
         self.setings = QtCore.QSettings()
 
