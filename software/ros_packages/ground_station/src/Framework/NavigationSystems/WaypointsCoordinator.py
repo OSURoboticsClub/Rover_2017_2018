@@ -47,7 +47,7 @@ class WaypointsCoordinator(QtCore.QThread):
         self.new_manual_waypoint_entry.connect(self.update_manual_entry)
 
         # setting up signals to save for Navigation Table
-        self.nav_add_gps_label.clicked(self._nav_add_gps)
+        self.nav_add_gps_label.clicked.connect(self._nav_add_gps)
 
         self.navigation_label.cellClicked.connect(self._on_nav_clicked)
         self.landmark_label.cellClicked.connect(self._on_land_clicked)
