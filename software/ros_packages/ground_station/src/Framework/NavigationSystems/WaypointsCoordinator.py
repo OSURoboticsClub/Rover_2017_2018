@@ -54,7 +54,7 @@ class WaypointsCoordinator(QtCore.QThread):
 
     def _add_to_table(self, name, lat, lng, dist, table):
         count = table.rowCount()
-        table.addRow(count)
+        table.insertRow(count)
         table.setItem(count, 0, QtGui.QTableWidgetItem(name))
         table.setItem(count, 1, QtGui.QTableWidgetItem(lat))
         table.setItem(count, 2, QtGui.QTableWidgetItem(lng))
