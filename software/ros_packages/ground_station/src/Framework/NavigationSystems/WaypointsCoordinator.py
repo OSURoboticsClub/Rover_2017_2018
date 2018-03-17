@@ -16,8 +16,12 @@ class WaypointsCoordinator(QtCore.QThread):
         self.navigation_label = self.left_screen.tableWidget
         self.landmark_label = self.left_screen.tableWidget_2
 
-        # to get access to the values, iteration is needed.
-        self.lat_long_grid = self.left_screen.gridLayout_7
+        self.name_edit_label = (self.left_screen.
+                                manual_waypoint_landmark_name_line_edit)
+        self.latitude_label = (self.left_screen.
+                               manual_waypoint_decimal_lattitude_spin_box)
+        self.longitude_label = (self.left_screen.
+                                manual_waypoint_decimal_longitude_spin_box)
 
         self.settings = QtCore.QSettings()
 
@@ -27,13 +31,16 @@ class WaypointsCoordinator(QtCore.QThread):
         self.new_manual_waypoint_entry.connect(self.update_manual_entry)
 
         # setting up signals to save for Navigation Table
-        self. 
+        # self.
 
         self.navigation_label.cellClicked.connect(self._on_nav_clicked)
         self.landmark_label.cellClicked.connect(self.__on_land_clicked)
 
     def update_manual_entry(self, name, lat, lng, table):
-        print "write things"
+        if table == 1:
+            self.name_edit_label.setText(name)
+        self.latitude_label.setText(lat)
+        self.longitude_label.set(lng)
 
     def _on_nav_clicked(self, row, col):
         self.update_waypoint_entry.emit(
@@ -50,4 +57,3 @@ class WaypointsCoordinator(QtCore.QThread):
             self.landmark_label.item(row, 2),
             1
         )
-
