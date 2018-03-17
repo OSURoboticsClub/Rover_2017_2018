@@ -79,7 +79,7 @@ class WaypointsCoordinator(QtCore.QThread):
 
     def update_manual_entry(self, name, lat, lng, table):
         print name, lat, lng, table
-        self.name_edit_label.setDisable(table+1 % 2)
+        self.name_edit_label.setEnabled(bool(table))
         self.name_edit_label.setText(name)
         self.latitude_label.setValue(lat)
         self.longitude_label.setValue(lng)
