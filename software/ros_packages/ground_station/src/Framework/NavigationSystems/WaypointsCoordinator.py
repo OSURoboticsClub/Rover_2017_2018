@@ -25,6 +25,16 @@ class WaypointsCoordinator(QtCore.QThread):
         self.longitude_label = (self.left_screen.
                                 manual_waypoint_decimal_longitude_spin_box)
 
+        # Nav Table Buttons
+        self.nav_set_label = (self.left_screen.
+                              navigation_waypoints_set_buton)
+        self.nav_add_manual_label = (self.left_screen.
+                                     navigation_waypoints_add_manual_button)
+        self.nav_add_gps_label = (self.left_screen.
+                                  navigation_waypoints_add_gps_button)
+        self.nav_delete_label = (self.left_screen.
+                                 navigation_waypoints_delete_button)
+
         self.settings = QtCore.QSettings()
 
         self.logger = logging.getLogger("groundstation")
@@ -37,23 +47,37 @@ class WaypointsCoordinator(QtCore.QThread):
         self.new_manual_waypoint_entry.connect(self.update_manual_entry)
 
         # setting up signals to save for Navigation Table
-        # self.
+        self.nav_add_gps_label.onClick(self._nav_add_gps)
 
         self.navigation_label.cellClicked.connect(self._on_nav_clicked)
         self.landmark_label.cellClicked.connect(self._on_land_clicked)
 
-    def setup_signals(self, start_signal, 
+    def _add_to_table(self, name, lat, lng, dist, table):
+        count = table.rowCount()
+        table.addRow(count)
+        table.setItem(count, 0, QtGui.QTableWidgetItem(name))
+        table.setItem(count, 1, QtGui.QTableWidgetItem(lat))
+        table.setItem(count, 2, QtGui.QTableWidgetItem(lng))
+        table.setItem(count, 3, QtGui.QTableWidgetItem(dist))
+
+    def _nav_add_gps(self):
+        # request GPS data
+        name = self.navigation_label.rowCount()
+
+        self._add_to_table(name, lat, lng,)
+
+    def setup_signals(self, start_signal,
                       signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
         signals_and_slots_signal.connect(self.connect_signals_and_slots)
         kill_signal.connect(self.on_kill_threads_requested_slot)
-    
+
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
 
     def update_manual_entry(self, name, lat, lng, table):
         print name, lat, lng, table
-        self.name_edit_label.setReadOnly(table+1 % 2)
+        self.name_edit_label.setDisable(table+1 % 2)
         self.name_edit_label.setText(name)
         self.latitude_label.setValue(lat)
         self.longitude_label.setValue(lng)
