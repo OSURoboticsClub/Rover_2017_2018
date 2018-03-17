@@ -4,11 +4,11 @@ import rospy
 
 
 class WaypointsCoordinator(QtCore.QThread):
-    new_manual_waypoint_entry = QtCore.pyqtSignal(str, str, str, int)
-    update_waypoint_entry = QtCore.pyqtSignal(str, str, int)
+    new_manual_waypoint_entry = QtCore.pyqtSignal(str, float, float, int)
+    update_waypoint_entry = QtCore.pyqtSignal(str, str, str, int)
 
     def __init__(self, shared_objects):
-        super(WaypointsCoordinator, self).init()
+        super(WaypointsCoordinator, self).__init__()
         self.run_thread_flag = True
 
         self.shared_objects = shared_objects
@@ -48,27 +48,30 @@ class WaypointsCoordinator(QtCore.QThread):
         signals_and_slots_signal.connect(self.connect_signals_and_slots)
         kill_signal.connect(self.on_kill_threads_requested_slot)
     
-    def on_kill_threads_requested__slot(self):
+    def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
 
     def update_manual_entry(self, name, lat, lng, table):
-        self.name_edit_label.readOnly(table % 2)
+        print name, lat, lng, table
+        self.name_edit_label.setReadOnly(table+1 % 2)
         self.name_edit_label.setText(name)
-        self.latitude_label.setText(lat)
-        self.longitude_label.set(lng)
+        self.latitude_label.setValue(lat)
+        self.longitude_label.setValue(lng)
 
     def _on_nav_clicked(self, row, col):
-        self.update_waypoint_entry.emit(
-            self.navigation_label.item(row, 0),
-            self.navigation_label.item(row, 1),
-            self.navigation_label.item(row, 2),
+        print "nav" + str(row), str(col)
+        self.new_manual_waypoint_entry.emit(
+            self.navigation_label.item(row, 0).text(),
+            float(self.navigation_label.item(row, 1).text()),
+            float(self.navigation_label.item(row, 2).text()),
             0
         )
 
     def _on_land_clicked(self, row, col):
-        self.update_waypoint_entry.emit(
-            self.landmark_label.item(row, 0),
-            self.landmark_label.item(row, 1),
-            self.landmark_label.item(row, 2),
+        print "land" + str(row), str(col)
+        self.new_manual_waypoint_entry.emit(
+            self.landmark_label.item(row, 0).text(),
+            float(self.landmark_label.item(row, 1).text()),
+            float(self.landmark_label.item(row, 2).text()),
             1
         )
