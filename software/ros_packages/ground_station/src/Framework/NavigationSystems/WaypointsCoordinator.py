@@ -9,11 +9,13 @@ class WaypointsCoordinator(QtCore.QThread):
 
     def __init__(self, shared_objects):
         super(WaypointsCoordinator, self).init()
+        self.run_thread_flag = True
 
         self.shared_objects = shared_objects
         self.left_screen = self.shared_objects["screens"]["left_screen"]
 
-        self.navigation_label = self.left_screen.navigation_waypoints_table_widget
+        self.navigation_label = (self.left_screen.
+                                 navigation_waypoints_table_widget)
         self.landmark_label = self.left_screen.landmark_waypoints_table_widget
 
         self.name_edit_label = (self.left_screen.
@@ -27,6 +29,10 @@ class WaypointsCoordinator(QtCore.QThread):
 
         self.logger = logging.getLogger("groundstation")
 
+    def run(self):
+        while self.run_thread_flag:
+            self.msleep(3)
+
     def connect_signals_and_slots(self):
         self.new_manual_waypoint_entry.connect(self.update_manual_entry)
 
@@ -34,11 +40,20 @@ class WaypointsCoordinator(QtCore.QThread):
         # self.
 
         self.navigation_label.cellClicked.connect(self._on_nav_clicked)
-        self.landmark_label.cellClicked.connect(self.__on_land_clicked)
+        self.landmark_label.cellClicked.connect(self._on_land_clicked)
+
+    def setup_signals(self, start_signal, 
+                      signals_and_slots_signal, kill_signal):
+        start_signal.connect(self.start)
+        signals_and_slots_signal.connect(self.connect_signals_and_slots)
+        kill_signal.connect(self.on_kill_threads_requested_slot)
+    
+    def on_kill_threads_requested__slot(self):
+        self.run_thread_flag = False
 
     def update_manual_entry(self, name, lat, lng, table):
-        if table == 1:
-            self.name_edit_label.setText(name)
+        self.name_edit_label.readOnly(table % 2)
+        self.name_edit_label.setText(name)
         self.latitude_label.setText(lat)
         self.longitude_label.set(lng)
 
