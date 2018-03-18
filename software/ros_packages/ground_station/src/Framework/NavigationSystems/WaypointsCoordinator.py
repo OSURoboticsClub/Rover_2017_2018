@@ -90,6 +90,15 @@ class WaypointsCoordinator(QtCore.QThread):
         self.latitude_label.clear()
         self.longitude_label.clear()
 
+    def _is_empty_inputs(self):
+        if self.name_edit_label.text().isEmpty():
+            return True
+        if self.latitude_label.text().isEmpty():
+            return True
+        if self.longitude_label.text().isEmpty():
+            return True
+        return False
+
     def _nav_add_gps(self):
         # request GPS data
         name = self.navigation_label.rowCount()
@@ -102,26 +111,30 @@ class WaypointsCoordinator(QtCore.QThread):
         self._clear_inputs()
 
     def _nav_save(self):
-        lat = self.latitude_label.getText()
-        lng = self.longitude_label.getText()
-        self.navigation_label.setItem(self.navigation_table_cur_click,
-                                      1,
-                                      QtWidgets.QTableWidgetItem(lat))
-        self.navigation_label.setItem(self.navigation_label,
-                                      2,
-                                      QtWidgets.QTableWidgetItem(lng))
-        self._clear_inputs()
+        if not self._is_empty_inputs():
+            lat = self.latitude_label.getText()
+            lng = self.longitude_label.getText()
+            self.navigation_label.setItem(
+                self.navigation_table_cur_click,
+                1,
+                QtWidgets.QTableWidgetItem(lat))
+            self.navigation_label.setItem(
+                self.navigation_label,
+                2,
+                QtWidgets.QTableWidgetItem(lng))
+            self._clear_inputs()
 
     def _nav_add_manual(self):
         # request GPS data
-        name = self.navigation_label.rowCount()
-        lat = self.latitude_label.getText()
-        lng = self.longitude_label.getText()
-        distance = 200
-        self._add_to_table(str(name+1), lat,
-                           lng, str(distance),
-                           self.navigation_label)
-        self._clear_inputs
+        if not self._is_empty_inputs():
+            name = self.navigation_label.rowCount()
+            lat = self.latitude_label.getText()
+            lng = self.longitude_label.getText()
+            distance = 200
+            self._add_to_table(str(name+1), lat,
+                               lng, str(distance),
+                               self.navigation_label)
+            self._clear_inputs
 
     def _nav_del(self):
         if self.navigation_table_cur_click is not None:
@@ -145,15 +158,16 @@ class WaypointsCoordinator(QtCore.QThread):
         self._clear_inputs()
 
     def _land_add_manual(self):
-        name = self.name_edit_label.getText()
-        lat = self.latitude_label.getText()
-        lng = self.longitude_label.getText()
-        distance = 200
-        self._add_to_table(name, lat,
-                           lng, str(distance),
-                           self.landmark_label)
-        self._clear_inputs()
-    
+        if not self._is_empty_inputs():
+            name = self.name_edit_label.getText()
+            lat = self.latitude_label.getText()
+            lng = self.longitude_label.getText()
+            distance = 200
+            self._add_to_table(name, lat,
+                               lng, str(distance),
+                               self.landmark_label)
+            self._clear_inputs()
+
     def _land_del(self):
         if self.landmark_table_cur_click is not None:
             self.landmark_label.removeRow(self.landmark_table_cur_click)
@@ -166,20 +180,20 @@ class WaypointsCoordinator(QtCore.QThread):
             self._clear_inputs()
 
     def _land_save(self):
-        name = self.name_edit_label.getText()
-        lat = self.latitude_label.getText()
-        lng = self.longitude_label.getText()
-        
-        self.landmark_label.setItem(self.landmark_table_cur_click, 0,
-                                    QtWidgets.QTableWidgetItem(name))
+        if not self._is_empty_inputs():
+            name = self.name_edit_label.getText()
+            lat = self.latitude_label.getText()
+            lng = self.longitude_label.getText()
+            self.landmark_label.setItem(self.landmark_table_cur_click, 0,
+                                        QtWidgets.QTableWidgetItem(name))
 
-        self.landmark_label.setItem(self.landmark_table_cur_click, 1,
-                                    QtWidgets.QTableWidgetItem(lat))
+            self.landmark_label.setItem(self.landmark_table_cur_click, 1,
+                                        QtWidgets.QTableWidgetItem(lat))
 
-        self.landmark_label.setItem(self.landmark_table_cur_click, 2,
-                                    QtWidgets.QTableWidgetItem(lng))
+            self.landmark_label.setItem(self.landmark_table_cur_click, 2,
+                                        QtWidgets.QTableWidgetItem(lng))
 
-        self._clear_inputs()
+            self._clear_inputs()
 
     def setup_signals(self, start_signal,
                       signals_and_slots_signal, kill_signal):
