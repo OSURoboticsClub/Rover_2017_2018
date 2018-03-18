@@ -428,7 +428,7 @@ class OverlayImage(object):
 
     def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
-        print x,y
+        # print x,y
         # Center of the circle on the indicator is (12.5, 37.5)
         x = x - 50
         y = y - 50

@@ -15,12 +15,13 @@ import Framework.StartupSystems.ROSMasterChecker as ROSMasterChecker
 import Framework.LoggingSystems.Logger as Logger
 import Framework.VideoSystems.RoverVideoCoordinator as RoverVideoCoordinator
 import Framework.MapSystems.RoverMapCoordinator as RoverMapCoordinator
-import Framework.JoystickControlSystems.JoystickControlSender as JoystickControlSender
+import Framework.InputSystems.JoystickControlSender as JoystickControlSender
 import Framework.NavigationSystems.SpeedAndHeadingIndication as SpeedAndHeading
 import Framework.NavigationSystems.WaypointsCoordinator as WaypointsCoordinator
 import Framework.ArmSystems.ArmIndication as ArmIndication
 import Framework.StatusSystems.StatusCore as StatusCore
 import Framework.SettingsSystems.UbiquitiRadioSettings as UbiquitiRadioSettings
+import Framework.InputSystems.SpaceNavControlSender as SpaceNavControlSender
 
 #####################################
 # Global Variables
@@ -109,6 +110,7 @@ class GroundStation(QtCore.QObject):
         self.__add_thread("Rover Status", StatusCore.SensorCore(self.shared_objects))
         self.__add_thread("Ubiquiti Radio Settings", UbiquitiRadioSettings.UbiquitiRadioSettings(self.shared_objects))
         self.__add_thread("Waypoints Coordinator", WaypointsCoordinator.WaypointsCoordinator(self.shared_objects))
+        self.__add_thread("Spacenav Sender", SpaceNavControlSender.SpaceNavControlSender(self.shared_objects))
 
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()
