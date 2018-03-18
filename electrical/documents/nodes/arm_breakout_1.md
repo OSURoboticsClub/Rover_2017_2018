@@ -12,11 +12,11 @@ Breaks out the required pins for three IONI motor controllers. Has a USB to UART
 
 ### Bill of Materials
 
-BOM link.
+[BOM](https://docs.google.com/spreadsheets/d/1gDx0AlCHqHsaTh7cWj4YosPhcUce1aw0WUB4wSzndNo/edit?usp=sharing)
 
 #### Design files
 
-Circuitmaker link.
+[Circuitmaker](https://workspace.circuitmaker.com/Projects/Details/Dylan-Thrush-2/MR1718-Arm-1)
 
 ### Downloads
 Schematic placeholder.
