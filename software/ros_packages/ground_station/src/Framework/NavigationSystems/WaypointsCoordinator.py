@@ -37,6 +37,19 @@ class WaypointsCoordinator(QtCore.QThread):
         self.nav_delete_button_label = (self.left_screen.
                                         navigation_waypoints_delete_button)
 
+        # Land Table Buttons
+        self.land_set_button_label = (self.left_screen.
+                                      landmark_waypoints_set_button)
+
+        self.land_add_manual_button_label = (
+                       self.left_screen.landmark_waypoints_add_manual_button)
+
+        self.land_add_gps_button_label = (self.left_screen.
+                                          landmark_waypoints_add_gps_button)
+
+        self.land_delete_button_label = (self.left_screen.
+                                         landmark_waypoint_delete_button)
+
         self.settings = QtCore.QSettings()
 
         self.logger = logging.getLogger("groundstation")
@@ -48,11 +61,18 @@ class WaypointsCoordinator(QtCore.QThread):
     def connect_signals_and_slots(self):
         self.new_manual_waypoint_entry.connect(self.update_manual_entry)
 
-        # setting up signals to save for Navigation Table
+        # setting up signals for Navigation Table
         self.nav_add_gps_button_label.clicked.connect(self._nav_add_gps)
         self.nav_delete_button_label.clicked.connect(self._nav_del)
         self.nav_add_manual_button_label.clicked.connect(self._nav_add_manual)
         self.nav_set_button_label.clicked.connect(self._nav_save)
+
+        # setting up signals for Landmark Table
+        self.land_add_gps_button_label.clicked.connect(self._land_add_gps)
+        self.land_delete_button_label.clicked.connect(self._land_del)
+        self.land_add_manual_button_label.clicked.connect(self.
+                                                          _land_add_manual)
+        self.land_set_button_label.clicked.connect(self._land_save)
 
         self.navigation_label.cellClicked.connect(self._on_nav_clicked)
         self.landmark_label.cellClicked.connect(self._on_land_clicked)
@@ -76,7 +96,7 @@ class WaypointsCoordinator(QtCore.QThread):
         lat = 44.567200
         lng = -123.27860
         distance = 200
-        self._add_to_table(str(name), str(lat),
+        self._add_to_table(str(name+1), str(lat),
                            str(lng), str(distance),
                            self.navigation_label)
         self._clear_inputs()
@@ -98,7 +118,7 @@ class WaypointsCoordinator(QtCore.QThread):
         lat = self.latitude_label.getText()
         lng = self.longitude_label.getText()
         distance = 200
-        self._add_to_table(str(name), lat,
+        self._add_to_table(str(name+1), lat,
                            lng, str(distance),
                            self.navigation_label)
         self._clear_inputs
@@ -111,8 +131,55 @@ class WaypointsCoordinator(QtCore.QThread):
                 self.navigation_label.setItem(x,
                                               0,
                                               QtWidgets.
-                                              QTableWidgetItem(str(x)))
-        self._clear_inputs
+                                              QTableWidgetItem(str(x+1)))
+            self._clear_inputs()
+
+    def _land_add_gps(self):
+        name = self.name_edit_label.getText()
+        lat = 44.19223
+        lng = -123.12394
+        distance = 200
+        self._add_to_table(name, str(lat),
+                           str(lng), str(distance),
+                           self.landmark_label)
+        self._clear_inputs()
+
+    def _land_add_manual(self):
+        name = self.name_edit_label.getText()
+        lat = self.latitude_label.getText()
+        lng = self.longitude_label.getText()
+        distance = 200
+        self._add_to_table(name, lat,
+                           lng, str(distance),
+                           self.landmark_label)
+        self._clear_inputs()
+    
+    def _land_del(self):
+        if self.landmark_table_cur_click is not None:
+            self.landmark_label.removeRow(self.landmark_table_cur_click)
+            count = self.landmark_label.rowCount()
+            for x in range(self.landmark_table_cur_click, count):
+                self.navigation_label.setItem(x,
+                                              0,
+                                              QtWidgets.
+                                              QTableWidgetItem(str(x+1)))
+            self._clear_inputs()
+
+    def _land_save(self):
+        name = self.name_edit_label.getText()
+        lat = self.latitude_label.getText()
+        lng = self.longitude_label.getText()
+        
+        self.landmark_label.setItem(self.landmark_table_cur_click, 0,
+                                    QtWidgets.QTableWidgetItem(name))
+
+        self.landmark_label.setItem(self.landmark_table_cur_click, 1,
+                                    QtWidgets.QTableWidgetItem(lat))
+
+        self.landmark_label.setItem(self.landmark_table_cur_click, 2,
+                                    QtWidgets.QTableWidgetItem(lng))
+
+        self._clear_inputs()
 
     def setup_signals(self, start_signal,
                       signals_and_slots_signal, kill_signal):
