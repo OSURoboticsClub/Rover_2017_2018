@@ -28,3 +28,4 @@ Step placeholder.
 #### Version 1
 - Footprint for USB connector is mirrored about the vertical axis, creates 5V -> GND short.
 - LEDs don't seem to work
+- Probably need to add a beefy capacitor to the power rail
