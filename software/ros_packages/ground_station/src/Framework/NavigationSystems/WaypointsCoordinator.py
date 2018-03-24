@@ -48,7 +48,7 @@ class WaypointsCoordinator(QtCore.QThread):
                                           landmark_waypoints_add_gps_button)
 
         self.land_delete_button_label = (self.left_screen.
-                                         landmark_waypoint_delete_button)
+                                         landmark_waypoints_delete_button)
 
         self.settings = QtCore.QSettings()
 

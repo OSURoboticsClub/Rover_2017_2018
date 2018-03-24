@@ -41,3 +41,4 @@ https://docs.google.com/spreadsheets/d/1CobSEg-5mzBy_F1_ASbbnYLLLra0shLwDUG4rKD0
 <img src="files/motor_v1_bodge_1.jpg" width="600px">
 - Missing 3v3 rail connection to VBAT on Teensy. Will program without it, but will not boot without it. Connect VBat (pin 21) to the 3v3 side of C12 (closest to the XTAL)
 - MCU mistakenly connected to the 5v_SYS, needs to be connected to the 3v3 net (as there is no 5v net on this board)
+- RGB led missing 3v3 anode connection. Currently connected to non-present 5V_SYS net.
