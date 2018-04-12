@@ -222,9 +222,9 @@ class WaypointsCoordinator(QtCore.QThread):
         self.latitude_label.setValue(lat)
         self.longitude_label.setValue(lng)
         self.latitude_degree_label.setValue(int(lat))
-        lat_minute = (lat - float(int(lat))) * 60
+        lat_minute = (lat - float(int(lat))) * 60.
         self.latitude_minute_label.setValue(lat_minute)
-        lat_seconds = (lat - float(int(lat)) - lat_minute/60.) * 3600 
+        lat_seconds = (lat - float(int(lat)) - lat_minute/60.) * 3600. 
         self.latitude_second_label.setValue(lat_seconds)
 
     def _on_nav_clicked(self, row, col):
