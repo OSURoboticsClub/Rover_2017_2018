@@ -26,6 +26,18 @@ class WaypointsCoordinator(QtCore.QThread):
                                manual_waypoint_decimal_lattitude_spin_box)
         self.longitude_label = (self.left_screen.
                                 manual_waypoint_decimal_longitude_spin_box)
+        
+        self.latitude_degree_label = self.left_screen.manual_waypoint_degrees_lattitude_spin_box
+
+        self.longitude_degree_label = self.left_screen.manual_waypoint_degrees_longitude_spin_box
+
+        self.latitude_minute_label = self.left_screen.manual_waypoint_minutes_lattitude_spin_box
+
+        self.longitude_minute_label = self.left_screen.manual_waypoint_minutes_longitude_spin_box
+
+        self.latitude_second_label = self.left_screen.manual_waypoint_seconds_lattitude_spin_box
+
+        self.longitude_seccond_label = self.left_screen.manual_waypoint_seconds_longitude_spin_box
 
         # Nav Table Buttons
         self.nav_set_button_label = (self.left_screen.
@@ -209,6 +221,9 @@ class WaypointsCoordinator(QtCore.QThread):
         self.name_edit_label.setText(name)
         self.latitude_label.setValue(lat)
         self.longitude_label.setValue(lng)
+        self.latitude_degree_label.setValue(int(lat))
+        self.latitude_minute_label.setValue(int(lat-(int(lat) * 60)))
+        self.latitude_second_label.setValue(lat-int(lat)-int(lat-(int(lat) * 60))/60 * 3600)
 
     def _on_nav_clicked(self, row, col):
         self.navigation_table_cur_click = row

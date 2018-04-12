@@ -141,7 +141,8 @@ class RoverMapCoordinator(QtCore.QThread):
         navigation_list = self._get_table_elements(self.navigation_label)
         # landmark_list = self._get_table_elements(self.landmark_label)
         landmark_list = []
-        self.overlay_image = self.overlay_image_object.update_new_location(latitude,
+        self.overlay_image = self.overlay_image_object.update_new_location(
+                                                      latitude,
                                                       longitude,
                                                       70,
                                                       navigation_list,
