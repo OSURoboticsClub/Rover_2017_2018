@@ -241,9 +241,9 @@ class WaypointsCoordinator(QtCore.QThread):
         lng_m = float(int((lng - lng_d) * 60))
         lng_s = ((lng - lng_d - (lng_m/60.0)) * 3600.)
         if lng_d > 0:
-            self.longitude_card_label.setCurrentText("W")
-        else:
             self.longitude_card_label.setCurrentText("E")
+        else:
+            self.longitude_card_label.setCurrentText("W")
         self.longitude_degree_label.setValue(lng_d)
         self.longitude_minute_label.setValue(lng_m)
         self.longitude_second_label.setValue(lng_s)
