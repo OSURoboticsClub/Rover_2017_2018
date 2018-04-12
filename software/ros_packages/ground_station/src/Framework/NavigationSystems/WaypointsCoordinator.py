@@ -39,6 +39,10 @@ class WaypointsCoordinator(QtCore.QThread):
 
         self.longitude_second_label = self.left_screen.manual_waypoint_seconds_longitude_spin_box
 
+        self.latitude_card_label = self.left_screen.manual_waypoint_cardinal_lattitude_combo_box
+
+        self.longitude_card_label = self.left_screen.manual_waypoint_cardinal_longitude_combo_box
+
         # Nav Table Buttons
         self.nav_set_button_label = (self.left_screen.
                                      navigation_waypoints_set_button)
@@ -225,6 +229,10 @@ class WaypointsCoordinator(QtCore.QThread):
         lat_d = float(int(lat))
         lat_m = float(int((lat - lat_d) * 60))
         lat_s = ((lat - lat_d - (lat_m/60.0)) * 3600.)
+        if lat_d > 0:
+            self.latitude_card_label.setCurrentText("N")
+        else:
+            self.latitude_card_label.setCurrentText("S")
         self.latitude_degree_label.setValue(lat_d)
         self.latitude_minute_label.setValue(lat_m)
         self.latitude_second_label.setValue(lat_s)
@@ -232,6 +240,10 @@ class WaypointsCoordinator(QtCore.QThread):
         lng_d = float(int(lng))
         lng_m = float(int((lng - lng_d) * 60))
         lng_s = ((lng - lng_d - (lng_m/60.0)) * 3600.)
+        if lng_d > 0:
+            self.longitude_card_label.setCurrentText("W")
+        else:
+            self.longitude_card_label.setCurrentText("E")
         self.longitude_degree_label.setValue(lng_d)
         self.longitude_minute_label.setValue(lng_m)
         self.longitude_second_label.setValue(lng_s)
