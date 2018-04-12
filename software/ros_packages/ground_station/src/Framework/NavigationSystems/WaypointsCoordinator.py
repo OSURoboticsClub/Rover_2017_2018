@@ -224,8 +224,14 @@ class WaypointsCoordinator(QtCore.QThread):
         self.latitude_degree_label.setValue(int(lat))
         lat_minute = (lat - float(int(lat))) * 60.
         self.latitude_minute_label.setValue(lat_minute)
-        lat_seconds = (lat - float(int(lat)) - lat_minute/60.) * 3600. 
+        lat_seconds = (lat - float(int(lat)) - lat_minute/60.) * 3600.
         self.latitude_second_label.setValue(lat_seconds)
+
+        self.longitude_degree_label.setValue(int(lng))
+        lng_minute = (lng - float(int(lng))) * 60.
+        self.longitude_minute_label.setValue(lng_minute)
+        lng_seconds = (lng - float(int(lng)) - lng_minute/60.) * 3600.
+        self.longitude_second_label.setValue(lng_seconds)
 
     def _on_nav_clicked(self, row, col):
         self.navigation_table_cur_click = row
