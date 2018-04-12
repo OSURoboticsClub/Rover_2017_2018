@@ -221,17 +221,20 @@ class WaypointsCoordinator(QtCore.QThread):
         self.name_edit_label.setText(name)
         self.latitude_label.setValue(lat)
         self.longitude_label.setValue(lng)
-        self.latitude_degree_label.setValue(int(lat))
-        lat_minute = (lat - float(int(lat))) * 60.
-        self.latitude_minute_label.setValue(lat_minute)
-        lat_seconds = (lat - float(int(lat)) - lat_minute/60.) * 3600.
-        self.latitude_second_label.setValue(lat_seconds)
 
-        self.longitude_degree_label.setValue(int(lng))
-        lng_minute = (lng - float(int(lng))) * 60.
-        self.longitude_minute_label.setValue(lng_minute)
-        lng_seconds = (lng - float(int(lng)) - lng_minute/60.) * 3600.
-        self.longitude_second_label.setValue(lng_seconds)
+        lat_d = float(int(lat))
+        lat_m = float(int((lat - lat_d) * 60))
+        lat_s = ((lat - lat_d - (lat_m/60.0)) * 3600.)
+        self.latitude_degree_label.setValue(lat_d)
+        self.latitude_minute_label.setValue(lat_m)
+        self.latitude_second_label.setValue(lat_s)
+
+        lng_d = float(int(lng))
+        lng_m = float(int((lng - lng_d) * 60))
+        lng_s = ((lng - lng_d - (lng_m/60.0)) * 3600.)
+        self.longitude_degree_label.setValue(lng_d)
+        self.longitude_minute_label.setValue(lng_m)
+        self.longitude_second_label.setValue(lng_s)
 
     def _on_nav_clicked(self, row, col):
         self.navigation_table_cur_click = row
