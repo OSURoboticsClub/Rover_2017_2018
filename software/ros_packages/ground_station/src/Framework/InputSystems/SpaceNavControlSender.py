@@ -19,6 +19,8 @@ THREAD_HERTZ = 15
 # Controller Class Definition
 #####################################
 class SpaceNavControlSender(QtCore.QThread):
+    spacenav_state_update__signal = QtCore.pyqtSignal(object)
+
     GUI_MODE = 0
     ARM_MODE = 1
 
@@ -93,8 +95,6 @@ class SpaceNavControlSender(QtCore.QThread):
             5: "f_pressed"
         }
 
-
-
         self.current_control_mode = self.GUI_MODE
 
     def run(self):
@@ -105,6 +105,8 @@ class SpaceNavControlSender(QtCore.QThread):
             start_time = time()
 
             self.process_spnav_events()
+            self.check_control_mode_change()
+            self.broadcast_control_state()
 
             time_diff = time() - start_time
 
@@ -134,6 +136,11 @@ class SpaceNavControlSender(QtCore.QThread):
         elif self.spnav_states["2_pressed"]:
             self.current_control_mode = self.ARM_MODE
 
+    def broadcast_control_state(self):
+        if self.current_control_mode == self.GUI_MODE:
+            self.spacenav_state_update__signal.emit(self.spnav_states)
+        elif self.current_control_mode == self.ARM_MODE:
+            pass
 
     def connect_signals_and_slots(self):
         pass
