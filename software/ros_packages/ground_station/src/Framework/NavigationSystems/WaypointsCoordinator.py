@@ -37,7 +37,7 @@ class WaypointsCoordinator(QtCore.QThread):
 
         self.latitude_second_label = self.left_screen.manual_waypoint_seconds_lattitude_spin_box
 
-        self.longitude_seccond_label = self.left_screen.manual_waypoint_seconds_longitude_spin_box
+        self.longitude_second_label = self.left_screen.manual_waypoint_seconds_longitude_spin_box
 
         # Nav Table Buttons
         self.nav_set_button_label = (self.left_screen.
