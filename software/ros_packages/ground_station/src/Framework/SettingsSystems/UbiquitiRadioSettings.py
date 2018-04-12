@@ -58,7 +58,12 @@ class UbiquitiRadioSettings(QtCore.QThread):
 
     def run(self):
         self.set_gui_elements_enabled__signal.emit(False)
-        self.setup_and_connect_ssh_client()
+
+        try:
+            self.setup_and_connect_ssh_client()
+        except Exception:
+            return
+
         self.get_and_show_current_channel()
 
         while self.run_thread_flag:

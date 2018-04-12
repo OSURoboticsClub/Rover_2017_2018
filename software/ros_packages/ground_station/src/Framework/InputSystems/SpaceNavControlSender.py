@@ -19,6 +19,9 @@ THREAD_HERTZ = 15
 # Controller Class Definition
 #####################################
 class SpaceNavControlSender(QtCore.QThread):
+    GUI_MODE = 0
+    ARM_MODE = 1
+
     def __init__(self, shared_objects):
         super(SpaceNavControlSender, self).__init__()
 
@@ -90,6 +93,10 @@ class SpaceNavControlSender(QtCore.QThread):
             5: "f_pressed"
         }
 
+
+
+        self.current_control_mode = self.GUI_MODE
+
     def run(self):
         spnav.spnav_open()
 
@@ -108,19 +115,25 @@ class SpaceNavControlSender(QtCore.QThread):
 
         if event:
             if event.ev_type == spnav.SPNAV_EVENT_MOTION:
-                # FIXME: Make sure these divisors are correct. Should be for most. Check linear_z, is weird
                 self.spnav_states["linear_x"] = event.translation[0] / 350.0
                 self.spnav_states["linear_y"] = event.translation[2] / 350.0
                 self.spnav_states["linear_z"] = event.translation[1] / 350.0
 
                 self.spnav_states["angular_x"] = event.rotation[2] / 350.0
-                self.spnav_states["angular_y"] = event.rotation[0] / 350.0
-                self.spnav_states["angular_z"] = event.rotation[1] / 350.0
+                self.spnav_states["angular_y"] = -(event.rotation[0] / 350.0)
+                self.spnav_states["angular_z"] = -(event.rotation[1] / 350.0)
 
                 # print "x", self.spnav_states["linear_x"], "\t", "y", self.spnav_states["linear_y"], "\t", "z", self.spnav_states["linear_z"]
                 # print "x", self.spnav_states["angular_x"], "\t", "y", self.spnav_states["angular_y"], "\t", "z", self.spnav_states["angular_z"]
             else:
                 self.spnav_states[self.event_mapping_to_button_mapping[event.bnum]] = event.press
+
+    def check_control_mode_change(self):
+        if self.spnav_states["1_pressed"]:
+            self.current_control_mode = self.GUI_MODE
+        elif self.spnav_states["2_pressed"]:
+            self.current_control_mode = self.ARM_MODE
+
 
     def connect_signals_and_slots(self):
         pass
