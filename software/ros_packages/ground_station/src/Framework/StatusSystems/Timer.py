@@ -3,6 +3,7 @@
 import sys
 
 from PyQt5 import Qt
+from PyQt5 import QtCore
 from PyQt5.uic import loadUi
 
 # [ms]
@@ -20,7 +21,18 @@ class Timer(Qt.QMainWindow):
         self.timer.setInterval(TICK_TIME)
         self.timer.timeout.connect(self.tick)
 
+        self.running = False;
+
         self.do_reset()
+
+    def __start_stop_reset_event(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            if self.running is False:
+                self.do_start
+            elif self.running is True:
+                self.do_pause
+        elif event.button() == QtCore.Qt.RightButton:
+            self.do_reset
 
     def display(self):
         self.timer.display("%d:%05.2f" % (self.time // 60, self.time % 60))
