@@ -226,10 +226,10 @@ class WaypointsCoordinator(QtCore.QThread):
         self.latitude_label.setValue(lat)
         self.longitude_label.setValue(lng)
 
-        lat_d = float(int(lat))
-        lat_m = float(int((lat - lat_d) * 60))
-        lat_s = ((lat - lat_d - (lat_m/60.0)) * 3600.)
-        if lat_d > 0:
+        lat_d = float(abs(int(lat)))
+        lat_m = float(int((abs(lat) - lat_d) * 60))
+        lat_s = ((abs(lat) - lat_d - (lat_m/60.0)) * 3600.)
+        if lat > 0.:
             self.latitude_card_label.setCurrentText("N")
         else:
             self.latitude_card_label.setCurrentText("S")
@@ -237,10 +237,10 @@ class WaypointsCoordinator(QtCore.QThread):
         self.latitude_minute_label.setValue(lat_m)
         self.latitude_second_label.setValue(lat_s)
 
-        lng_d = float(int(lng))
-        lng_m = float(int((lng - lng_d) * 60))
-        lng_s = ((lng - lng_d - (lng_m/60.0)) * 3600.)
-        if lng_d > 0:
+        lng_d = float(abs(int(lng)))
+        lng_m = float(int((abs(lng) - lng_d) * 60))
+        lng_s = ((abs(lng) - lng_d - (lng_m/60.0)) * 3600.)
+        if lng > 0.:
             self.longitude_card_label.setCurrentText("E")
         else:
             self.longitude_card_label.setCurrentText("W")
