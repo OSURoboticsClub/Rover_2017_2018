@@ -7,8 +7,8 @@ import rospy
 import os.path
 import psutil
 import subprocess
-from rover_status.msg import CameraStatuses, BogieStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
-from rover_control.msg import DriveCommandMessage
+from rover_status.msg import CameraStatuses, WheelStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
+from rover_control.msg import DriveCommandMessage, DriveStatusMessage
 from std_msgs.msg import Empty
 from time import time
 
@@ -17,7 +17,7 @@ from time import time
 # Global Variables
 #####################################
 DEFAULT_CAMERA_TOPIC_NAME = "camera_status"
-DEFAULT_BOGIE_TOPIC_NAME = "bogie_status"
+DEFAULT_WHEEL_TOPIC_NAME = "wheel_status"
 DEFAULT_FRSKY_TOPIC_NAME = "frsky_status"
 DEFAULT_GPS_TOPIC_NAME = "gps_status"
 DEFAULT_JETSON_TOPIC_NAME = "jetson_status"
@@ -26,6 +26,10 @@ DEFAULT_MISC_TOPIC_NAME = "misc_status"
 DEFAULT_REQUEST_UPDATE_TOPIC_NAME = "update_requested"
 
 MAX_JETSON_UPDATE_HERTZ = 0.2
+
+DEFAULT_BOGIE_LEFT_TOPIC_NAME = '/rover_control/drive_status/left'
+DEFAULT_BOGIE_RIGHT_TOPIC_NAME = '/rover_control/drive_status/right'
+DEFAULT_BOGIE_REAR_TOPIC_NAME = '/rover_control/drive_status/rear'
 
 
 #####################################
@@ -52,7 +56,7 @@ class SystemStatuses:
 
         # Get Topic Names
         self.camera_topic_name = rospy.get_param("~camera_status_topic", DEFAULT_CAMERA_TOPIC_NAME)
-        self.bogie_topic_name = rospy.get_param("~bogie_status_topic", DEFAULT_BOGIE_TOPIC_NAME)
+        self.wheel_topic_name = rospy.get_param("~wheel_status_topic", DEFAULT_WHEEL_TOPIC_NAME)
         self.frsky_topic_name = rospy.get_param("~frsky_status_topic", DEFAULT_FRSKY_TOPIC_NAME)
         self.gps_topic_name = rospy.get_param("~gps_status_topic", DEFAULT_GPS_TOPIC_NAME)
         self.jetson_topic_name = rospy.get_param("~jetson_status_topic", DEFAULT_JETSON_TOPIC_NAME)
@@ -60,10 +64,13 @@ class SystemStatuses:
 
         self.request_update_topic_name = rospy.get_param("~request_update_status_topic",
                                                          DEFAULT_REQUEST_UPDATE_TOPIC_NAME)
+        self.bogie_left_topic_name = rospy.get_param("~bogie_left_topic", DEFAULT_BOGIE_LEFT_TOPIC_NAME)
+        self.bogie_right_topic_name = rospy.get_param("~bogie_right_topic", DEFAULT_BOGIE_RIGHT_TOPIC_NAME)
+        self.bogie_rear_topic_name = rospy.get_param("~bogie_rear_topic", DEFAULT_BOGIE_REAR_TOPIC_NAME)
 
         # init all publisher functions
         self.pub_camera = rospy.Publisher(self.camera_topic_name, CameraStatuses, queue_size=1)
-        self.pub_bogie = rospy.Publisher(self.bogie_topic_name, BogieStatuses, queue_size=1)
+        self.pub_wheel = rospy.Publisher(self.wheel_topic_name, WheelStatuses, queue_size=1)
         self.pub_FrSky = rospy.Publisher(self.frsky_topic_name, FrSkyStatus, queue_size=1)
         self.pub_GPS = rospy.Publisher(self.gps_topic_name, GPSInfo, queue_size=1)
         self.pub_jetson = rospy.Publisher(self.jetson_topic_name, JetsonInfo, queue_size=1)
@@ -78,7 +85,7 @@ class SystemStatuses:
 
         # init all message variables
         self.camera_msg = CameraStatuses()
-        self.bogie_msg = BogieStatuses()
+        self.wheel_msg = WheelStatuses()
         self.FrSky_msg = FrSkyStatus()
         self.GPS_msg = GPSInfo()
         self.jetson_msg = JetsonInfo()
@@ -86,6 +93,8 @@ class SystemStatuses:
 
         # init all message values
         self.__pull_new_message_values()
+
+        self.__set_bogie_subscribers()
 
         # init all previous values
         self.__update_all_previous_values()
@@ -95,9 +104,9 @@ class SystemStatuses:
     # init all RoverSysMessage values
     def __pull_new_message_values(self):
         self.__set_gps_info()
-        self.__set_bogie_connection_statuses()
         self.__set_arm_connection_status()
         self.__set_arm_end_effector_connection_statuses()
+        #self.__set_bogie_subscribers()
         self.__set_cameras()
         self.__set_sample_containment_connection_status()
         self.__set_tower_connection_status()
@@ -110,11 +119,23 @@ class SystemStatuses:
         self.GPS_msg.UTC_GPS_time = 0
         self.GPS_msg.GPS_connection_status = 0
 
-    # Pulls bogie connection statuses (WIP)
-    def __set_bogie_connection_statuses(self):
-        self.bogie_msg.bogie_connection_1 = 0
-        self.bogie_msg.bogie_connection_2 = 0
-        self.bogie_msg.bogie_connection_3 = 0
+    # Pulls bogie connection statuses
+    def __set_bogie_subscribers(self):
+        self.bogie_left_sub = rospy.Subscriber(self.bogie_left_topic_name, DriveStatusMessage, self.__left_wheel_callback)
+        self.bogie_right_sub = rospy.Subscriber(self.bogie_right_topic_name, DriveStatusMessage, self.__right_wheel_callback)
+        self.bogie_rear_sub = rospy.Subscriber(self.bogie_rear_topic_name, DriveStatusMessage, self.__rear_wheel_callback)
+
+    def __left_wheel_callback(self, data):
+        self.wheel_msg.front_left = data.first_motor_connected
+        self.wheel_msg.middle_left = data.second_motor_connected
+
+    def __right_wheel_callback(self, data):
+        self.wheel_msg.front_right = data.first_motor_connected
+        self.wheel_msg.middle_right = data.second_motor_connected
+
+    def __rear_wheel_callback(self, data):
+        self.wheel_msg.rear_left = data.first_motor_connected
+        self.wheel_msg.rear_right = data.second_motor_connected
 
     # Checks arm connection status (WIP)
     def __set_arm_connection_status(self):
@@ -190,7 +211,7 @@ class SystemStatuses:
         self.__set_previous_camera_values()
         self.__set_previous_jetson_values()
         self.__set_previous_frsky_value()
-        self.__set_previous_bogie_values()
+        self.__set_previous_wheel_values()
         self.__set_previous_gps_values()
         self.__set_previous_misc_values()
 
@@ -210,10 +231,13 @@ class SystemStatuses:
     def __set_previous_frsky_value(self):
         self.previous_FrSky_controller_connection_status = self.FrSky_msg.FrSky_controller_connection_status
 
-    def __set_previous_bogie_values(self):
-        self.previous_bogie_connection_1 = self.bogie_msg.bogie_connection_1
-        self.previous_bogie_connection_2 = self.bogie_msg.bogie_connection_2
-        self.previous_bogie_connection_3 = self.bogie_msg.bogie_connection_3
+    def __set_previous_wheel_values(self):
+        self.previous_wheel_front_left = self.wheel_msg.front_left
+        self.previous_wheel_middle_left = self.wheel_msg.middle_left
+        self.previous_wheel_rear_left = self.wheel_msg.rear_left
+        self.previous_wheel_front_right = self.wheel_msg.front_right
+        self.previous_wheel_middle_right = self.wheel_msg.middle_right
+        self.previous_wheel_rear_right = self.wheel_msg.rear_right
 
     def __set_previous_gps_values(self):
         self.previous_UTC_GPS_time = self.GPS_msg.UTC_GPS_time
@@ -264,12 +288,15 @@ class SystemStatuses:
                 self.pub_FrSky.publish(self.FrSky_msg)
 
             # Placeholder bogie status check
-            if (self.bogie_msg.bogie_connection_1 != self.previous_bogie_connection_1 or
-                    self.bogie_msg.bogie_connection_2 != self.previous_bogie_connection_2 or
-                    self.bogie_msg.bogie_connection_3 != self.previous_bogie_connection_3 or
+            if (self.wheel_msg.front_left != self.previous_wheel_front_left or
+                    self.wheel_msg.middle_left != self.previous_wheel_middle_left or
+                    self.wheel_msg.rear_left != self.previous_wheel_rear_left or
+                    self.wheel_msg.front_right != self.previous_wheel_front_right or
+                    self.wheel_msg.middle_right != self.previous_wheel_middle_right or
+                    self.wheel_msg.rear_right != self.previous_wheel_rear_right  or
                     self.manual_update_requested):
-                self.__set_previous_bogie_values()
-                self.pub_bogie.publish(self.bogie_msg)
+                self.__set_previous_wheel_values()
+                self.pub_wheel.publish(self.wheel_msg)
 
             # Placeholder GPS Information check
             if (self.GPS_msg.UTC_GPS_time != self.previous_UTC_GPS_time or

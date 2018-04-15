@@ -1,3 +1,0 @@
-bool bogie_connection_1
-bool bogie_connection_2
-bool bogie_connection_3

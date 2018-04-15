@@ -57,7 +57,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
     FILES
     RoverSysStatus.msg
-    BogieStatuses.msg
+    WheelStatuses.msg
     FrSkyStatus.msg
     JetsonInfo.msg
     CameraStatuses.msg
