@@ -11,7 +11,7 @@ import serial.rs485
 import minimalmodbus
 
 # Custom Imports
-from rover_control.msg import DriveCommandMessage
+from rover_control.msg import DriveCommandMessage, IrisStatusMessage
 
 #####################################
 # Global Variables
@@ -22,6 +22,7 @@ DEFAULT_PORT = "/dev/rover/ttyIRIS"
 DEFAULT_BAUD = 115200
 
 DEFAULT_DRIVE_COMMAND_TOPIC = "command_control/iris_drive"
+DEFAULT_IRIS_STATUS_TOPIC = "iris_status"
 
 DEFAULT_HERTZ = 10
 COMMUNICATIONS_TIMEOUT = 0.15  # Seconds
@@ -81,15 +82,17 @@ class IrisController(object):
         self.baud = rospy.get_param("~baud", DEFAULT_BAUD)
 
         self.drive_command_publisher_topic = rospy.get_param("~drive_command_topic", DEFAULT_DRIVE_COMMAND_TOPIC)
+        self.iris_status_publisher_topic = rospy.get_param("~iris_status_topic", DEFAULT_IRIS_STATUS_TOPIC)
 
         self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
-        # print self.wait_time
 
         self.iris = minimalmodbus.Instrument(self.port, MODBUS_ID)
         self.__setup_minimalmodbus_for_485()
 
         self.drive_command_publisher = rospy.Publisher(self.drive_command_publisher_topic, DriveCommandMessage,
                                                        queue_size=1)
+        self.iris
+
 
         self.registers = []
 
@@ -108,6 +111,7 @@ class IrisController(object):
                 self.read_registers()
                 self.broadcast_drive_if_current_mode()
                 self.broadcast_arm_if_current_mode()
+                self.broadcast_iris_status()
 
             except Exception, error:
                 print "Error occurred:", error
@@ -155,6 +159,9 @@ class IrisController(object):
         if self.registers[MODBUS_REGISTERS[REGISTER_STATE_MAPPING["DRIVE_VS_ARM"]]] > \
                         SBUS_VALUES["SBUS_MIN"] + SBUS_VALUES["SBUS_DEADZONE"]:
             print "Arm"
+
+    def broadcast_iris_status(self):
+        print self.registers[MODBUS_REGISTERS["VOLTAGE_24V"]]
 
 
 if __name__ == "__main__":

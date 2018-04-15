@@ -2,7 +2,7 @@
 <launch>
     <!-- https://github.com/vikiboy/AGV_Localization/blob/master/robot_localization/launch/ekf.launch -->
 <!-- https://answers.ros.org/question/241222/fusing-imu-gps-with-robot_location-package/ -->
-    <node name="rosbag" pkg="rosbag" type="play" args="/home/caperren/nav_testing/gps_imu_data_2018-02-01-05-31-34.bag">
+    <node name="rosbag" pkg="rosbag" type="play" args="-l /home/nvidia/gps_imu_data_2018-02-01-05-31-34.bag">
         <remap from="/imu_data" to="/imu/data" />
     </node>
 
