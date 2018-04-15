@@ -120,8 +120,7 @@ class SystemStatuses:
 
     # Pulls the UTC GPS Time (WIP)
     def __set_gps_info(self):
-        self.GPS_msg.UTC_GPS_time = 0
-        self.GPS_msg.GPS_connection_status = 0
+        pass
 
     # Pulls bogie connection statuses
     def __set_bogie_subscribers(self):
@@ -244,8 +243,7 @@ class SystemStatuses:
         self.previous_wheel_rear_right = self.wheel_msg.rear_right
 
     def __set_previous_gps_values(self):
-        self.previous_UTC_GPS_time = self.GPS_msg.UTC_GPS_time
-        self.previous_GPS_connection_status = self.GPS_msg.GPS_connection_status
+        pass
 
     def __set_previous_misc_values(self):
         self.previous_arm_connection_status = self.misc_msg.arm_connection_status
@@ -303,11 +301,11 @@ class SystemStatuses:
                 self.pub_wheel.publish(self.wheel_msg)
 
             # Placeholder GPS Information check
-            if (self.GPS_msg.UTC_GPS_time != self.previous_UTC_GPS_time or
-                    self.GPS_msg.UTC_GPS_time != self.previous_GPS_connection_status or
-                    self.manual_update_requested):
-                self.__set_previous_gps_values()
-                self.pub_GPS.publish(self.GPS_msg)
+            # if (self.GPS_msg.UTC_GPS_time != self.previous_UTC_GPS_time or
+            #         self.GPS_msg.UTC_GPS_time != self.previous_GPS_connection_status or
+            #         self.manual_update_requested):
+            #     self.__set_previous_gps_values()
+            #     self.pub_GPS.publish(self.GPS_msg)
 
             # Placeholder Misc Information check
             if (self.misc_msg.arm_connection_status !=
