@@ -6,6 +6,7 @@
 import rospy
 import os.path
 import psutil
+import pynmea2
 import subprocess
 from rover_status.msg import CameraStatuses, WheelStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
 from rover_control.msg import DriveCommandMessage, DriveStatusMessage
@@ -16,6 +17,7 @@ from time import time
 #####################################
 # Global Variables
 #####################################
+# Publishers
 DEFAULT_CAMERA_TOPIC_NAME = "camera_status"
 DEFAULT_WHEEL_TOPIC_NAME = "wheel_status"
 DEFAULT_FRSKY_TOPIC_NAME = "frsky_status"
@@ -23,13 +25,14 @@ DEFAULT_GPS_TOPIC_NAME = "gps_status"
 DEFAULT_JETSON_TOPIC_NAME = "jetson_status"
 DEFAULT_MISC_TOPIC_NAME = "misc_status"
 
-DEFAULT_REQUEST_UPDATE_TOPIC_NAME = "update_requested"
-
 MAX_JETSON_UPDATE_HERTZ = 0.2
 
+# Subscribers
+DEFAULT_REQUEST_UPDATE_TOPIC_NAME = "update_requested"
 DEFAULT_BOGIE_LEFT_TOPIC_NAME = '/rover_control/drive_status/left'
 DEFAULT_BOGIE_RIGHT_TOPIC_NAME = '/rover_control/drive_status/right'
 DEFAULT_BOGIE_REAR_TOPIC_NAME = '/rover_control/drive_status/rear'
+DEFAULT_GPS_NMEA_TOPIC_NAME = '/nmea_sentence'
 
 
 #####################################
@@ -55,18 +58,20 @@ class SystemStatuses:
         rospy.init_node('SystemStatuses')
 
         # Get Topic Names
-        self.camera_topic_name = rospy.get_param("~camera_status_topic", DEFAULT_CAMERA_TOPIC_NAME)
-        self.wheel_topic_name = rospy.get_param("~wheel_status_topic", DEFAULT_WHEEL_TOPIC_NAME)
-        self.frsky_topic_name = rospy.get_param("~frsky_status_topic", DEFAULT_FRSKY_TOPIC_NAME)
-        self.gps_topic_name = rospy.get_param("~gps_status_topic", DEFAULT_GPS_TOPIC_NAME)
-        self.jetson_topic_name = rospy.get_param("~jetson_status_topic", DEFAULT_JETSON_TOPIC_NAME)
-        self.misc_topic_name = rospy.get_param("~misc_status_topic", DEFAULT_MISC_TOPIC_NAME)
+        self.camera_topic_name = rospy.get_param("~pub_camera_status_topic", DEFAULT_CAMERA_TOPIC_NAME)
+        self.wheel_topic_name = rospy.get_param("~pub_wheel_status_topic", DEFAULT_WHEEL_TOPIC_NAME)
+        self.frsky_topic_name = rospy.get_param("~pub_frsky_status_topic", DEFAULT_FRSKY_TOPIC_NAME)
+        self.gps_topic_name = rospy.get_param("~pub_gps_status_topic", DEFAULT_GPS_TOPIC_NAME)
+        self.jetson_topic_name = rospy.get_param("~pub_jetson_status_topic", DEFAULT_JETSON_TOPIC_NAME)
+        self.misc_topic_name = rospy.get_param("~pub_misc_status_topic", DEFAULT_MISC_TOPIC_NAME)
 
-        self.request_update_topic_name = rospy.get_param("~request_update_status_topic",
+        # Subscribers
+        self.request_update_topic_name = rospy.get_param("~sub_request_update_status_topic",
                                                          DEFAULT_REQUEST_UPDATE_TOPIC_NAME)
-        self.bogie_left_topic_name = rospy.get_param("~bogie_left_topic", DEFAULT_BOGIE_LEFT_TOPIC_NAME)
-        self.bogie_right_topic_name = rospy.get_param("~bogie_right_topic", DEFAULT_BOGIE_RIGHT_TOPIC_NAME)
-        self.bogie_rear_topic_name = rospy.get_param("~bogie_rear_topic", DEFAULT_BOGIE_REAR_TOPIC_NAME)
+        self.bogie_left_topic_name = rospy.get_param("~sub_bogie_left_topic", DEFAULT_BOGIE_LEFT_TOPIC_NAME)
+        self.bogie_right_topic_name = rospy.get_param("~sub_bogie_right_topic", DEFAULT_BOGIE_RIGHT_TOPIC_NAME)
+        self.bogie_rear_topic_name = rospy.get_param("~sub_bogie_rear_topic", DEFAULT_BOGIE_REAR_TOPIC_NAME)
+        self.gps_nmea_topic_name = rospy.get_param("~sub_gps_nmea_topic", DEFAULT_GPS_NMEA_TOPIC_NAME)
 
         # init all publisher functions
         self.pub_camera = rospy.Publisher(self.camera_topic_name, CameraStatuses, queue_size=1)
@@ -106,7 +111,6 @@ class SystemStatuses:
         self.__set_gps_info()
         self.__set_arm_connection_status()
         self.__set_arm_end_effector_connection_statuses()
-        #self.__set_bogie_subscribers()
         self.__set_cameras()
         self.__set_sample_containment_connection_status()
         self.__set_tower_connection_status()
