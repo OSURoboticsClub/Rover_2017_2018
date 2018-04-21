@@ -11,6 +11,7 @@ import subprocess
 from rover_status.msg import CameraStatuses, WheelStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
 from rover_control.msg import DriveCommandMessage, DriveStatusMessage
 from std_msgs.msg import Empty
+from nmea_msgs.msg import Sentence
 from time import time
 
 
@@ -99,7 +100,7 @@ class SystemStatuses:
         # init all message values
         self.__pull_new_message_values()
 
-        self.__set_bogie_subscribers()
+        self.__instantiate_subscribers()
 
         # init all previous values
         self.__update_all_previous_values()
@@ -108,7 +109,6 @@ class SystemStatuses:
 
     # init all RoverSysMessage values
     def __pull_new_message_values(self):
-        self.__set_gps_info()
         self.__set_arm_connection_status()
         self.__set_arm_end_effector_connection_statuses()
         self.__set_cameras()
@@ -118,15 +118,32 @@ class SystemStatuses:
         self.__set_jetson_usage_information()
         self.__set_frsky_controller_connection_status()
 
-    # Pulls the UTC GPS Time (WIP)
-    def __set_gps_info(self):
-        pass
+    # Pulls the UTC GPS Information (WIP v2.0)
+    def __set_gps_info(self, data):
+        self.GPS_msg.gps_connected = True
+        self.Nmea_Message = pynmea2.parse(data.sentence)
+        if self.Nmea_Message.sentence_type == 'GGA':
+            if int(self.Nmea_Message.gps_qual) != 0:
+                self.GPS_msg.gps_fix = True
+            else:
+                self.GPS_msg.gps_fix = False
+            self.GPS_msg.num_satellites = int(self.Nmea_Message.num_sats)
+            self.GPS_msg.horizontal_dilution = float(self.Nmea_Message.horizontal_dil)
+        if self.Nmea_Message.sentence_type == 'VTG':
+            self.GPS_msg.kmph = float(self.Nmea_Message.spd_over_grnd_kmph)
+            if self.Nmea_Message.true_track is not None:
+                self.GPS_msg.gps_heading = float(self.Nmea_Message.true_track)
+            else:
+                self.GPS_msg.gps_heading = -1.0
 
-    # Pulls bogie connection statuses
-    def __set_bogie_subscribers(self):
+    # Instantiates all subscriber methods
+    def __instantiate_subscribers(self):
+        # Bogie Wheel Subscribers
         self.bogie_left_sub = rospy.Subscriber(self.bogie_left_topic_name, DriveStatusMessage, self.__left_wheel_callback)
         self.bogie_right_sub = rospy.Subscriber(self.bogie_right_topic_name, DriveStatusMessage, self.__right_wheel_callback)
         self.bogie_rear_sub = rospy.Subscriber(self.bogie_rear_topic_name, DriveStatusMessage, self.__rear_wheel_callback)
+        # GPS NMEA subscriber
+        self.gps_nmea_sub = rospy.Subscriber(self.gps_nmea_topic_name, Sentence, self.__set_gps_info)
 
     def __left_wheel_callback(self, data):
         self.wheel_msg.front_left = data.first_motor_connected
@@ -243,7 +260,12 @@ class SystemStatuses:
         self.previous_wheel_rear_right = self.wheel_msg.rear_right
 
     def __set_previous_gps_values(self):
-        pass
+        self.previous_gps_connected = self.GPS_msg.gps_connected
+        self.previous_gps_fix = self.GPS_msg.gps_fix
+        self.previous_gps_num_satellites = self.GPS_msg.num_satellites
+        self.previous_gps_horizontal_dilution = self.GPS_msg.horizontal_dilution
+        self.previous_gps_kmph = self.GPS_msg.kmph
+        self.previous_gps_heading = self.GPS_msg.gps_heading
 
     def __set_previous_misc_values(self):
         self.previous_arm_connection_status = self.misc_msg.arm_connection_status
@@ -289,7 +311,7 @@ class SystemStatuses:
                 self.__set_previous_frsky_value()
                 self.pub_FrSky.publish(self.FrSky_msg)
 
-            # Placeholder bogie status check
+            # bogie wheel status check
             if (self.wheel_msg.front_left != self.previous_wheel_front_left or
                     self.wheel_msg.middle_left != self.previous_wheel_middle_left or
                     self.wheel_msg.rear_left != self.previous_wheel_rear_left or
@@ -306,6 +328,16 @@ class SystemStatuses:
             #         self.manual_update_requested):
             #     self.__set_previous_gps_values()
             #     self.pub_GPS.publish(self.GPS_msg)
+
+            # GPS info status -- connected, fix, satellites, horizontal dilution, kmph, and heading
+            if (self.GPS_msg.gps_connected != self.previous_gps_connected or
+                    self.GPS_msg.gps_fix != self.previous_gps_fix or
+                    self.GPS_msg.num_satellites != self.previous_gps_num_satellites or
+                    self.GPS_msg.horizontal_dilution != self.previous_gps_horizontal_dilution or
+                    self.GPS_msg.kmph != self.previous_gps_kmph or
+                    self.GPS_msg.gps_heading != self.previous_gps_heading):
+                self.__set_previous_gps_values()
+                self.pub_GPS.publish(self.GPS_msg)
 
             # Placeholder Misc Information check
             if (self.misc_msg.arm_connection_status !=
