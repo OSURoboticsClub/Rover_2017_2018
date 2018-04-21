@@ -47,6 +47,9 @@
         <node name="end_effector_256x144" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
             <param name="port" value="17012" />
         </node>
+    </group>
+
+    <group>
 
         <node name="bogie_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
             <param name="port" value="17013" />
@@ -71,5 +74,10 @@
         <node name="misc_status_tcp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
             <param name="port" value="17018" />
         </node>
+
+        <node name="gps_status_udp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+            <param name="port" value="17019" />
+        </node>
+
     </group>
 </launch>

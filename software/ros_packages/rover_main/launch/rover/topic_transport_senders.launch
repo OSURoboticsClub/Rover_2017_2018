@@ -145,5 +145,13 @@
                 [{name: "/rover_status/misc_status", compress: false, rate: 1.0}]
             </rosparam>
         </node>
+
+        <node name="gps_status_udp_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17019" />
+            <rosparam param="topics">
+                [{name: "/rover_status/gps_status", compress: true, rate: 5.0}]
+            </rosparam>
+        </node>
     </group>
 </launch>
