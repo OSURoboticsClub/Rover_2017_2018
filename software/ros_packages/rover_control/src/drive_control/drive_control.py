@@ -147,7 +147,7 @@ class DriveControl(object):
                 self.second_motor.write_registers(0, second_motor_register_data)
 
             except Exception, error:
-                print "Error occurred:", error
+                pass
 
             self.new_control_message = False
 

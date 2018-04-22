@@ -8,8 +8,8 @@ import os.path
 import psutil
 import pynmea2
 import subprocess
-from rover_status.msg import CameraStatuses, WheelStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
-from rover_control.msg import DriveCommandMessage, DriveStatusMessage
+from rover_status.msg import BatteryStatusMessage, CameraStatuses, WheelStatuses, FrSkyStatus, GPSInfo, MiscStatuses, JetsonInfo
+from rover_control.msg import DriveCommandMessage, DriveStatusMessage, IrisStatusMessage
 from std_msgs.msg import Empty
 from nmea_msgs.msg import Sentence
 from time import time
@@ -19,6 +19,7 @@ from time import time
 # Global Variables
 #####################################
 # Publishers
+DEFAULT_BATTERY_TOPIC_NAME = "battery_status"
 DEFAULT_CAMERA_TOPIC_NAME = "camera_status"
 DEFAULT_WHEEL_TOPIC_NAME = "wheel_status"
 DEFAULT_FRSKY_TOPIC_NAME = "frsky_status"
@@ -27,9 +28,11 @@ DEFAULT_JETSON_TOPIC_NAME = "jetson_status"
 DEFAULT_MISC_TOPIC_NAME = "misc_status"
 
 MAX_JETSON_UPDATE_HERTZ = 0.2
+MAX_IRIS_UPDATE_HERTZ = 0.2
 
 # Subscribers
 DEFAULT_REQUEST_UPDATE_TOPIC_NAME = "update_requested"
+DEFAULT_IRIS_STATUS_TOPIC_NAME = "/rover_control/iris_status"
 DEFAULT_BOGIE_LEFT_TOPIC_NAME = '/rover_control/drive_status/left'
 DEFAULT_BOGIE_RIGHT_TOPIC_NAME = '/rover_control/drive_status/right'
 DEFAULT_BOGIE_REAR_TOPIC_NAME = '/rover_control/drive_status/rear'
@@ -59,6 +62,7 @@ class SystemStatuses:
         rospy.init_node('SystemStatuses')
 
         # Get Topic Names
+        self.battery_topic_name = rospy.get_param("~pub_battery_status_topic", DEFAULT_BATTERY_TOPIC_NAME)
         self.camera_topic_name = rospy.get_param("~pub_camera_status_topic", DEFAULT_CAMERA_TOPIC_NAME)
         self.wheel_topic_name = rospy.get_param("~pub_wheel_status_topic", DEFAULT_WHEEL_TOPIC_NAME)
         self.frsky_topic_name = rospy.get_param("~pub_frsky_status_topic", DEFAULT_FRSKY_TOPIC_NAME)
@@ -69,12 +73,15 @@ class SystemStatuses:
         # Subscribers
         self.request_update_topic_name = rospy.get_param("~sub_request_update_status_topic",
                                                          DEFAULT_REQUEST_UPDATE_TOPIC_NAME)
+
+        self.iris_status_topic_name = rospy.get_param("~sub_iris_status_topic", DEFAULT_IRIS_STATUS_TOPIC_NAME)
         self.bogie_left_topic_name = rospy.get_param("~sub_bogie_left_topic", DEFAULT_BOGIE_LEFT_TOPIC_NAME)
         self.bogie_right_topic_name = rospy.get_param("~sub_bogie_right_topic", DEFAULT_BOGIE_RIGHT_TOPIC_NAME)
         self.bogie_rear_topic_name = rospy.get_param("~sub_bogie_rear_topic", DEFAULT_BOGIE_REAR_TOPIC_NAME)
         self.gps_nmea_topic_name = rospy.get_param("~sub_gps_nmea_topic", DEFAULT_GPS_NMEA_TOPIC_NAME)
 
         # init all publisher functions
+        self.pub_battery = rospy.Publisher(self.battery_topic_name, BatteryStatusMessage, queue_size=1)
         self.pub_camera = rospy.Publisher(self.camera_topic_name, CameraStatuses, queue_size=1)
         self.pub_wheel = rospy.Publisher(self.wheel_topic_name, WheelStatuses, queue_size=1)
         self.pub_FrSky = rospy.Publisher(self.frsky_topic_name, FrSkyStatus, queue_size=1)
@@ -90,6 +97,7 @@ class SystemStatuses:
         self.manual_update_requested = False
 
         # init all message variables
+        self.battery_message = BatteryStatusMessage()
         self.camera_msg = CameraStatuses()
         self.wheel_msg = WheelStatuses()
         self.FrSky_msg = FrSkyStatus()
@@ -106,6 +114,7 @@ class SystemStatuses:
         self.__update_all_previous_values()
 
         self.last_jetson_message_sent = time()
+        self.last_iris_message_sent = time()
 
     # init all RoverSysMessage values
     def __pull_new_message_values(self):
@@ -138,12 +147,18 @@ class SystemStatuses:
 
     # Instantiates all subscriber methods
     def __instantiate_subscribers(self):
+        # Iris Status Subscriber
+        self.iris_status_sub = rospy.Subscriber(self.iris_status_topic_name, IrisStatusMessage, self.__iris_status_callback)
+
         # Bogie Wheel Subscribers
         self.bogie_left_sub = rospy.Subscriber(self.bogie_left_topic_name, DriveStatusMessage, self.__left_wheel_callback)
         self.bogie_right_sub = rospy.Subscriber(self.bogie_right_topic_name, DriveStatusMessage, self.__right_wheel_callback)
         self.bogie_rear_sub = rospy.Subscriber(self.bogie_rear_topic_name, DriveStatusMessage, self.__rear_wheel_callback)
         # GPS NMEA subscriber
         self.gps_nmea_sub = rospy.Subscriber(self.gps_nmea_topic_name, Sentence, self.__set_gps_info)
+
+    def __iris_status_callback(self, data):
+        self.battery_message.battery_voltage = data.voltage_24v
 
     def __left_wheel_callback(self, data):
         self.wheel_msg.front_left = data.first_motor_connected
@@ -228,6 +243,7 @@ class SystemStatuses:
 
     # Used mainly for init, sets all previous values in one go
     def __update_all_previous_values(self):
+        self.__set_previous_battery_values()
         self.__set_previous_camera_values()
         self.__set_previous_jetson_values()
         self.__set_previous_frsky_value()
@@ -274,6 +290,9 @@ class SystemStatuses:
         self.previous_sample_containment_connection_status = self.misc_msg.sample_containment_connection_status
         self.previous_tower_connection_status = self.misc_msg.tower_connection_status
 
+    def __set_previous_battery_values(self):
+        self.previous_battery_voltage = self.battery_message.battery_voltage
+
     def on_update_requested(self,  _):
         self.manual_update_requested = True
 
@@ -282,6 +301,13 @@ class SystemStatuses:
         while not rospy.is_shutdown():
             # Update all message values
             self.__pull_new_message_values()
+
+            if (self.battery_message.battery_voltage != self.previous_battery_voltage or
+                    self.manual_update_requested):
+                if (time() - self.last_iris_message_sent) > (1.0 / MAX_IRIS_UPDATE_HERTZ):
+                    self.__set_previous_battery_values()
+                    self.pub_battery.publish(self.battery_message)
+                    self.last_iris_message_sent = time()
 
             # Camera Check -- if current value is now different from previous value,
             # update the previous value for cameras and publish to listening Subscribers

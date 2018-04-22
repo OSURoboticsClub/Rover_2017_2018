@@ -91,10 +91,12 @@ class IrisController(object):
 
         self.drive_command_publisher = rospy.Publisher(self.drive_command_publisher_topic, DriveCommandMessage,
                                                        queue_size=1)
-        self.iris
-
+        self.iris_status_publisher = rospy.Publisher(self.iris_status_publisher_topic, IrisStatusMessage,
+                                                     queue_size=1)
 
         self.registers = []
+
+        self.iris_connected = False
 
         self.run()
 
@@ -125,7 +127,7 @@ class IrisController(object):
         try:
             self.registers = self.iris.read_registers(0, len(MODBUS_REGISTERS))
         except Exception, error:
-            print error
+            self.iris_connected = False
 
     def broadcast_drive_if_current_mode(self):
         if self.registers[MODBUS_REGISTERS[REGISTER_STATE_MAPPING["DRIVE_VS_ARM"]]] < SBUS_VALUES["SBUS_MID"]:
@@ -161,7 +163,10 @@ class IrisController(object):
             print "Arm"
 
     def broadcast_iris_status(self):
-        print self.registers[MODBUS_REGISTERS["VOLTAGE_24V"]]
+        status_message = IrisStatusMessage()
+        status_message.iris_connected = True
+        status_message.voltage_24v = self.registers[MODBUS_REGISTERS["VOLTAGE_24V"]]
+        self.iris_status_publisher.publish(status_message)
 
 
 if __name__ == "__main__":

@@ -75,7 +75,7 @@
             <param name="port" value="17018" />
         </node>
 
-        <node name="gps_status_udp" pkg="nimbro_topic_transport" type="tcp_receiver" output="screen">
+        <node name="udp_statuses" pkg="nimbro_topic_transport" type="udp_receiver" output="screen">
             <param name="port" value="17019" />
         </node>
 

@@ -56,6 +56,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
     FILES
+    BatteryStatusMessage.msg
     RoverSysStatus.msg
     WheelStatuses.msg
     FrSkyStatus.msg
