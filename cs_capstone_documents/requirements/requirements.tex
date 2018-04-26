@@ -132,9 +132,9 @@ These requirements can then be used to determine if the software is complete onc
 
 \subsection{Scope}
 We will be creating the "Mars Rover Ground Station" software package. 
-This software will allow Rover team members to interact with the Oregon State University Robotics Club's Mars Rover for the purpose of a competition taking place in Utah during June of 2018. 
+This software will allow Rover team members to interact with the Oregon State University Robotics Club's Mars Rover for the purpose of a competition taking place in Drumheller, Alberta, Canada during August of 2018. 
 The software will provide Rover systems monitoring as well as control of drive and arm systems. 
-During competition, the software will be run on a remote base station operated out of the Mars Desert Research Station or the back of a truck, allowing users to tele-operate the Rover during manned controlled missions, or to monitor progress during autonomous missions. 
+During competition, the software will be run on a remote base station primarily operated off the back of a truck, allowing users to tele-operate the Rover during manned controlled missions, or to monitor progress during autonomous missions. 
 Properly functioning and fully featured ground station software will be a major factor in the success of the Mars Rover during this competition.
 
 
@@ -146,9 +146,8 @@ Properly functioning and fully featured ground station software will be a major 
 \item User - Person operating rover from ground control station
 \item GUI - Graphical User Interface
 \item RTT - Round-trip Time, the length of time for a signal to be sent plus the length of the time it takes for an acknowledgement of the signal to be received.
-\item Bogie - The individual wheels on the Rover, each with the ability to be driven independently.
+\item Bogie - Groups of two individual wheels on the Rover, each with the ability to be driven independently.
 \item IMU - Inertial Measurement Unit
-\item FPS - Frames Per Second
 \item CAD - Computer Aided Design
 \end{itemize}
 
@@ -170,7 +169,7 @@ In order to accomplish interaction with the rover, the ground station software w
 The ground control software will primarily accomplish two tasks:
 \begin{itemize}
 \item Provide Rover control to the user.
-Direct rover control will be accomplished with two joysticks.
+Direct rover control will be accomplished with joystick(s) and/or a SpaceNav mouse along with a keyboard and mouse.
 \item Enable and present rover feedback to the user.
 The rover will send health and status information to the ground control station.
 \end{itemize}
@@ -181,30 +180,26 @@ Users of the Rover Ground Station software will comprise of Rover team leads and
 
 \subsubsection{User Stories}
 \begin{itemize}
-\item User should be able to vary bandwidth as needed to adjust for latency at the event
 \item User should be able view ground station UI on two HD monitors so that valuable competition time will not be spent switching between screens on a single monitor
 \item User should be able to add way-points because way-points are needed to find useful points in the competition field and are necessary for autonomous navigation
 \item User should be able to remove way-points because way-points may become unneeded or need to be reset for a new competition event
 \item User should be able to edit way-points because there's a chance that the User may enter way-point details incorrectly and will need to change them
 \item User should be able to change the order of way-points because we might need to traverse back to a location, or fix improperly entered way-points
-\item User should be able to control the Rover by joysticks because that is the preferred way of controlling the Rover  
+\item User should be able to control the Rover by joystick(s) because that is the preferred way of controlling the Rover  
 \item User should be able to select video streams because the Rover has more cameras than can be streamed at any one time, and being able to view any camera on demand will help the User drive the Rover and manipulate the arm
 \item User should be able to view the pitch, yaw, roll of the Rover because we want to know if the rover is on an incline, decline, or about to tip over
 \item User should be able to switch on and off autonomy because there are competition events that require autonomy and others that require manual control
 \item User should be able to tell that autonomy is enabled because that alerts the User that they can no longer manually control the Rover
-\item User should be able to tell that the rover has reached the final way-point after autonomy is enabled because that signals to the judges that the Rover has completed that competition event
-\item User should be able to view how the arm joints are bent because that can show us if the arm is performing correctly
+\item User should be able to view how the arm joints positions as that can show us if the arm is performing correctly
 \item User should be able to control the arm because competition events require the use of a Rover arm
-\item User should be able to view live logs from the Rover because that allows for debugging of hardware systems
 \item User should be able to set the Rover speed limit so that the User can more easily drive the Rover over difficult terrain
-\item User should be able to view the CPU usage because the User can use this information to tell if there is a software problem on the Rover or if the Rover is trying to process too much information
-\item User should be able to view the memory usage because the User does not want the Rover to crash or slow down to unusable levels due to running out of memory
-\item User should be able to view the drive usage because the User does not want the Rover to crash if the drive is full
+\item User should be able to view the Rover CPU usage because the User can use this information to tell if there is a software problem on the Rover or if the Rover is trying to process too much information
+\item User should be able to view the Rover memory usage because the User does not want the Rover to crash or slow down to unusable levels due to running out of memory
+\item User should be able to view the Rover drive usage because the User does not want the Rover to crash if the drive is full
 \item User should be able to see the speed of the Rover because it can be used to determine if the Rover is driving at a speed that is reasonable for the current terrain
 \item User should be able to see how accurate the GPS positioning is because at the competition there is a requirement to be a certain distance from an object
 \item User should be able to see what heading the Rover is at because it allows for the User to know what direction to go
 \item User should be able to see the maximum throughput of the network because it will allow for video stream quality to go up or down depending on the connection quality
-\item User should be able to see the current latency because it will tell to the User or viewer how long a command will take to become action
 \item User should be able to confirm connected devices because this will allow for debugging and checking of other connected devices
 \end{itemize}
 
@@ -214,7 +209,7 @@ Due to the nature of the Mars Rover project, there are multiple hardware and sof
 Additionally, the following constraints will help ensure future re-usability of the finalized software, which is a key goal of the Mars Rover team. 
 \par
 The software language allowed is the primary constraint for this project. 
-Python 3 is required by the Mars Rover team as it maintains consistency with the software written on the Rover itself. 
+Python 2.7 is required by the Mars Rover team as it maintains consistency with the software written on the Rover itself. 
 The team also requires Python as it more easily allows future team members to reverse engineer code to be reused in future projects.
 \par
 Use of the QT application framework is another constraint placed by the Rover team in order to facilitate rapid prototyping of the user interface for this project. 
@@ -223,7 +218,9 @@ It will also allow for faster and easier modification both by future members of 
 The Rover internally uses ROS to handle routing and interpreting control and status information as well as video data. To be able to view this video data, status information, and to be able to send the Rover control information, this ground station software must also incorporate ROS.
 \par
 At a hardware level, the Rover team will be providing an Intel NUC desktop computer running Ubuntu 16.04 that the Ground Station software will need to be able to run on.
-They will also provide two HD monitors, two USB joysticks, as well as a keyboard and mouse that will be used to view and interact with the software.
+They will also provide two HD monitors, one or two USB joysticks, a SpaceNav mouse, as well as a keyboard and mouse that will be used to view and interact with the software.
+\par
+As the Rover project is highly volatile where designs change frequently and hardware development often falls behind, any systems that cannot be explicitly implemented must at least have placeholders in both the GUI frontend and code backend to make eventual development easier when the hardware becomes available.
 
 
 \section{Specific Requirements}
@@ -243,23 +240,23 @@ In the case that the software is started without a Rover to connect to, the soft
 It is also useful to tell when full network dropouts happen}
 {None}
 
-\functRequ{Joystick Connection Statuses}
-{Status indicators will visually show binary states as to whether each of the two joysticks are currently connected}
-{Both joysticks must be connected to drive the Rover}
+\functRequ{Joystick(s) Connection Status}
+{Status indicators will visually show binary states as to whether joystick(s) are currently connected}
+{Joystick(s) must be connected to drive the Rover}
 {Rover Connection Status}
 
-\functRequ{Rover Battery Status}
-{This indicator will show the percentage of battery remaining on the Rover}
-{The User should know how much battery is left to be able to determine remaining runtime and to diagnose other Rover errors}
+\functRequ{SpaceNav Mouse Connection Status}
+{Status indicators will visually show binary states as to whether the SpaceNav mouse is connected}
+{SpaceNav mouse must be connected to control the Rover arm}
 {Rover Connection Status}
 
-\functRequ{Rover Voltage Statuses}
-{These indicators will show the major power rail voltages for the Rover}
-{The User can use this information to diagnose faulty hardware and to determine cause if Rover systems become non-responsive}
+\functRequ{Rover Battery Voltage}
+{This indicator will show the Rover's battery voltage}
+{The User should know what the battery voltage is to be able to determine remaining runtime and to diagnose other Rover errors}
 {Rover Connection Status}
   
-\functRequ{Bogie Connection Statuses}
-{These indicators will show whether each of the six bogies are connected to the Rover}
+\functRequ{Wheel Connection Statuses}
+{These indicators will show whether each of the six wheels are connected to the Rover}
 {This will let drivers of the Rover know if a wheel has failed, which is a common occurrence}
 {Rover Connection Status}
 
@@ -304,11 +301,6 @@ It can also show potential software failures while serving as a useful indicatio
 {The User can use the information to help tune video bit-rates and resolutions to ensure the connection is not overloaded}
 {Rover Connection Status, Current Radio Signal Strength, Rover RTT}
 
-\functRequ{Rover RTT}
-{This indicator will show how long in milliseconds the round trip time for a packet to and from the Rover takes}
-{The User can use this information to help determine if delays in controls are due to network latency or other software error}
-{Rover Connection Status, Current Radio Signal Strength}
-
 \functRequ{Estimated Rover Distance}
 {This indicator will show the distance from the Ground Station radio to the Rover radio, as calculated by the Ubiquiti radio systems}
 {The User can use this information to help ensure they do not drive out of communications range}
@@ -334,8 +326,8 @@ This data needs to be sent back to the Ground Station so it can be recorded}
 {The joystick control is needed to be able to drive the Rover}
 {Rover Connection Status, Joystick Connection Statuses, Bogie Connection Statuses}
 
-\functRequ{Rover Joystick Arm Control}
-{When both joysticks are connected, the Rover is connected, and the Arm is connected, the joysticks can be used to manipulate the Rover arm}
+\functRequ{Rover SpaceNav Mouse Arm Control}
+{When the SpaceNav mouse is connected, the Rover is connected, and the Arm is connected, this mouse can be used to manipulate the Rover arm}
 {During some competition events, the arm will need to be manipulated by the User to complete competition tasks}
 {Rover Connection Status, Joystick Connection Statuses, Arm Connection Status}
 
@@ -357,7 +349,7 @@ This data needs to be sent back to the Ground Station so it can be recorded}
 {This will help the User ensure they are driving within the mechanical limits of the Rover}
 {Rover Connection Status, GPS Status}
 
-\functRequ{Rover Heading}
+\functRequ{Rover GPS Heading}
 {This indicator will show what bearing the Rover is heading}
 {The User can use this information to help navigate the competition course}
 {Rover Connection Status, GPS Status}
@@ -388,11 +380,6 @@ These way-points will also need to show up visually on the map}
 {This will allow the User to skip unneeded way-points or fix incorrectly ordered way-points}
 {Rover Connection Status, GPS Status, GPS Satellites Connected, Way-point Placement, Map Visualizer}
 
-\functRequ{Way-Point Navigation Path}
-{This should display the expected Rover navigational path when autonomous mode is active}
-{This is useful to follow the progress of the Rover during the autonomy portion of the competition}
-{Rover Connection Status, GPS Status, GPS Satellites Connected, Way-point Placement, Map Visualizer}
-
 \functRequ{Active Way-point Selection}
 {Allow for the selection of a way-point from the queue as currently active.
 Setting the way-point active will update a "Heading To" indicator to help a User drive to the desired way-point}
@@ -408,8 +395,8 @@ Setting the way-point active will update a "Heading To" indicator to help a User
 {Rover Connection Status}
 
 \functRequ{Autonomy Indicator}
-{An alert or indicator for when the Rover has reached its final way-point or has decided to stop}
-{A University Rover Challenge requirement deems that this indicator is necessary to show to the judges when the Rover has completed its autonomy phase}
+{An alert or indicator for when the Rover is in autonomous mode}
+{This indicator will make it easy to tell whether the joystick(s) can presently be used to drive the Rover}
 {Rover Connection Status, Autonomy Switch, Way-point Placement}
 \end{enumerate}
 
@@ -432,11 +419,6 @@ These displays will show streamed video feeds from cameras on the Rover and shou
 {For the primary, secondary, and tertiary video displays provide controls to adjust the camera resolution and/or bit-rate}
 {As the Rover gets farther away from the ground station, connection quality will diminish and require that the video stream qualities be lowered to ensure smooth Rover operation}
 {Video Stream Displays}
-
-\functRequ{Video Stream FPS Counters}
-{These indicators will show the quality of the video streams by use of FPS counters for all three video streams}
-{The User would want to know what the video stream FPS values are to determine if camera quality needs to be adjusted}
-{Video Stream Displays, Rover Connection Status, Rover RTT}
 \end{enumerate}
 
 
@@ -447,11 +429,6 @@ These displays will show streamed video feeds from cameras on the Rover and shou
 Software elements that require the Internet such as maps must be able to be cached for use offline}
 {The competition is in a remote location with no access to an Internet source}
 {None}
-
-\functRequ{Log File Viewing}
-{From within the software, the User must be able to view verbose logs of useful data}
-{The User might want to access this stream to see any data that might help them troubleshoot problems such as faulty controls}
-{Rover Connection Status}
 
 \functRequ{UI Dark Theme}
 {The software must be visually "dark" themed}
