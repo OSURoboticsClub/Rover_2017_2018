@@ -2,7 +2,7 @@
 
 <!-- ![Iris](files/iris.jpg) -->
 
-![Iris Render](files/motor_render.png)
+![Iris Render](files/motor.jpg)
 
 Designed by [Nick McComb](www.nickmccomb.net) for OSURC Mars Rover.
 
