@@ -22,7 +22,7 @@ This node serves as the computer's main interface with the hardware in the rest 
 
 ### Motor node
 
-<img src="files/motor_render.png" width="300">
+<img src="files/motor.jpg" width="300">
 
 This node controls the motors that turn Rover's wheels.
 
