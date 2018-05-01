@@ -27,3 +27,11 @@ This node serves as the computer's main interface with the hardware in the rest 
 This node controls the motors that turn Rover's wheels.
 
 [Find more documentation here.](motor.md)
+
+### Tower node
+
+<img src="files/tower.jpg" width="300">
+
+This node is placed outside of the main electronics box on the chassis and collects data from various sensors.
+
+[Find more documentation here.](tower.md)
