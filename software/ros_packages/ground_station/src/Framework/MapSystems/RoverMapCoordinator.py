@@ -22,6 +22,7 @@ import RoverMap
 class RoverMapCoordinator(QtCore.QThread):
     pixmap_ready_signal = QtCore.pyqtSignal()
     change_waypoint_signal = QtCore.pyqtSignal()
+    
 
     def __init__(self, shared_objects):
         super(RoverMapCoordinator, self).__init__()
@@ -31,6 +32,7 @@ class RoverMapCoordinator(QtCore.QThread):
         self.mapping_label = self.left_screen.mapping_label
         self.navigation_label = self.left_screen.navigation_waypoints_table_widget
         self.landmark_label = self.left_screen.landmark_waypoints_table_widget
+
 
         self.setings = QtCore.QSettings()
 
@@ -60,15 +62,6 @@ class RoverMapCoordinator(QtCore.QThread):
 
         self.logger.debug("Stopping Map Coordinator Thread")
 
-    # def _setup_map_threads(self):
-    #     self.google_maps_object = RoverMap.GMapsStitcher(1280,
-    #                                                      720,
-    #                                                      44.567161,
-    #                                                      -123.278432,
-    #                                                      18,
-    #                                                      'satellite',
-    #                                                      None, 20)
-
     def _map_setup(self):
         self.google_maps_object = RoverMap.GMapsStitcher(1280,
                                                          720,
@@ -88,19 +81,11 @@ class RoverMapCoordinator(QtCore.QThread):
     def _get_map_image(self):
         while self.map_image is None:
             self.map_image = self.google_maps_object.display_image
-        # self.overlay_image_object.update_new_location(44.567161,
-        #                                               -123.278432,
-        #                                               .7,
-        #                                               [],
-        #                                               [])
+
         self.update_overlay()
         self.map_image.paste(self.overlay_image_object.display_image,
                              (0, 0),
                              self.overlay_image_object.display_image)
-        # self.map_image = Image.alpha_composite(
-        #                   self.google_maps_object.display_image,
-        #                   self.overlay_image_object.display_image)
-        # get overlay here
         qim = ImageQt(self.map_image)
         self.map_pixmap = QtGui.QPixmap.fromImage(qim)
 
@@ -111,6 +96,7 @@ class RoverMapCoordinator(QtCore.QThread):
     def connect_signals_and_slots(self):
         self.pixmap_ready_signal.connect(self.pixmap_ready__slot)
         self.change_waypoint_signal.connect(self.update_overlay)
+        self.spacenav_state_update__signal.connect(self.pan_space_nav)
 
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
@@ -134,6 +120,14 @@ class RoverMapCoordinator(QtCore.QThread):
             temp_tuple = (num, lat, lng)
             temp_list.append(temp_tuple)
         return temp_list
+
+    def pan_space_nav(self, state):
+        self.google_maps_object.left_x += (5 * state["linear_x"])
+        self.google_maps_object.upper_y += (5 * state["linear_y"])
+        #Not going to implement zoomout yet
+        self.overlay_image_object.left_x += (5 * state["linear_x"])
+        self.overlay_image_object.upper_y += (5 * state["linear_y"])
+        self._get_map_image()
 
     def update_overlay(self):
         longitude = 44.567161
