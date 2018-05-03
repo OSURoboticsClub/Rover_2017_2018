@@ -35,6 +35,7 @@ class RoverMapCoordinator(QtCore.QThread):
         self.landmark_label = self.left_screen.landmark_waypoints_table_widget
 
         self.gps_status = rospy.Subscriber(GPS_TOPIC_NAME, GPSInfo, self.edit_rover_location)
+        self.GPS_msg = GPSInfo()
 
         self.setings = QtCore.QSettings()
 
