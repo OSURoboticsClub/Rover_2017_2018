@@ -414,7 +414,7 @@ class OverlayImage(object):
         # for element in landmark_list:
         #     x, y = self._get_cartesian(element[1], element[2])
         #     draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
-        self._draw_rover(longitude, latitude, compass)
+        self.draw_rover(longitude, latitude, compass)
         self.update()
 
         return self.display_image
@@ -426,7 +426,7 @@ class OverlayImage(object):
         draw.line((25, 40, 50, 12), fill="red", width=7)
         draw.line((50, 12, 75, 40), fill="red", width=7)
 
-    def _draw_rover(self, lat, lon, angle=0):
+    def draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
         # print x,y
         # Center of the circle on the indicator is (12.5, 37.5)

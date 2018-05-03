@@ -18,6 +18,7 @@ import RoverMap
 #####################################
 # put some stuff here later so you can remember
 
+GPS_TOPIC_NAME = "/rover_status/gps_status"
 
 class RoverMapCoordinator(QtCore.QThread):
     pixmap_ready_signal = QtCore.pyqtSignal()
@@ -33,6 +34,7 @@ class RoverMapCoordinator(QtCore.QThread):
         self.navigation_label = self.left_screen.navigation_waypoints_table_widget
         self.landmark_label = self.left_screen.landmark_waypoints_table_widget
 
+        self.gps_status = rospy.Subscriber(GPS_TOPIC_NAME, GPSInfo, self.edit_rover_location)
 
         self.setings = QtCore.QSettings()
 
@@ -142,3 +144,9 @@ class RoverMapCoordinator(QtCore.QThread):
                                                       navigation_list,
                                                       landmark_list)
         # self.overlay_image.save("something.png")
+
+    def edit_rover_location(self, data):
+        #Need to parse data for lat, long, and angle
+        if data.GPS_connection_status:
+            self.overlay_image_object.draw_rover(data.something, data.something, data.gps_heading)
+            self.overlay_image_object.update()
