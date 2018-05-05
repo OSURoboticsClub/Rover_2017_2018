@@ -1,4 +1,4 @@
-## Hardware Node Documentation
+## Hardware Nodes Documentation
 
 This page describes the hardware nodes that are present for the 1718 Mars Rover project.
 
@@ -6,7 +6,7 @@ The project contains the following nodes:
 
 - [IRIS](#iris-node)
 - [Motor](#motor-node)
-- Tower
+- [Tower](#tower-node)
 - Pan-Tilt
 - Grasping
 - Science
