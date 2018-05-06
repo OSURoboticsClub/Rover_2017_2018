@@ -1,0 +1,27 @@
+\subsection{Chris Pham}
+\subsubsection{Week 1}
+During the start of the term, I personally did not work on much because of issues with registration 
+However, we did work out when we are expecting to work and meet up this term, which would be on Thursdays around 10 o'clock in the morning.
+\subsubsection{Week 2}
+This week, I worked on completing the integration of the GUI.
+It turned out last term, that the East/West portion of the DMS conversion was not being set correctly.
+I spent a bit of time trying to get the correct float value to go down but then my minutes was completely off to the calculated DMS of the GPS location.
+Turns out that the box that contained the DMS location, would be limited to 0, 90, which actually needs to be 180 because it needs to span a half circle.
+Once that value was changed, the values were being set correctly.
+\subsubsection{Week 3}
+Turns out that I forgot to set the sign of the longitude and latitude to their corresponding North/South and East/West values.
+That was easily done using with many possible implementations like equalities, sign function in python, and other things like that.
+\subsubsection{Week 4}
+This week we worked on fixing our poster and fixing our documentation to fit the new specification that the new competition is now the CIRC (Canadian International Rover Challenge) instead of URC.
+\subsubsection{Week 5}
+During Week 5, I worked on two important things, multi-threading the downloading of the image files from Google and integration of inputs into my mapping system.
+
+\noindent Multi-threading was done using and starting a list of processes that have access to a download function in the class.
+I could not of done a pool because of the issues I was getting like the pickling issues in Python in trying to pack the state.
+Another issue that came with this implementation, was the rate limitations that the server was sending.
+To combat both issues, I implemented a bounded semaphore instead a normal semaphore, because a bounded version of it will return an error whenever the process tries to obtain a lock.
+One big issue is still combining the files because that is still done in square time.
+One optimization should be splitting work into its smallest parts and then combining them, however, trying to merge all the files correctly ended up being the biggest issue I had.
+
+\noindent Also have started on integrating the GPS data that we are getting and applying that onto the map system that I've created.
+One problem is I forget how the data is formatted in the system and I need direct access to view the data that is being sent by the rover to parse correctly.
