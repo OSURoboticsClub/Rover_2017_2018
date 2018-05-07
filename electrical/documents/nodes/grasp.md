@@ -1,6 +1,6 @@
 # Grasp Node
 
-Pictures here.
+![Grasp Node](https://github.com/OSURoboticsClub/Rover_2017_2018/blob/master/electrical/documents/nodes/files/grasp.JPG)
 
 Designed by [Dylan Thrush](www.dylanthrush.com).
 
