@@ -44,4 +44,6 @@ https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnIS
 - For R46 vs R47 selection, only R47 is needed.
 - No invert needed for S.BUS connection (bridge pins)
 - No serial number spot on silkscreen
+- No MODBUS ID number spot on silkscreen
 - Likely that this should use a high-speed USB hub instead of the current full-speed implementation. It is easy, without deliberate planning, to hit the bottleneck of the USB hub.
+- Remove GND connection for RS485 going out of the board (to ensure reverse protection downstream)
