@@ -1,18 +1,20 @@
 <launch>
     <group ns="rover_control">
-        <node name="iris_controller" pkg="rover_control" type="iris_controller.py" respawn="true" output="screen">
-            <param name="port" value="/dev/rover/ttyIRIS"/>
-            <param name="hertz" value="20"/>
-        </node>
+        <!--<node name="iris_controller" pkg="rover_control" type="iris_controller.py" respawn="true" output="screen">-->
+            <!--<param name="port" value="/dev/rover/ttyIRIS"/>-->
+            <!--<param name="hertz" value="20"/>-->
+        <!--</node>-->
 
         <node name="rear_bogie" pkg="rover_control" type="drive_control.py" respawn="true" output="screen">
-            <param name="port" value="/dev/rover/ttyBogieRear"/>
+            <param name="port" value="/dev/rover/ttyREAR"/>
             <param name="drive_control_topic" value="drive_control/rear"/>
             <param name="drive_control_status_topic" value="drive_status/rear"/>
+            <param name="first_motor_id" value="2"/>
+            <param name="second_motor_id" value="1"/>
         </node>
 
         <node name="left_bogie" pkg="rover_control" type="drive_control.py" respawn="true" output="screen">
-            <param name="port" value="/dev/rover/ttyBogieLeft"/>
+            <param name="port" value="/dev/rover/ttyLEFT"/>
             <param name="drive_control_topic" value="drive_control/left"/>
             <param name="drive_control_status_topic" value="drive_status/left"/>
             <param name="invert_first_motor" value="True"/>
@@ -20,9 +22,11 @@
         </node>
 
         <node name="right_bogie" pkg="rover_control" type="drive_control.py" respawn="true" output="screen">
-            <param name="port" value="/dev/rover/ttyBogieRight"/>
+            <param name="port" value="/dev/rover/ttyRIGHT"/>
             <param name="drive_control_topic" value="drive_control/right"/>
             <param name="drive_control_status_topic" value="drive_status/right"/>
+            <param name="first_motor_id" value="2"/>
+            <param name="second_motor_id" value="1"/>
         </node>
 
         <node name="drive_coordinator" pkg="rover_control" type="drive_coordinator.py" output="screen"/>

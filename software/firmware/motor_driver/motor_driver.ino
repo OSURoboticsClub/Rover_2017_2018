@@ -53,7 +53,7 @@ void setup() {
     setup_hardware();
 
     num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
-    slave.begin(2000000); // baud-rate at 19200
+    slave.begin(115200); // baud-rate at 19200
     slave.setTimeOut(150);
 
     Serial.begin(9600);

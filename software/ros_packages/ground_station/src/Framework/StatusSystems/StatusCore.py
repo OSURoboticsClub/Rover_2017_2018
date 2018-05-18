@@ -67,9 +67,6 @@ class SensorCore(QtCore.QThread):
         self.main_cam = self.screen_main_window.main_cam  # type: QtWidgets.QLabel
         self.chassis_cam = self.screen_main_window.chassis_cam  # type: QtWidgets.QLabel
         self.under_cam = self.screen_main_window.under_cam  # type: QtWidgets.QLabel
-        self.bogie_right = self.screen_main_window.right_bogie  # type: QtWidgets.QLabel
-        self.bogie_left = self.screen_main_window.left_bogie  # type: QtWidgets.QLabel
-        self.bogie_rear = self.screen_main_window.rear_bogie  # type: QtWidgets.QLabel
         self.clock = self.screen_main_window.clock_qlcdnumber  # type: QtWidgets.QLCDNumber
         self.cpu = self.screen_main_window.cpu  # type: QtWidgets.QLabel
         self.ram = self.screen_main_window.ram  # type: QtWidgets.QLabel
@@ -78,7 +75,6 @@ class SensorCore(QtCore.QThread):
 
         # ########## subscriptions pulling data from system_statuses_node.py ##########
         self.camera_status = rospy.Subscriber(CAMERA_TOPIC_NAME, CameraStatuses, self.__camera_callback)
-        self.bogie_status = rospy.Subscriber(BOGIE_TOPIC_NAME, BogieStatuses, self.__bogie_callback)
         self.frsky_status = rospy.Subscriber(FRSKY_TOPIC_NAME, FrSkyStatus, self.__frsky_callback)
         self.gps_status = rospy.Subscriber(GPS_TOPIC_NAME, GPSInfo, self.__gps_callback)
         self.jetson_status = rospy.Subscriber(JETSON_TOPIC_NAME, JetsonInfo, self.__jetson_callback)
@@ -139,32 +135,6 @@ class SensorCore(QtCore.QThread):
             self.frsky_stylesheet_change_ready__signal.emit("background-color: darkred;")
         else:
             self.frsky_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
-
-    def __bogie_callback(self, data):
-        self.bogie_msg.bogie_connection_1 = data.bogie_connection_1
-        self.bogie_msg.bogie_connection_2 = data.bogie_connection_2
-        self.bogie_msg.bogie_connection_3 = data.bogie_connection_3
-
-        if data.bogie_connection_1 is False:
-            # self.bogie_right.setStyleSheet("background-color: darkred;")
-            self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: darkred;")
-        else:
-            # self.bogie_right.setStyleSheet("background-color: darkgreen;")
-            self.bogie_connection_1_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
-
-        if data.bogie_connection_2 is False:
-            # self.bogie_left.setStyleSheet("background-color: darkred;")
-            self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: darkred;")
-        else:
-            # self.bogie_left.setStyleSheet("background-color: darkgreen;")
-            self.bogie_connection_2_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
-
-        if data.bogie_connection_3 is False:
-            # self.bogie_rear.setStyleSheet("background-color: darkred;")
-            self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkred;")
-        else:
-            # self.bogie_rear.setStyleSheet("background-color: darkgreen;")
-            self.bogie_connection_3_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
 
     def __jetson_callback(self, data):
         self.jetson_cpu_update_ready__signal.emit("TX2 CPU\n" + str(data.jetson_CPU) + "%")
@@ -238,9 +208,6 @@ class SensorCore(QtCore.QThread):
         self.jetson_emmc_stylesheet_change_ready__signal.connect(self.emmc.setStyleSheet)
         self.jetson_gpu_temp_update_ready__signal.connect(self.gpu_temp.setText)
         self.jetson_gpu_temp_stylesheet_change_ready__signal.connect(self.gpu_temp.setStyleSheet)
-        self.bogie_connection_1_stylesheet_change_ready__signal.connect(self.bogie_right.setStyleSheet)
-        self.bogie_connection_2_stylesheet_change_ready__signal.connect(self.bogie_left.setStyleSheet)
-        self.bogie_connection_3_stylesheet_change_ready__signal.connect(self.bogie_rear.setStyleSheet)
         self.camera_zed_stylesheet_change_ready__signal.connect(self.zed.setStyleSheet)
         self.camera_under_stylesheet_change_ready__signal.connect(self.under_cam.setStyleSheet)
         self.camera_chassis_stylesheet_change_ready__signal.connect(self.chassis_cam.setStyleSheet)

@@ -22,4 +22,6 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{seria
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2UFVE1", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS_2_2"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2UFVE1", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_2_3"
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="AH05K2Y8", SYMLINK+="rover/ttyTEST"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="AH05K2Y8", SYMLINK+="rover/ttyLEFT"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A906H89E", SYMLINK+="rover/ttyRIGHT"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A906H7P0", SYMLINK+="rover/ttyREAR"

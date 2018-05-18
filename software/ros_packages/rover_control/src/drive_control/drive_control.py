@@ -68,6 +68,11 @@ class DriveControl(object):
         self.port = rospy.get_param("~port", DEFAULT_PORT)
         self.baud = rospy.get_param("~baud", DEFAULT_BAUD)
 
+        print self.port
+
+        self.first_motor_id = rospy.get_param("~first_motor_id", FIRST_MOTOR_ID)
+        self.second_motor_id = rospy.get_param("~second_motor_id", SECOND_MOTOR_ID)
+
         self.first_motor_inverted = rospy.get_param("~invert_first_motor", DEFAULT_INVERT)
         self.second_motor_inverted = rospy.get_param("~invert_second_motor", DEFAULT_INVERT)
 
@@ -117,6 +122,7 @@ class DriveControl(object):
                 print "Error occurred:", error
 
             if (time() - self.bogie_last_seen) > BOGIE_LAST_SEEN_TIMEOUT:
+                print "Bogie not seen for", BOGIE_LAST_SEEN_TIMEOUT, "seconds. Exiting."
                 return  # Exit so respawn can take over
 
             time_diff = time() - start_time
@@ -124,8 +130,8 @@ class DriveControl(object):
             sleep(max(self.wait_time - time_diff, 0))
 
     def connect_to_bogie(self):
-        self.first_motor = minimalmodbus.Instrument(self.port, FIRST_MOTOR_ID)
-        self.second_motor = minimalmodbus.Instrument(self.port, SECOND_MOTOR_ID)
+        self.first_motor = minimalmodbus.Instrument(self.port, int(self.first_motor_id))
+        self.second_motor = minimalmodbus.Instrument(self.port, int(self.second_motor_id))
         self.__setup_minimalmodbus_for_485()
 
     def send_drive_control_message(self):
