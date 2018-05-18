@@ -1,4 +1,4 @@
-## Hardware Node Documentation
+## Hardware Nodes Documentation
 
 This page describes the hardware nodes that are present for the 1718 Mars Rover project.
 
@@ -6,7 +6,7 @@ The project contains the following nodes:
 
 - [IRIS](#iris-node)
 - [Motor](#motor-node)
-- Tower
+- [Tower](#tower-node)
 - Pan-Tilt
 - Grasping
 - Science
@@ -22,8 +22,16 @@ This node serves as the computer's main interface with the hardware in the rest 
 
 ### Motor node
 
-<img src="files/motor_render.png" width="300">
+<img src="files/motor.jpg" width="300">
 
 This node controls the motors that turn Rover's wheels.
 
 [Find more documentation here.](motor.md)
+
+### Tower node
+
+<img src="files/tower.jpg" width="300">
+
+This node is placed outside of the main electronics box on the chassis and collects data from various sensors.
+
+[Find more documentation here.](tower.md)

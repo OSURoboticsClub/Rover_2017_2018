@@ -1,0 +1,33 @@
+\subsection{Current Progress}
+\subsubsection{General}
+\begin{itemize}
+\item Program layout and launcher file refactored for clean organization, easy integration
+\item Program will not launch and shows error if Rover not connected
+\item UI files have placeholders for all GUI elements from design document
+\end{itemize}
+
+\subsubsection{Mapping}
+\begin{itemize}
+\item Can display a map on the main system
+\item Need a GUI element to change the location
+\item Embedded way-points work, but cannot remove them
+\item Centering Works, need to build a toggle button
+\end{itemize}
+
+\subsubsection{System Statuses}
+\begin{itemize}
+\item Basic StatusCore module that subscribes to existing ROS publishers
+\item Basic GUI visuals stubbed out
+\item GUI stopwatch module
+\item Helped Rover team add some more statuses from on the Rover
+\end{itemize}
+
+\subsubsection{Video Systems}
+\begin{itemize}
+\item Can view one or more video streams, that dynamically change depending on how many are broadcasting
+\item GUI elements can change what stream is being viewed with a left click
+\item GUI elements can disable a stream with a right click
+\item Resolution can be adjusted, though it is being done manually for now
+\item Stream quality adjustment is ready for FPS data to do automatic adjustment
+\item Video streams stop network traffic when not being viewed
+\end{itemize}

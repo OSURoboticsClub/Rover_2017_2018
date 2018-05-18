@@ -1,6 +1,6 @@
 # Grasp Node
 
-Pictures here.
+![Grasp Node](https://github.com/OSURoboticsClub/Rover_2017_2018/blob/master/electrical/documents/nodes/files/grasp.JPG)
 
 Designed by [Dylan Thrush](www.dylanthrush.com).
 
@@ -66,3 +66,6 @@ Controls 4 DC motors with quadrature encoder and current feedback. Has four anal
 - Motor controller needs a thermal pad in the footprint, will not work otherwise because thermal pad is connected to GND. Scrape away silkscreen below package before soldering.
 - Motors 2-4 are still not working...
 - LED needs to be rotated 90 deg CCW for power pin to line up.
+
+#### Version 2
+- LSS for motor needs to be a star ground return to motor pad, short LSS to GND for normal operation

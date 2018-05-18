@@ -115,7 +115,7 @@ You should now have all the files from the picture above in your staging folder.
 
 #### Verifying you've done this correctly
 
-Upload your design to [OshPark.com](https://oshpark.com/) and make sure that they render it correctly. This is a great first pass indicator to make sure you've done this process correctly. PCBWAY will also check your boards, but this prevents some dumb mistakes in assemling your .zip file.
+Upload your design to [OSHPark.com](https://oshpark.com/) and make sure that they render it correctly. This is a great first pass indicator to make sure you've done this process correctly. PCBWAY will also check your boards, but this prevents some dumb mistakes in assemling your .zip file.
 
 
 #### Ordering your boards

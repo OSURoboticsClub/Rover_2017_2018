@@ -21,6 +21,8 @@ The name "Iris" comes from the greek messenger god, [Iris](http://www.theoi.com/
 
 ### Bill of Materials
 
+[Bill of Materials V2](https://docs.google.com/spreadsheets/d/1Z_BUTqAl6qHLze04HCUyY8IqsqWJTmvCWzt6RRplw2Y/edit?usp=sharing)
+
 [Bill of Materials V1](
 https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnISSjQ/edit?usp=sharing
 )
@@ -30,6 +32,8 @@ https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnIS
 [MR1718 IRIS on CircuitMaker](https://workspace.circuitmaker.com/Projects/Details/Nick-McComb/OSURC-Mars-Rover-2017-2018-Iris-Board)
 
 ### Downloads
+
+[Schematic V2](files/iris-v2-schematic.pdf)
 
 [Schematic V1](files/iris-v1-schematic.pdf)
 
@@ -44,4 +48,6 @@ https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnIS
 - For R46 vs R47 selection, only R47 is needed.
 - No invert needed for S.BUS connection (bridge pins)
 - No serial number spot on silkscreen
+- No MODBUS ID number spot on silkscreen
 - Likely that this should use a high-speed USB hub instead of the current full-speed implementation. It is easy, without deliberate planning, to hit the bottleneck of the USB hub.
+- Remove GND connection for RS485 going out of the board (to ensure reverse protection downstream)

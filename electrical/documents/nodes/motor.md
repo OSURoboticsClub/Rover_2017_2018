@@ -2,7 +2,7 @@
 
 <!-- ![Iris](files/iris.jpg) -->
 
-![Iris Render](files/motor_render.png)
+![Iris Render](files/motor.jpg)
 
 Designed by [Nick McComb](www.nickmccomb.net) for OSURC Mars Rover.
 
@@ -20,6 +20,8 @@ This design is completely open-source, the design files can be found at CircuitM
 
 ### Bill of Materials
 
+[Bill of Materials V2](https://docs.google.com/spreadsheets/d/1zQtJtcauIfV7cGKvJbZdHLx3p09I3BvlQvNzqRRZR7c/edit?usp=sharing)
+
 [Bill of Materials V1](
 https://docs.google.com/spreadsheets/d/1CobSEg-5mzBy_F1_ASbbnYLLLra0shLwDUG4rKD09mE/edit?usp=sharing
 )
@@ -29,6 +31,8 @@ https://docs.google.com/spreadsheets/d/1CobSEg-5mzBy_F1_ASbbnYLLLra0shLwDUG4rKD0
 [MR1718 Motor Node on CircuitMaker](https://workspace.circuitmaker.com/Projects/Details/Nick-McComb/MR1718-Motor-Node)
 
 ### Downloads
+
+[Schematic V2](files/motor-v2-schematic.pdf)
 
 [Schematic V1](files/motor-v1-schematic.pdf)
 
