@@ -26,12 +26,12 @@
    temp (deg c)
 */
 
-Adafruit_BNO055 bno = Adafruit_BNO055(WIRE_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_18_19, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_ISR);
+Adafruit_BNO055 bno = Adafruit_BNO055(WIRE_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_29_30, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_ISR);
 
 
-#define gpsPort Serial3
-#define commsPort Serial2
-#define GPS_PORT_NAME "Serial3"
+#define gpsPort Serial2
+#define commsPort Serial3
+#define GPS_PORT_NAME "Serial2"
 
 const unsigned char ubxRate5Hz[] = { 0x06, 0x08, 0x06, 0x00, 200, 0x00, 0x01, 0x00, 0x01, 0x00 };
 const unsigned char ubxRate10Hz[] = { 0x06, 0x08, 0x06, 0x00, 100, 0x00, 0x01, 0x00, 0x01, 0x00 };
@@ -69,21 +69,26 @@ void sendUBX( const unsigned char *progmemBytes, size_t len )
 }
 
 void setup() {
+  Serial.begin(9600);
+  while (!Serial);
+  Serial.println("Booting up");
   // put your setup code here, to run once:
   commsPort.begin(115200);
-  commsPort.transmitterEnable(6);
+  commsPort.transmitterEnable(3);
 
   delay(250);
   gpsPort.begin(9600);
-  sendUBX( ubxRate5Hz, sizeof(ubxRate5Hz) );
+  //  sendUBX( ubxRate5Hz, sizeof(ubxRate5Hz) );
 
+  Serial.println("Setting up IMU");
   if (!bno.begin()) {
     /* There was a problem detecting the BNO055 ... check your connections */
-    commsPort.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while (1);
   }
+  Serial.println("IMU Online. Setting to external crystal.");
   bno.setExtCrystalUse(true);
-
+  Serial.println("IMU Configured.");
 
 
 }
@@ -113,34 +118,34 @@ void loop() {
   commsPort.print(",");
   commsPort.print("oy:");
   commsPort.print(quat.y(), float_decimal_places);
-    commsPort.print(",");
+  commsPort.print(",");
   commsPort.print("oz:");
   commsPort.print(quat.z(), float_decimal_places);
-    commsPort.print(",");
+  commsPort.print(",");
   commsPort.print("ow:");
   commsPort.print(quat.w(), float_decimal_places);
 
-    commsPort.print(",");
+  commsPort.print(",");
   commsPort.print("lax:");
   commsPort.print(linear_accel.x(), float_decimal_places);
-    commsPort.print(",");
+  commsPort.print(",");
   commsPort.print("lay:");
   commsPort.print(linear_accel.y(), float_decimal_places);
-    commsPort.print(",");
+  commsPort.print(",");
   commsPort.print("laz:");
   commsPort.print(linear_accel.z(), float_decimal_places);
 
-  
-    commsPort.print(",");
+
+  commsPort.print(",");
   commsPort.print("avx:");
   commsPort.print(angular_vel.x(), float_decimal_places);
-    commsPort.print(",");
+  commsPort.print(",");
   commsPort.print("avy:");
   commsPort.print(angular_vel.y(), float_decimal_places);
-    commsPort.print(",");
+  commsPort.print(",");
   commsPort.print("avz:");
   commsPort.print(angular_vel.z(), float_decimal_places);
-  
+
   commsPort.println();
 
   //
