@@ -54,3 +54,4 @@ https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnIS
 
 #### Version 2
 - U8_7 pin 1 silkscreen dot not visible 
+- R1 silkscreen not visible
