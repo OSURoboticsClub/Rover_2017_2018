@@ -8,7 +8,7 @@ from inputs import devices, GamePad
 from time import time
 
 import rospy
-from rover_control.msg import DriveCommandMessage
+from rover_control.msg import DriveCommandMessage, TowerPanTiltControlMessage
 
 #####################################
 # Global Variables
@@ -16,6 +16,7 @@ from rover_control.msg import DriveCommandMessage
 GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
 
 DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
+DEFAULT_PAN_TILT_COMMAND_TOPIC = "/tower/control"
 
 DRIVE_COMMAND_HERTZ = 15
 
@@ -30,6 +31,8 @@ CAMERA_CHANGE_TIME = 0.2
 GUI_ELEMENT_CHANGE_TIME = 0.2
 CAMERA_TOGGLE_CHANGE_TIME = 0.35
 
+PAN_TILT_X_AXIS_SCALAR = 5
+PAN_TILT_Y_AXIS_SCALAR = 10
 
 #####################################
 # Controller Class Definition
@@ -163,6 +166,7 @@ class JoystickControlSender(QtCore.QThread):
         # ########## Class Variables ##########
         # Publishers
         self.drive_command_publisher = rospy.Publisher(DEFAULT_DRIVE_COMMAND_TOPIC, DriveCommandMessage, queue_size=1)
+        self.tower_pan_tilt_command_publisher = rospy.Publisher(DEFAULT_PAN_TILT_COMMAND_TOPIC, TowerPanTiltControlMessage, queue_size=1)
 
         self.wait_time = 1.0 / DRIVE_COMMAND_HERTZ
 
@@ -200,6 +204,7 @@ class JoystickControlSender(QtCore.QThread):
     def __update_and_publish(self):
         self.publish_drive_command()
         self.publish_camera_control_commands()
+        self.publish_pan_tilt_control_commands()
 
     def publish_drive_command(self):
         throttle_axis = max((255 - self.joystick.controller_states["throttle_axis"]) / 255.0, THROTTLE_MIN)
@@ -238,6 +243,16 @@ class JoystickControlSender(QtCore.QThread):
         if trigger_pressed and (time() - self.last_camera_toggle_time) > CAMERA_TOGGLE_CHANGE_TIME:
             self.toggle_selected_gui_camera__signal.emit()
             self.last_camera_toggle_time = time()
+
+    def publish_pan_tilt_control_commands(self):
+        hat_x = self.joystick.controller_states["hat_x_axis"]
+        hat_y = self.joystick.controller_states["hat_y_axis"]
+
+        pan_tilt_message = TowerPanTiltControlMessage()
+        pan_tilt_message.relative_pan_adjustment = hat_x * PAN_TILT_X_AXIS_SCALAR
+        pan_tilt_message.relative_tilt_adjustment = -(hat_y * PAN_TILT_Y_AXIS_SCALAR)
+
+        self.tower_pan_tilt_command_publisher.publish(pan_tilt_message)
 
     def get_drive_message(self, throttle_axis):
         drive_message = DriveCommandMessage()
