@@ -1,0 +1,214 @@
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{gray},       % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{purple},      % string literal style
+}
+\section{Appendix 1: Interesting Code Listings}
+\subsection{Drive Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+class DriveTest(QtCore.QThread):
+    def __init__(self):
+        super(DriveTest, self).__init__()
+
+        self.not_abort = True
+
+        self.message = None
+        self.publisher = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+
+        rospy.init_node("test")
+
+    def run(self):
+        while self.not_abort:
+            self.message = Twist()
+
+            self.message.linear.x = 1.0
+            self.message.angular.z = 1.0
+
+            self.publisher.publish(self.message)
+
+            self.msleep(100)
+\end{lstlisting}
+
+\subsubsection{Description}
+This QThread example class starts a ROS publishing node on the "/cmd\_vel" topic to send raw drive control commands to the Rover.
+In this case, it is sending a command to drive the Rover forward and to the right, essentially causing it to drive in a never-ending circle.
+
+\subsection{Video Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+class VideoTest(QtCore.QThread):
+    image_ready_signal = QtCore.pyqtSignal()
+
+    def __init__(self, screen_label, video_size=None, sub_path=None):
+        super(VideoTest, self).__init__()
+
+        self.not_abort = True
+
+        self.screen_label = screen_label
+        self.video_size = video_size
+
+        self.message = None
+        self.publisher = rospy.Subscriber(sub_path, CompressedImage, self.__receive_message)
+
+        self.raw_image = None
+        self.cv_image = None
+        self.pixmap = None
+        self.bridge = CvBridge()
+
+        self.image_ready_signal.connect(self.__on_image_update_ready)
+
+    def run(self):
+        while self.not_abort:
+            if self.raw_image:
+                self.cv_image = self.bridge.compressed_imgmsg_to_cv2(self.raw_image, "rgb8")
+
+                if self.video_size:
+                    self.cv_image = cv2.resize(self.cv_image, self.video_size)
+                    
+                self.pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(self.cv_image))
+                self.image_ready_signal.emit()
+            self.msleep(20)
+
+    def __on_image_update_ready(self):
+        self.screen_label.setPixmap(self.pixmap)
+
+    def __receive_message(self, message):
+        self.raw_image = message
+\end{lstlisting}
+\subsubsection{Description}
+This example subscribes to the ROS topic that is passed in under the sub\_path argument in order to get video stream data.
+An example of this topic might be "/cam1/usb\_cam1/image\_raw/compressed".
+Inside of the body of the thread, it checks if there is image data, and if so decompresses it into a raw 8-bit image using ROS's OpenCV bridge libraries.
+Finally, it converts the OpenCV image into a QImage and then into a QPixmap before broadcasting an update signal so the main GUI thread can show the image on the QLabel.
+It is important to note that any direct GUI updates must happen in the main GUI thread, otherwise the QApplication will crash.
+
+\subsection{Joystick ROS Drive Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+rospy.init_node("drive_tester")
+self.pub = rospy.Publisher("/drive/motoroneandtwo", RoverMotorDrive, queue_size=1)
+
+def __get_controller_data(self):
+        if (self.controller_aquired):
+            events = self.gamepad.read()
+
+            for event in events:
+                if event.code in self.raw_mapping_to_class_mapping:
+                    self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
+                    # print "Logitech: %s" % self.controller_states
+
+
+def __broadcast_if_ready(self):
+	drive = RoverMotorDrive()
+
+	axis = self.controller_states["left_stick_y_axis"]
+
+	drive.first_motor_direction = 1 if axis <= 512 else 0
+	drive.first_motor_speed = min(abs(self.controller_states["left_stick_y_axis"] - 512) * 128, 65535)
+
+	self.pub.publish(drive)
+\end{lstlisting}
+
+\subsubsection{Description}
+These two methods and supporting lines above, taken from the testing class LogitechJoystick, contained in the file joystick\_drive\_test.py are the core of what is needed to get joystick data and broadcast it to the rover over a ROS topic.
+These two methods are called on after another in a QThread. \_\_get\_controller\_data() reacts to motion events from the joystick and stores the current value of all axes and buttons in self.controller\_states. Then, in \_\_broadcast\_if\_ready(), and instantiation of the custom ROS message type, RoverMotorDrive, is made and values set to a scaled version of the raw values provided by the joystick. Finally, this data is published to the motor drive node and causes the ROS receiving node to see the data, send a message to the motor driver, and cause the motor to spin.
+
+\subsection{Video Test}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+def toggle_video_display(self):
+	if self.video_enabled:
+		if self.video_subscriber:
+			self.video_subscriber.unregister()
+		self.new_frame = True
+		self.video_enabled = False
+	else:
+		new_topic = self.camera_topics[self.current_camera_settings["resolution"]]
+		self.video_subscriber = rospy.Subscriber(new_topic, CompressedImage, self.__image_data_received_callback)
+		self.video_enabled = True
+\end{lstlisting}
+\subsubsection{Description}
+This very simple snippet is in the VideoReceiver class in VideoSystems. It is a demonstration of what is needed to properly disable the receiving of video data on a stream. Looking at the Subscriber line, you can see that there is an image callback associated with the subscription to a topic in ROS. This means that if you don't actually unsubscribe (or in this case, unregister) from a topic, as can be seen a few lines above, the data will continue being received even if you are not actively using it. Not doing this would cause unwanted bandwidth to be used.
+
+\subsection{Ubiquiti Channel Change}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+GET_CURRENT_CHANNEL_COMMAND = "iwlist ath0 channel"
+SET_CHANNEL_COMMAND = "iwconfig ath0 channel"
+
+def setup_and_connect_ssh_client(self):
+    self.ssh_client = paramiko.SSHClient()
+    self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    self.ssh_client.connect(ACCESS_POINT_IP, username=ACCESS_POINT_USER, password=ACCESS_POINT_PASSWORD,
+                            compress=True)
+
+def apply_channel_if_needed(self):
+    if self.channel_change_needed:
+        self.show_channel__signal.emit(0)
+        self.set_gui_elements_enabled__signal.emit(False)
+        self.ssh_client.exec_command(SET_CHANNEL_COMMAND + " %02d" % self.new_channel)
+        self.get_and_show_current_channel()
+        self.channel_change_needed = False
+
+def get_and_show_current_channel(self):
+    channel = 0
+
+    ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(GET_CURRENT_CHANNEL_COMMAND)
+    output = ssh_stdout.read()
+
+    for line in output.split("\n"):
+        if "Current Frequency:" in line:
+            channel = line.strip("()").split("Channel ")[1]
+            break
+
+    self.msleep(500)  # From the gui, this helps show something is actually happening
+
+    self.show_channel__signal.emit(int(channel))
+    self.set_gui_elements_enabled__signal.emit(True)
+\end{lstlisting}
+\subsubsection{Description}
+This code shows how we change the 2.4GHz radio channel on the Rocket M2 radios. In the first method, the class initializes an ssh connection to the access point radio. Then, in the thread's main loop, apply\_channel\_if\_needed runs on a regular basis waiting for a channel change to happen. Once it does, it executes an ssh command to change the channel via command line before running a second command via the third method to get the new channel from the radio, parse it, and show it in the GUI. This ensures that if the channel does not get set, the value shown in the GUI will alert the user to this fact.
+
+\subsection{Compass Rotation}
+\subsubsection{Code}
+\begin{lstlisting}[language=python]
+ROTATION_SPEED_MODIFIER = 2.5
+
+def rotate_compass_if_needed(self):
+    heading_difference = abs(int(self.shown_heading) - self.current_heading)
+    should_update = False
+
+    if heading_difference > ROTATION_SPEED_MODIFIER:
+        self.shown_heading += self.rotation_direction * ROTATION_SPEED_MODIFIER
+        self.shown_heading %= 360
+        should_update = True
+    elif heading_difference != 0:
+        self.shown_heading = self.current_heading
+        should_update = True
+
+    if should_update:
+        self.current_heading_shown_rotation_angle = int(self.shown_heading)
+
+        if self.current_heading_shown_rotation_angle != self.last_current_heading_shown:
+            new_compass_image = self.main_compass_image.rotate(self.current_heading_shown_rotation_angle, resample=PIL.Image.BICUBIC)
+            self.last_current_heading_shown = self.current_heading_shown_rotation_angle
+
+            self.compass_pixmap = QtGui.QPixmap.fromImage(ImageQt(new_compass_image))
+            self.show_compass_image__signal.emit()
+
+def update_heading_movement(self):
+    current_minus_shown = (self.current_heading - self.shown_heading) % 360
+
+    if current_minus_shown >= 180:
+        self.rotation_direction = -1
+    else:
+        self.rotation_direction = 1
+\end{lstlisting}
+\subsubsection{Description}
+This code shows how movement updates to the compass are made. The second method gets called when a new heading change is made, setting whichever rotation direction is shorter to reach the desired goal. Then, in the main loop, the upper method calculates the difference between the current shown heading and the actual heading determining whether it should be moving or not. If it should, the main compass image that was loaded during init is rotated via a bicubic sampling algorithm to maintain image clarity, converted to a QPixmap, before an update signal is broadcast to the main thread to show the image.
