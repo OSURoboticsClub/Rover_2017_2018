@@ -91,10 +91,10 @@ class DriveCoordinator(object):
             sleep(max(self.wait_time - time_diff, 0))
 
     def process_drive_commands(self):
-        # if not self.drive_command_data["iris"]["message"].ignore_drive_control:
-        #     self.send_drive_control_command(self.drive_command_data["iris"])
-        # else:
-        self.send_drive_control_command(self.drive_command_data["ground_station"])
+        if not self.drive_command_data["iris"]["message"].ignore_drive_control:
+            self.send_drive_control_command(self.drive_command_data["iris"])
+        else:
+            self.send_drive_control_command(self.drive_command_data["ground_station"])
 
     def send_drive_control_command(self, drive_command_data):
 

@@ -7,20 +7,20 @@
 # SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="FTU9EU0I", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyGPS"
 
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2NFZVA", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_0_0"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2NFZVA", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_0_1"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2NFZVA", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS_0_2"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2NFZVA", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_0_3"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2CZLZF", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_0_0"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2CZLZF", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_0_1"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2CZLZF", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS_0_2"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2CZLZF", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_0_3"
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2RJ8G5", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_1_0"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2RJ8G5", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_1_1"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2RJ8G5", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS_1_2"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2RJ8G5", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_1_3"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_1_0"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_1_1"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS_1_2"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_1_3"
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2UFVE1", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_2_0"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2UFVE1", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_2_1"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2UFVE1", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS_2_2"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2UFVE1", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_2_3"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_2_0"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_2_1"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_2_3"
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="AH05K2Y8", SYMLINK+="rover/ttyLEFT"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A906H89E", SYMLINK+="rover/ttyRIGHT"
