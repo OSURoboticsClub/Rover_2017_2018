@@ -1,0 +1,165 @@
+\documentclass[onecolumn, draftclsnofoot, 10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{multicol}
+\usepackage{pdflscape}
+\usepackage{pdfpages}
+\usepackage[british]{babel}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{subfig}
+\usepackage{pdfpages}
+\usepackage{longtable}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+% \overfullrule=2in
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			Ground Station Software Team}
+\def \CapstoneTeamNumber{		30}
+\def \GroupMemberOne{			Kenneth Steinfeldt}
+\def \GroupMemberTwo{			Christopher Pham}
+\def \GroupMemberThree{			Corwin Perren}
+\def \CapstoneProjectName{		OSU Robotics Club\\Mars Rover Ground Station}
+\def \CapstoneSponsorCompany{	OSU Robotics Club}
+\def \CapstoneSponsorPerson{	Nick McComb}
+
+
+
+%Personal \newcommands
+
+\newcommand{\functRequ}[4]{
+\item #1%
+\par
+\begin{itemize}
+\item \textit{Description:} #2.%
+\item \textit{Rationale:} #3.%
+\item \textit{Dependencies:} #4%
+\end{itemize}
+}
+\definecolor{backcolor}{rgb}{0.95,0.95,0.92}
+\lstset{basicstyle=\ttfamily,
+  backgroundcolor=\color{backcolor},  
+  showstringspaces=false,
+  commentstyle=\color{red},
+  keywordstyle=\color{blue},
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				Final Report
+			 }
+			
+\newcommand{\NameSigPair}[1]{
+  \par
+  \makebox[2.75in][r]{#1} 
+  \hfill
+  \makebox[3.25in]{
+      \makebox[2.25in]{\hrulefill} 
+      \hfill
+      \makebox[.75in]{\hrulefill}
+  }
+  \par\vspace{-12pt} 
+  \textit{
+      \tiny\noindent
+      \makebox[2.75in]{} 
+      \hfill
+      \makebox[3.25in]{
+          \makebox[2.25in][r]{Signature} 
+          \hfill
+          \makebox[.75in][r]{Date}
+      }
+  }
+}
+% 3. If the document is not to be signed, uncomment the command below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+	\pagenumbering{gobble}
+	\begin{singlespace}
+		% 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        \begin{minipage}{7in}
+			\centering
+			\hspace*{-.7in}
+			$\vcenter{\hbox{\includegraphics[height=4cm]{Oregon_State_College_of_Engineering_Logo}}}$
+			\hspace*{.2in}
+			$\vcenter{\hbox{\includegraphics[height=2.5cm]{OSURCLogoOrange}}}$
+		\end{minipage}
+
+		\par\vspace{.35in}
+		\centering
+		\scshape{
+			\huge CS Capstone \DocType \par
+			{\large\today}\par
+			\vspace{.5in}
+			\textbf{\Huge\CapstoneProjectName}\par
+			\vfill
+			{\large Prepared for}\par
+			\Huge \CapstoneSponsorCompany\par
+			\vspace{5pt}
+			{\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+			{\large Prepared by }\par
+			Group\CapstoneTeamNumber\par
+			% 5. comment out the line below this one if you do not wish to name your team
+			\CapstoneTeamName\par 
+			\vspace{5pt}
+			{\Large
+				\NameSigPair{\GroupMemberOne}\par
+				\NameSigPair{\GroupMemberTwo}\par
+				\NameSigPair{\GroupMemberThree}\par
+			}
+			\vspace{20pt}
+            \begin{abstract}
+			% 6. Fill in your abstract
+			This document contains all of the useful documentation about the OSURC Mars Rover ground station project as it has progressed throughout the year. This includes all technical documents (with revisions), weekly blog posts, code documentation, and lessons learned.
+
+		\end{abstract}
+		}
+	\end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+\clearpage
+
+% Write stuff here....
+\input{01-introduction/introduction}
+\input{02-requirementsdoc/requirementsdoc}
+\input{03-designdoc/designdoc}
+\input{04-techreviewdocs/techreviewdocs}
+\input{05-blogposts/blogposts}
+\input{06-poster/poster}
+\input{07-documentation/documentation}
+\input{08-technicalresources/technicalresources}
+\input{09-conclusions/conclusions}
+\input{10-codelistings/codelistings}
+\input{11-miscellaneous/miscellaneous}
+\end{document}
+
+
+
+
+
