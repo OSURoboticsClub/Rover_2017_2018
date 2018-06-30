@@ -1,4 +1,4 @@
-# Motor Node
+# Tower Node
 
 <!-- ![Iris](files/iris.jpg) -->
 
