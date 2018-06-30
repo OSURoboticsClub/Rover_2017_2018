@@ -9,7 +9,7 @@
     <include file="$(find rover_main)/launch/rover/status.launch"/>
 
     <!-- ########## Start Nimbro Topic Transport Nodes ########## -->
-    <!--<include file="$(find rover_main)/launch/rover/topic_transport_senders.launch"/>-->
-    <!--<include file="$(find rover_main)/launch/rover/topic_transport_receivers.launch"/>-->
+    <include file="$(find rover_main)/launch/rover/topic_transport_senders.launch"/>
+    <include file="$(find rover_main)/launch/rover/topic_transport_receivers.launch"/>
 
 </launch>
