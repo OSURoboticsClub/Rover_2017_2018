@@ -52,3 +52,11 @@ This board acts as an alternate for Rover's Tower Node when both of the boards w
 Controls 4 DC motors with quadrature encoder and current feedback. Has four analog inputs intended to be used with force resistors.
 
 [Find more documentation here.](grasp.md)
+
+### Science Node
+
+<img src="files/Science.PNG" width="300">
+
+Powers, and comunicates with the Soil Probe via RS-485. Uses simple logic to power a drill motor (24V,5A, full forward, full back, stop). Outputs 5V to power a digital camera. Sends a signal to the didgital camera to control shoot and zoom.
+ 
+[Find more documentation here.](science.md)
