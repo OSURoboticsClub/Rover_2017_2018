@@ -1,0 +1,32 @@
+Science Node
+============
+
+![Science](files/Science.PNG)
+
+Designed by Anthony Grana.
+
+Summary
+-------
+
+Made for the science end affector for the 2018 rover. Powers, and
+comunicates with the [Soil
+Probe](https://www.fondriest.com/pdf/stevens_hydra_manual.pdf) via
+RS-485. Uses simple logic to power a drill motor (24V,5A, full forward,
+full back, stop). Outputs 5V to power a [digital
+camera.](https://www.amazon.com/Canon-PowerShot-Stabilized-2-7-Inch-Black/dp/B0035FZJJ4)
+Sends a signal to the didgital camera to control shoot and zoom.
+
+### Bill of Materials
+
+[Bill of
+Materials](https://docs.google.com/spreadsheets/d/1dY48bTzPCWO-qP4mQwElCYWBNv3Bg6SGOoxIt3NPqik/edit?usp=sharing)
+
+#### Design Files
+
+[Science node on circuit
+maker](https://workspace.circuitmaker.com/Projects/Details/Anthony-Grana/Sience-Node)
+
+### Known Issues
+
+The Drill motor controller will pull 5A but the curent power connector
+for the board can only handle 3A.
