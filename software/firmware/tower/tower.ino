@@ -1,6 +1,10 @@
 ////////// Includes //////////
 #include <ModbusRtu.h>
 #include <Adafruit_BNO055_t3.h>
+#include <ArduinoJson.h>
+#include "FastLED.h"
+
+#include <NMEAGPS.h>
 
 /*
    Imu/data (Imu)
@@ -49,13 +53,6 @@ enum HARDWARE {
 
 enum MODBUS_REGISTERS {
   DIRECTION = 0,  // Input
-  SPEED = 1,      // Input
-  SLEEP = 2,      // Input
-
-  CURRENT = 3,    // Output
-  FAULT = 4,      // Output
-
-  TEMPERATURE = 5        // Output
 };
 
 #define GPS_SERIAL_PORT Serial3
@@ -83,11 +80,17 @@ char float_decimal_places = 8;
 ///// GPS
 char current_byte = '$';
 String nmea_sentence = "";
+char gps_buffer[255];
+unsigned char buffer_count = 0;
 
 ////////// Class Instantiations //////////
 Modbus slave(node_id, mobus_serial_port_number, HARDWARE::COMMS_RS485_EN);
 
-Adafruit_BNO055 bno = Adafruit_BNO055(WIRE_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_18_19, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_ISR);
+Adafruit_BNO055 bno = Adafruit_BNO055(WIRE_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_18_19, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_IMM);
+
+NMEAGPS gps;
+
+const char baud115200[] = "PUBX,41,1,3,3,115200,0";
 
 void setup() {
   // Debugging
@@ -122,10 +125,20 @@ void setup() {
 }
 
 void loop() {
+  // Reset JSON for next loop
+  StaticJsonBuffer<1000> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+
+  // Do normal polling
   poll_modbus();
   set_leds();
-  send_imu_stream_line();
-  process_gps_and_send_if_ready();
+  send_imu_stream_line(root);
+  process_gps_and_send_if_ready(root);
+
+  // Print JSON and newline
+  root.printTo(GPS_IMU_STREAMING_PORT);
+  GPS_IMU_STREAMING_PORT.println();
+
 
 }
 
@@ -145,45 +158,25 @@ void setup_hardware() {
 
 }
 
-void send_imu_stream_line() {
+void send_imu_stream_line(JsonObject &root) {
+  JsonObject& imu_object = root.createNestedObject("imu");
+
   quat = bno.getQuat();
   linear_accel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
   angular_vel = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 
-  GPS_IMU_STREAMING_PORT.print("ox:");
-  GPS_IMU_STREAMING_PORT.print(quat.x(), float_decimal_places);
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("oy:");
-  GPS_IMU_STREAMING_PORT.print(quat.y(), float_decimal_places);
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("oz:");
-  GPS_IMU_STREAMING_PORT.print(quat.z(), float_decimal_places);
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("ow:");
-  GPS_IMU_STREAMING_PORT.print(quat.w(), float_decimal_places);
+  imu_object["ox"] = quat.x();
+  imu_object["oy"] = quat.y();
+  imu_object["oz"] = quat.z();
+  imu_object["ow"] = quat.w();
 
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("lax:");
-  GPS_IMU_STREAMING_PORT.print(linear_accel.x(), float_decimal_places);
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("lay:");
-  GPS_IMU_STREAMING_PORT.print(linear_accel.y(), float_decimal_places);
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("laz:");
-  GPS_IMU_STREAMING_PORT.print(linear_accel.z(), float_decimal_places);
+  imu_object["lax"] = linear_accel.x();
+  imu_object["lay"] = linear_accel.y();
+  imu_object["laz"] = linear_accel.z();
 
-
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("avx:");
-  GPS_IMU_STREAMING_PORT.print(angular_vel.x(), float_decimal_places);
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("avy:");
-  GPS_IMU_STREAMING_PORT.print(angular_vel.y(), float_decimal_places);
-  GPS_IMU_STREAMING_PORT.print(",");
-  GPS_IMU_STREAMING_PORT.print("avz:");
-  GPS_IMU_STREAMING_PORT.print(angular_vel.z(), float_decimal_places);
-
-  GPS_IMU_STREAMING_PORT.println();
+  imu_object["avx"] = angular_vel.x();
+  imu_object["avy"] = angular_vel.y();
+  imu_object["avz"] = angular_vel.z();
 
   //
   //  /* Display calibration status for each sensor. */
@@ -199,19 +192,29 @@ void send_imu_stream_line() {
   //  Serial.print(mag, DEC);
 }
 
-void process_gps_and_send_if_ready() {
-  if (GPS_SERIAL_PORT.available() > 0 ) {
-    current_byte = GPS_SERIAL_PORT.read();
+void process_gps_and_send_if_ready(JsonObject &root) {
+  root["gps"] = "";
 
-    if (current_byte != '\r' && current_byte != '\n') {
-      nmea_sentence += current_byte;
-    }
+  char num_in_bytes = GPS_SERIAL_PORT.available();
 
-    if (current_byte == '\r') {
-      GPS_IMU_STREAMING_PORT.println(nmea_sentence);
-      nmea_sentence = "";
+  if (num_in_bytes > 0) {
+    for (char i = 0 ; i < num_in_bytes ; i++) {
+      char in_byte = GPS_SERIAL_PORT.read();
+
+      if (in_byte != '\n' && in_byte != '\r') {
+        gps_buffer[buffer_count] = in_byte;
+        buffer_count++;
+      }
+
+      if (in_byte == '\r') {
+        gps_buffer[buffer_count] = '\0';
+        root["gps"] = gps_buffer;
+        buffer_count = 0;
+      }
+
     }
   }
+
 }
 
 void poll_modbus() {

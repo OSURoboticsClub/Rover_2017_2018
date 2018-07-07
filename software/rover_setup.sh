@@ -14,6 +14,7 @@ folders_to_link=(
     zed_wrapper
     nimbro_topic_transport
     rover_main
+    rover_odometry
 )
 
 # Print heading
