@@ -4,28 +4,26 @@
 #####################################
 # Python native imports
 import rospy
-
+import serial
 from time import time, sleep
 import json
 
-import serial.rs485
-
 from nmea_msgs.msg import Sentence
-
+from sensor_msgs.msg import Imu
 
 #####################################
 # Global Variables
 #####################################
 NODE_NAME = "tower_odometry"
 
-# DEFAULT_PORT = "/dev/rover/ttyOdometry"
-DEFAULT_PORT = "/dev/ttyUSB0"
+DEFAULT_PORT = "/dev/rover/ttyOdometry"
+# DEFAULT_PORT = "/dev/ttyUSB0"
 DEFAULT_BAUD = 115200
 
 
 # DEFAULT_GPS_SENTENCE_TOPIC = "gps/sentence"
-DEFAULT_GPS_SENTENCE_TOPIC = "/nmea_sentence"
-DEFAULT_DRIVE_CONTROL_STATUS_TOPIC = "drive_status/rear"
+DEFAULT_GPS_SENTENCE_TOPIC = "gps/sentence"
+DEFAULT_IMU_TOPIC = "imu/data"
 
 DEFAULT_HERTZ = 100
 
@@ -41,6 +39,7 @@ class Odometry(object):
         self.baud = rospy.get_param("~baud", DEFAULT_BAUD)
 
         self.gps_sentence_topic = rospy.get_param("~gps_sentence_topic", DEFAULT_GPS_SENTENCE_TOPIC)
+        self.imu_data_topic = rospy.get_param("~imu_data_topic", DEFAULT_IMU_TOPIC)
 
         self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
 
@@ -48,9 +47,9 @@ class Odometry(object):
         self.odom_serial.setRTS(0)
 
         self.sentence_publisher = rospy.Publisher(self.gps_sentence_topic, Sentence, queue_size=1)
+        self.imu_data_publisher = rospy.Publisher(self.imu_data_topic, Imu, queue_size=1)
 
         self.run()
-
 
     def run(self):
         while not rospy.is_shutdown():
@@ -62,37 +61,51 @@ class Odometry(object):
             except Exception, error:
                 print "Error occurred:", error
 
-
             time_diff = time() - start_time
 
             sleep(max(self.wait_time - time_diff, 0))
 
     def process_messages(self):
         if self.odom_serial.inWaiting():
-            line = self.odom_serial.readline()  # type:s
-            # print line
+            line = self.odom_serial.readline()
 
             temp = json.loads(line)
+
             gps = temp.get('gps', None)
+            imu = temp.get('imu', None)
 
             if gps:
                 self.broadcast_gps(gps)
 
-            imu = temp.get('imu', None)
-
             if imu:
-                print imu
-
-
-            # if not line.startswith("ox"):
-            #     print line,
-            # if line[0] == '$':
-            #     print line,
+                self.broadcast_imu(imu)
 
     def broadcast_gps(self, gps):
-        # print gps
-        self.sentence_publisher.publish(Sentence(sentence=gps))
+        message = Sentence()
+        message.header.frame_id = "gps"
+        message.header.stamp = rospy.get_rostime()
+        message.sentence = gps
+        self.sentence_publisher.publish(message)
 
+    def broadcast_imu(self, imu):
+        message = Imu()
+        message.header.frame_id = "imu"
+        message.header.stamp = rospy.get_rostime()
+
+        message.orientation.x = imu["ox"]
+        message.orientation.y = imu["oy"]
+        message.orientation.z = imu["oz"]
+        message.orientation.w = imu["ow"]
+
+        message.angular_velocity.x = imu["avx"]
+        message.angular_velocity.y = imu["avy"]
+        message.angular_velocity.z = imu["avz"]
+
+        message.linear_acceleration.x = imu["lax"]
+        message.linear_acceleration.y = imu["lay"]
+        message.linear_acceleration.z = imu["laz"]
+
+        self.imu_data_publisher.publish(message)
 
 if __name__ == "__main__":
     Odometry()

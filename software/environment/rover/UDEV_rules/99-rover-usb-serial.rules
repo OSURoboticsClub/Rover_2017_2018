@@ -14,14 +14,14 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{seria
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2CZLZF", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_0_3"
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_1_0"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_1_1"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS_1_2"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyOdometry"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyTowerAndPanTilt"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM2HPA6V", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_1_3"
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="rover/ttyIRIS_2_0"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="01", SYMLINK+="rover/ttyIRIS_2_1"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="rover/ttyIRIS"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyIRIS_2_3"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{serial}=="NM34WE0R", ENV{ID_USB_INTERFACE_NUM}=="03", SYMLINK+="rover/ttyExtraUART"
 
 
 ##### Mappings from OMSI / EXPO driving with individual adapters

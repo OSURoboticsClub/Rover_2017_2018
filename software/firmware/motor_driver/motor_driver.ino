@@ -34,7 +34,7 @@ enum MODBUS_REGISTERS {
 };
 
 ////////// Global Variables //////////
-const uint8_t node_id = 1;
+const uint8_t node_id = 2;
 const uint8_t mobus_serial_port_number = 3;
 
 uint16_t modbus_data[] = {0, 0, 0, 0, 0, 0};
