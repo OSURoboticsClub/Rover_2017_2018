@@ -36,7 +36,7 @@ DEFAULT_IRIS_STATUS_TOPIC_NAME = "/rover_control/iris_status"
 DEFAULT_BOGIE_LEFT_TOPIC_NAME = '/rover_control/drive_status/left'
 DEFAULT_BOGIE_RIGHT_TOPIC_NAME = '/rover_control/drive_status/right'
 DEFAULT_BOGIE_REAR_TOPIC_NAME = '/rover_control/drive_status/rear'
-DEFAULT_GPS_NMEA_TOPIC_NAME = '/nmea_sentence'
+DEFAULT_GPS_NMEA_TOPIC_NAME = '/odometry/gps/sentence'
 
 
 #####################################

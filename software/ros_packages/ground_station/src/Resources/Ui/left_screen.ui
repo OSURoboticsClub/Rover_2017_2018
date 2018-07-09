@@ -251,23 +251,17 @@
            <property name="spacing">
             <number>0</number>
            </property>
-           <item row="1" column="2">
-            <widget class="QLabel" name="ram">
-             <property name="styleSheet">
-              <string notr="true">background-color: darkred;</string>
-             </property>
-             <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TX2 RAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="4">
+           <item row="5" column="4">
             <widget class="QLabel" name="emmc">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="styleSheet">
-              <string notr="true">background-color: darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TX2 EMMC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -277,7 +271,7 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="5">
+           <item row="13" column="5">
             <widget class="QLabel" name="chassis_cam">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -311,7 +305,7 @@
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>Chassis Camera
@@ -322,7 +316,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="4">
+           <item row="13" column="4">
             <widget class="QLabel" name="under_cam">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -356,7 +350,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>Undercarriage Camera
@@ -395,7 +389,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -443,7 +437,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>FrSky
@@ -485,7 +479,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>3D Nav Mouse
@@ -524,7 +518,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -538,7 +532,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="2">
+           <item row="13" column="2">
             <widget class="QLabel" name="main_cam">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -566,7 +560,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -580,7 +574,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="8" column="1">
             <widget class="QLabel" name="gps">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -611,7 +605,7 @@ Connected</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>GPS
@@ -622,7 +616,7 @@ Fix</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="4">
+           <item row="8" column="4">
             <widget class="QLabel" name="middle_left_wheel_label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -653,18 +647,18 @@ Fix</string>
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>Middle Left Wheel
-Disconnected</string>
+Connected</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="4" column="5">
+           <item row="8" column="5">
             <widget class="QLabel" name="rear_left_wheel_label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -692,7 +686,7 @@ Disconnected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -706,7 +700,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="2">
+           <item row="8" column="2">
             <widget class="QLabel" name="front_left_wheel_label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -734,7 +728,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -748,7 +742,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="1">
+           <item row="13" column="1">
             <widget class="QLabel" name="zed">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -776,7 +770,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -790,10 +784,17 @@ Disconnected</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="5" column="1">
             <widget class="QLabel" name="cpu">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="styleSheet">
-              <string notr="true">background-color: darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TX2 CPU&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -803,10 +804,17 @@ Disconnected</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="5">
+           <item row="5" column="5">
             <widget class="QLabel" name="gpu_temp">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="styleSheet">
-              <string notr="true">background-color: darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;TX2 TEMP&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -816,7 +824,7 @@ Disconnected</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="2">
+           <item row="10" column="2">
             <widget class="QLabel" name="front_right_wheel_label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -844,7 +852,7 @@ Disconnected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -858,7 +866,7 @@ Connected</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="10" column="1">
             <widget class="QLabel" name="battery_voltage_status_label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -886,7 +894,7 @@ Connected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -900,7 +908,7 @@ N/A</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="4">
+           <item row="10" column="4">
             <widget class="QLabel" name="middle_right_wheel_label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -928,21 +936,41 @@ N/A</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkred;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
              <property name="text">
               <string>Middle Right Wheel
-Disconnected</string>
+Connected</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="6" column="5">
+           <item row="5" column="2">
+            <widget class="QLabel" name="ram">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TX2 RAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="5">
             <widget class="QLabel" name="rear_right_wheel_label">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -970,7 +998,7 @@ Disconnected</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color:darkgreen;</string>
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -978,6 +1006,174 @@ Disconnected</string>
              <property name="text">
               <string>Rear Right Wheel
 Connected</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="connection_quality_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>9999999</width>
+               <height>9999999</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="text">
+              <string>Connection Quality
+0.0%</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="radio_rates_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>9999999</width>
+               <height>9999999</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>9</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="text">
+              <string>RX Rate: 240.0 Mbps
+TX Rate: 300 Mbps</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="successful_transmit_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>9999999</width>
+               <height>9999999</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="text">
+              <string>Successful Transmit
+0.0%</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLabel" name="radio_latency_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>9999999</width>
+               <height>9999999</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>9</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color:darkgreen; border: 0.5px solid black;</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="text">
+              <string>TX Latency: 10000 ms
+RX Latency: 10000 ms</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>

@@ -71,7 +71,6 @@ class DriveCoordinator(object):
         self.left_bogie_publisher = rospy.Publisher(self.left_bogie_topic, DriveControlMessage, queue_size=1)
         self.right_bogie_publisher = rospy.Publisher(self.right_bogie_topic, DriveControlMessage, queue_size=1)
 
-
         self.last_message_time = time()
 
         # ########## Run the Class ##########

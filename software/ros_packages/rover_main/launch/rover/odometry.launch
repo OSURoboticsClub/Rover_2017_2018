@@ -4,6 +4,9 @@
 
     <group ns="odometry">
         <!-- ########## Processes GPS and IMU Messages ########## -->
+        <node name="odom_record" pkg="rosbag" type="record" args="-o /home/nvidia/BAGS/odometry /odometry/gps/fix /odometry/gps/sentence /odometry/imu/data /odometry/odometry/filtered /odometry/odometry/gps /odometry/vel" output="screen" />
+
+        <!-- ########## Processes GPS and IMU Messages ########## -->
         <node name="gps_and_imu" pkg="rover_odometry" type="odometry.py" respawn="true" output="screen" />
 
         <!-- ########## Converts GPS Sentences to GPS Fix data ########## -->

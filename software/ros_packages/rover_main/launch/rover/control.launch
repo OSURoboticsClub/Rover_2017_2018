@@ -31,6 +31,6 @@
             <param name="second_motor_id" value="1"/>
         </node>
 
-        <node name="drive_coordinator" pkg="rover_control" type="drive_coordinator.py" output="screen"/>
+        <node name="drive_coordinator" pkg="rover_control" type="drive_coordinator.py" respawn="true" output="screen"/>
     </group>
 </launch>

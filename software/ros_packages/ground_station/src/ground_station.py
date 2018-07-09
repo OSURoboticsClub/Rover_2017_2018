@@ -20,6 +20,7 @@ import Framework.NavigationSystems.SpeedAndHeadingIndication as SpeedAndHeading
 import Framework.NavigationSystems.WaypointsCoordinator as WaypointsCoordinator
 import Framework.ArmSystems.ArmIndication as ArmIndication
 import Framework.StatusSystems.StatusCore as StatusCore
+import Framework.StatusSystems.UbiquitiStatusCore as UbiquitiStatusCore
 import Framework.SettingsSystems.UbiquitiRadioSettings as UbiquitiRadioSettings
 import Framework.InputSystems.SpaceNavControlSender as SpaceNavControlSender
 
@@ -108,6 +109,7 @@ class GroundStation(QtCore.QObject):
         self.__add_thread("Speed and Heading", SpeedAndHeading.SpeedAndHeadingIndication(self.shared_objects))
         self.__add_thread("Arm Indication", ArmIndication.ArmIndication(self.shared_objects))
         self.__add_thread("Rover Status", StatusCore.SensorCore(self.shared_objects))
+        self.__add_thread("Ubiquiti Status", UbiquitiStatusCore.UbiquitiStatus(self.shared_objects))
         self.__add_thread("Ubiquiti Radio Settings", UbiquitiRadioSettings.UbiquitiRadioSettings(self.shared_objects))
         self.__add_thread("Waypoints Coordinator", WaypointsCoordinator.WaypointsCoordinator(self.shared_objects))
         self.__add_thread("Spacenav Sender", SpaceNavControlSender.SpaceNavControlSender(self.shared_objects))

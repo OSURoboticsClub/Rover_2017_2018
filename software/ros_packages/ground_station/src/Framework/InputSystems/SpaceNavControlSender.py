@@ -110,7 +110,7 @@ class SpaceNavControlSender(QtCore.QThread):
 
             time_diff = time() - start_time
 
-            self.msleep(max(int(self.wait_time - time_diff), 0))
+            self.msleep(max(int((self.wait_time - time_diff) * 1000), 0))
 
     def process_spnav_events(self):
         event = spnav.spnav_poll_event()

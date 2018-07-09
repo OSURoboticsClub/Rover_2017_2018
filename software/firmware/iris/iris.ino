@@ -46,7 +46,7 @@ uint8_t message_count = 0;
 uint8_t failSafe;
 uint16_t lostFrames = 0;
 
-uint16_t telem_24v_scalar = 37500;
+uint16_t telem_24v_scalar = 36680;
 
 ////////// Class Instantiations //////////
 SBUS x8r(SBUS_HARDWARE_PORT);
