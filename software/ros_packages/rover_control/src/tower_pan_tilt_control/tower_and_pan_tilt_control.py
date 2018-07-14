@@ -16,16 +16,16 @@ from rover_control.msg import TowerPanTiltControlMessage
 #####################################
 # Global Variables
 #####################################
-NODE_NAME = "drive_control"
+NODE_NAME = "pan_tilt_and_tower_control"
 
-DEFAULT_PORT = "/dev/ttyUSB0"
+DEFAULT_PORT = "/dev/rover/ttyTowerAndPanTilt"
 DEFAULT_BAUD = 115200
 
 DEFAULT_INVERT = False
 
-DEFAULT_TOWER_PAN_TILT_CONTROL_TOPIC = "tower/control"
+DEFAULT_TOWER_PAN_TILT_CONTROL_TOPIC = "pan_tilt/control"
 
-NODE_ID = 1
+NODE_ID = 2
 
 COMMUNICATIONS_TIMEOUT = 0.01  # Seconds
 

@@ -16,7 +16,7 @@ from rover_control.msg import DriveCommandMessage, TowerPanTiltControlMessage
 GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
 
 DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
-DEFAULT_PAN_TILT_COMMAND_TOPIC = "/tower/control"
+DEFAULT_PAN_TILT_COMMAND_TOPIC = "/rover_control/pan_tilt/control"
 
 DRIVE_COMMAND_HERTZ = 15
 
@@ -31,8 +31,9 @@ CAMERA_CHANGE_TIME = 0.2
 GUI_ELEMENT_CHANGE_TIME = 0.2
 CAMERA_TOGGLE_CHANGE_TIME = 0.35
 
-PAN_TILT_X_AXIS_SCALAR = 5
+PAN_TILT_X_AXIS_SCALAR = 3
 PAN_TILT_Y_AXIS_SCALAR = 10
+
 
 #####################################
 # Controller Class Definition
