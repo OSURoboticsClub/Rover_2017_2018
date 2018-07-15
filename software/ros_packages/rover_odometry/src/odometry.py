@@ -75,9 +75,11 @@ class Odometry(object):
             imu = temp.get('imu', None)
 
             if gps:
+                print gps
                 self.broadcast_gps(gps)
 
             if imu:
+                # print imu
                 self.broadcast_imu(imu)
 
     def broadcast_gps(self, gps):

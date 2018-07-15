@@ -91,7 +91,7 @@ class SensorCore(QtCore.QThread):
         self.battery_status = rospy.Subscriber(BATTERY_TOPIC_NAME, BatteryStatusMessage, self.__battery_callback)
 
         self.camera_msg = CameraStatuses()
-        self.bogie_msg = BogieStatuses()
+        self.bogie_msg = None # BogieStatuses()
         self.FrSky_msg = FrSkyStatus()
         self.GPS_msg = GPSInfo()
         self.jetson_msg = JetsonInfo()
@@ -148,7 +148,7 @@ class SensorCore(QtCore.QThread):
             self.frsky_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
     def __jetson_callback(self, data):
-        self.jetson_cpu_update_ready__signal.emit("TX2 CPU\n" + str(data.jetson_CPU) + "%")
+        self.jetson_cpu_update_ready__signal.emit("TX2 CPU\n" + str(data.jetson_CPU) + " %")
 
         if data.jetson_CPU > 85:
             self.jetson_cpu_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
@@ -157,7 +157,7 @@ class SensorCore(QtCore.QThread):
         else:
             self.jetson_cpu_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
-        self.jetson_ram_update_ready__signal.emit("TX2 RAM\n" + str(data.jetson_RAM) + "%")
+        self.jetson_ram_update_ready__signal.emit("TX2 RAM\n" + str(data.jetson_RAM) + " %")
 
         if data.jetson_RAM > 79:
             self.jetson_ram_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
@@ -166,7 +166,7 @@ class SensorCore(QtCore.QThread):
         else:
             self.jetson_ram_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
-        self.jetson_gpu_temp_update_ready__signal.emit("TX2 TEMP\n" + str(data.jetson_GPU_temp) + "°C")
+        self.jetson_gpu_temp_update_ready__signal.emit("TX2 TEMP\n" + str(data.jetson_GPU_temp) + " °C")
 
         if data.jetson_GPU_temp > 64:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
@@ -175,7 +175,7 @@ class SensorCore(QtCore.QThread):
         else:
             self.jetson_gpu_temp_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
-        self.jetson_emmc_update_ready__signal.emit("TX2 EMMC\n" + str(data.jetson_EMMC) + "%")
+        self.jetson_emmc_update_ready__signal.emit("TX2 EMMC\n" + str(data.jetson_EMMC) + " %")
 
         if data.jetson_EMMC > 79:
             self.jetson_emmc_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
@@ -207,7 +207,7 @@ class SensorCore(QtCore.QThread):
         else:
             self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_RED)
 
-        self.battery_voltage_update_ready__signal.emit("Battery Voltage\n" + str(voltage) + "V")
+        self.battery_voltage_update_ready__signal.emit("Battery Voltage\n" + str(voltage) + " V")
 
     def __display_time(self):
         time = QtCore.QTime.currentTime()

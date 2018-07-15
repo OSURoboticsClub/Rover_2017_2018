@@ -13,7 +13,7 @@ import json
 #####################################
 # Global Variables
 #####################################
-THREAD_HERTZ = 2
+THREAD_HERTZ = 5
 
 ACCESS_POINT_IP = "192.168.1.20"  # The channel only has to be set on the access point. The staion will adjust.
 ACCESS_POINT_USER = "ubnt"

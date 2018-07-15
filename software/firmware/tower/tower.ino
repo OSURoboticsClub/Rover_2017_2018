@@ -2,9 +2,6 @@
 #include <ModbusRtu.h>
 #include <Adafruit_BNO055_t3.h>
 #include <ArduinoJson.h>
-#include "FastLED.h"
-
-#include <NMEAGPS.h>
 
 /*
    Imu/data (Imu)
@@ -44,7 +41,7 @@ enum HARDWARE {
   IMU_SDA = 18,
   IMU_SCL = 19,
 
-  WS2812_DATA = 11,
+  WHITE_LED_CONTROL = 11,
   C02_SENSOR = A7,
   MISC_PIN = A8,
 
@@ -52,7 +49,16 @@ enum HARDWARE {
 };
 
 enum MODBUS_REGISTERS {
-  DIRECTION = 0,  // Input
+  LED_CONTROL = 0,  // Input
+  CO2_READING_PPM = 1
+};
+
+enum LIGHT_STATES {
+  NO_CHANGE = 0,
+  LIGHT_OFF = 1,
+  LIGHT_FLASH = 2,
+  LIGHT_MED = 3,
+  LIGHT_HIGH = 4
 };
 
 #define GPS_SERIAL_PORT Serial3
@@ -88,13 +94,12 @@ Modbus slave(node_id, mobus_serial_port_number, HARDWARE::COMMS_RS485_EN);
 
 Adafruit_BNO055 bno = Adafruit_BNO055(WIRE_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_18_19, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_IMM);
 
-NMEAGPS gps;
-
 const char baud115200[] = "PUBX,41,1,3,3,115200,0";
 
 void setup() {
   // Debugging
   Serial.begin(9600);
+//  while (!Serial);
 
   // Raw pin setup
   setup_hardware();
@@ -134,6 +139,8 @@ void loop() {
   set_leds();
   send_imu_stream_line(root);
   process_gps_and_send_if_ready(root);
+  process_white_led_command();
+  get_co2_data();
 
   // Print JSON and newline
   root.printTo(GPS_IMU_STREAMING_PORT);
@@ -144,13 +151,14 @@ void loop() {
 
 void setup_hardware() {
   // Setup pins as inputs / outputs
-  pinMode(HARDWARE::WS2812_DATA, OUTPUT);
+  pinMode(HARDWARE::WHITE_LED_CONTROL, OUTPUT);
   pinMode(HARDWARE::C02_SENSOR, INPUT);
   pinMode(HARDWARE::MISC_PIN, OUTPUT);
 
   pinMode(HARDWARE::LED_BLUE_EXTRA, OUTPUT);
 
   // Set default pin states
+  digitalWrite(HARDWARE::WHITE_LED_CONTROL, LOW);
   digitalWrite(HARDWARE::LED_BLUE_EXTRA, LOW);
 
   // Set teensy to increased analog resolution
@@ -214,6 +222,52 @@ void process_gps_and_send_if_ready(JsonObject &root) {
 
     }
   }
+
+}
+
+void process_white_led_command() {
+  uint16_t light_command = modbus_data[MODBUS_REGISTERS::LED_CONTROL];
+
+
+  if (light_command == LIGHT_STATES::LIGHT_MED) {
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, HIGH);
+    delay(100);               // wait for a second
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, LOW);
+    delay(100);               // wait for a second
+  } else if (light_command == LIGHT_STATES::LIGHT_FLASH) {
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, HIGH);
+    delay(100);               // wait for a second
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, LOW);
+    delay(100);               // wait for a second
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, HIGH);
+    delay(100);               // wait for a second
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, LOW);
+    delay(100);
+  } else if (light_command == LIGHT_STATES::LIGHT_HIGH) {
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, HIGH);
+    delay(750);               // wait for a second
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, LOW);
+    delay(100);
+  } else if (light_command == LIGHT_STATES::LIGHT_OFF) {
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, HIGH);
+    delay(2000);               // wait for a second
+    digitalWrite(HARDWARE::WHITE_LED_CONTROL, LOW);
+    delay(2000);
+  }
+
+  modbus_data[MODBUS_REGISTERS::LED_CONTROL] = LIGHT_STATES::NO_CHANGE;
+}
+
+void get_co2_data() {
+  int voltage = ((analogRead(HARDWARE::C02_SENSOR) / 8192.0) * 3300);
+
+  if (voltage < 400 || voltage > 2000) {
+    modbus_data[MODBUS_REGISTERS::CO2_READING_PPM] = 9999;
+  } else {
+    modbus_data[MODBUS_REGISTERS::CO2_READING_PPM] = map(voltage, 400, 2000, 0, 5000);
+  }
+
+  //  Serial.println(modbus_data[MODBUS_REGISTERS::CO2_READING_PPM]);
 
 }
 

@@ -119,7 +119,7 @@ class DriveControl(object):
                 self.get_drive_status()
 
             except Exception, error:
-                print "Error occurred:", error
+                pass
 
             if (time() - self.bogie_last_seen) > BOGIE_LAST_SEEN_TIMEOUT:
                 print "Bogie not seen for", BOGIE_LAST_SEEN_TIMEOUT, "seconds. Exiting."
