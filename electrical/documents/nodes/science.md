@@ -19,7 +19,7 @@ Sends a signal to the didgital camera to control shoot and zoom.
 ### Bill of Materials
 
 [Bill of
-Materials](https://docs.google.com/spreadsheets/d/1dY48bTzPCWO-qP4mQwElCYWBNv3Bg6SGOoxIt3NPqik/edit?usp=sharing)
+Materials V1.1](https://docs.google.com/spreadsheets/d/1dY48bTzPCWO-qP4mQwElCYWBNv3Bg6SGOoxIt3NPqik/edit?usp=sharing)
 
 #### Design Files
 
