@@ -28,5 +28,6 @@ maker](https://workspace.circuitmaker.com/Projects/Details/Anthony-Grana/Sience-
 
 ### Known Issues
 
-The Drill motor controller will pull 5A but the curent power connector
-for the board can only handle 3A.
+1. The Drill motor controller will pull 5A but the curent power connector for the board can only handle 3A.
+2. For both RS 485 chips, the RX and TX pins need to be reversed.
+3. The RS 485 for the soil sensor is connected to the CAN RX TX instead of the Serial RX TX.
