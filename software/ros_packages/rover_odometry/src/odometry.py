@@ -7,6 +7,7 @@ import rospy
 import serial
 from time import time, sleep
 import json
+import re
 
 from nmea_msgs.msg import Sentence
 from sensor_msgs.msg import Imu
@@ -75,12 +76,41 @@ class Odometry(object):
             imu = temp.get('imu', None)
 
             if gps:
-                print gps
+                # ###### THIS IS HERE TO DEAL WITH UBLOX GPS #####
+                if "GNGGA" in gps:
+                    gps = gps.replace("GNGGA", "GPGGA")
+                    gps = gps[:-2] + str(self.chksum_nmea(gps))[2:]
+                # print gps
+                # #####
+
                 self.broadcast_gps(gps)
 
             if imu:
                 # print imu
                 self.broadcast_imu(imu)
+
+    @staticmethod
+    def chksum_nmea(sentence):
+        # String slicing: Grabs all the characters
+        # between '$' and '*' and nukes any lingering
+        # newline or CRLF
+        chksumdata = re.sub("(\n|\r\n)", "", sentence[sentence.find("$") + 1:sentence.find("*")])
+
+        # Initializing our first XOR value
+        csum = 0
+
+        # For each char in chksumdata, XOR against the previous
+        # XOR'd char.  The final XOR of the last char will be our
+        # checksum to verify against the checksum we sliced off
+        # the NMEA sentence
+
+        for c in chksumdata:
+            # XOR'ing value of csum against the next char in line
+            # and storing the new XOR value in csum
+            csum ^= ord(c)
+
+        # Do we have a validated sentence?
+        return hex(csum)
 
     def broadcast_gps(self, gps):
         message = Sentence()

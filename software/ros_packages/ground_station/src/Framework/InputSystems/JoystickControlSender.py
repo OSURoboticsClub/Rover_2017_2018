@@ -18,7 +18,7 @@ GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
 DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
 DEFAULT_PAN_TILT_COMMAND_TOPIC = "/rover_control/pan_tilt/control"
 
-DRIVE_COMMAND_HERTZ = 15
+DRIVE_COMMAND_HERTZ = 20
 
 Y_AXIS_DEADBAND = 0.05
 X_AXIS_DEADBAND = 0.05
@@ -32,7 +32,7 @@ GUI_ELEMENT_CHANGE_TIME = 0.2
 CAMERA_TOGGLE_CHANGE_TIME = 0.35
 
 PAN_TILT_X_AXIS_SCALAR = 3
-PAN_TILT_Y_AXIS_SCALAR = 10
+PAN_TILT_Y_AXIS_SCALAR = 20
 
 
 #####################################
@@ -168,6 +168,9 @@ class JoystickControlSender(QtCore.QThread):
         # Publishers
         self.drive_command_publisher = rospy.Publisher(DEFAULT_DRIVE_COMMAND_TOPIC, DriveCommandMessage, queue_size=1)
         self.tower_pan_tilt_command_publisher = rospy.Publisher(DEFAULT_PAN_TILT_COMMAND_TOPIC, TowerPanTiltControlMessage, queue_size=1)
+
+        self.last_hat_x_was_movement = False
+        self.last_hat_y_was_movement = False
 
         self.wait_time = 1.0 / DRIVE_COMMAND_HERTZ
 

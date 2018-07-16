@@ -7,7 +7,7 @@
             <param name="destination_port" value="17100" />
             <rosparam param="topics">
                 [{name: "/rover_control/command_control/ground_station_drive", compress: true, rate: 15.0},
-                {name: "/rover_control/pan_tilt/control", compress: true, rate: 15.0}]
+                {name: "/rover_control/pan_tilt/control", compress: true, rate: 20.0}]
             </rosparam>
         </node>
 

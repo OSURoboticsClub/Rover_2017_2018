@@ -12,11 +12,14 @@ import rospy
 
 # Custom Imports
 import RoverMap
+from sensor_msgs.msg import NavSatFix
 
 #####################################
 # Global Variables
 #####################################
 # put some stuff here later so you can remember
+
+GPS_POSITION_TOPIC = "/rover_odometry/fix"
 
 
 class RoverMapCoordinator(QtCore.QThread):
@@ -36,6 +39,8 @@ class RoverMapCoordinator(QtCore.QThread):
 
         self.logger = logging.getLogger("groundstation")
 
+        self.gps_position_subscriber = rospy.Subscriber(GPS_POSITION_TOPIC, NavSatFix, self.gps_position_updated_callback)
+
         self.run_thread_flag = True
         self.setup_map_flag = True
 
@@ -46,6 +51,9 @@ class RoverMapCoordinator(QtCore.QThread):
 
         self.map_pixmap = None
         self.last_map_pixmap_cache_key = None
+
+        self.longitude = None
+        self.latitude = None
 
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
@@ -72,13 +80,13 @@ class RoverMapCoordinator(QtCore.QThread):
     def _map_setup(self):
         self.google_maps_object = RoverMap.GMapsStitcher(1280,
                                                          720,
-                                                         44.567161,
-                                                         -123.278432,
-                                                         18,
+                                                         44.5675721667,
+                                                         -123.2750535,
+                                                         20,  # FIXME: Used to be 18
                                                          'satellite',
                                                          None, 20)
         self.overlay_image_object = (
-            RoverMap.OverlayImage(44.567161, -123.278432,
+            RoverMap.OverlayImage(44.5675721667, -123.2750535,
                                   self.google_maps_object.northwest,
                                   self.google_maps_object.southeast,
                                   self.google_maps_object.big_image.size[0],
@@ -136,15 +144,22 @@ class RoverMapCoordinator(QtCore.QThread):
         return temp_list
 
     def update_overlay(self):
-        longitude = 44.567161
-        latitude = -123.278432
-        navigation_list = self._get_table_elements(self.navigation_label)
-        # landmark_list = self._get_table_elements(self.landmark_label)
-        landmark_list = []
-        self.overlay_image = self.overlay_image_object.update_new_location(
-                                                      latitude,
-                                                      longitude,
-                                                      70,
-                                                      navigation_list,
-                                                      landmark_list)
-        # self.overlay_image.save("something.png")
+        if self.latitude and self.longitude:
+            longitude = self.latitude
+            latitude = self.longitude
+
+            print self.longitude, "  :  ", self.latitude
+            navigation_list = self._get_table_elements(self.navigation_label)
+            # landmark_list = self._get_table_elements(self.landmark_label)
+            landmark_list = []
+            self.overlay_image = self.overlay_image_object.update_new_location(
+                                                          latitude,
+                                                          longitude,
+                                                          70,
+                                                          navigation_list,
+                                                          landmark_list)
+            # self.overlay_image.save("something.png")
+
+    def gps_position_updated_callback(self, data):
+        self.latitude = data.latitude
+        self.longitude = data.longitude
