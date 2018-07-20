@@ -5,6 +5,7 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PIL.ImageQt import ImageQt
 from PIL import Image
+import numpy
 
 import logging
 
@@ -145,20 +146,21 @@ class RoverMapCoordinator(QtCore.QThread):
 
     def update_overlay(self):
         if self.latitude and self.longitude:
-            longitude = self.latitude
-            latitude = self.longitude
+            if not numpy.isnan(self.latitude) and not numpy.isnan(self.longitude):
 
-            print self.longitude, "  :  ", self.latitude
-            navigation_list = self._get_table_elements(self.navigation_label)
-            # landmark_list = self._get_table_elements(self.landmark_label)
-            landmark_list = []
-            self.overlay_image = self.overlay_image_object.update_new_location(
-                                                          latitude,
-                                                          longitude,
-                                                          70,
-                                                          navigation_list,
-                                                          landmark_list)
-            # self.overlay_image.save("something.png")
+                longitude = self.latitude
+                latitude = self.longitude
+
+                navigation_list = self._get_table_elements(self.navigation_label)
+                # landmark_list = self._get_table_elements(self.landmark_label)
+                landmark_list = []
+                self.overlay_image = self.overlay_image_object.update_new_location(
+                                                              latitude,
+                                                              longitude,
+                                                              70,
+                                                              navigation_list,
+                                                              landmark_list)
+                # self.overlay_image.save("something.png")
 
     def gps_position_updated_callback(self, data):
         self.latitude = data.latitude

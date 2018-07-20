@@ -36,6 +36,8 @@ class RoverVideoCoordinator(QtCore.QThread):
 
     update_element_stylesheet__signal = QtCore.pyqtSignal()
 
+    pan_tilt_selection_changed__signal = QtCore.pyqtSignal(str)
+
     def __init__(self, shared_objects):
         super(RoverVideoCoordinator, self).__init__()
 
@@ -81,6 +83,9 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.msleep(3000)
 
         # Setup cameras
+        self.main_nav_index = -1
+        self.chassis_index = -1
+
         self.__get_cameras()
         self.__setup_video_threads()
 
@@ -105,6 +110,8 @@ class RoverVideoCoordinator(QtCore.QThread):
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
 
+        self.__broadcast_current_pan_tilt_selection()
+
         while self.run_thread_flag:
             self.__set_max_resolutions()
             self.__toggle_background_cameras_if_needed()
@@ -114,6 +121,22 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.__wait_for_camera_threads()
 
         self.logger.debug("Stopping Video Coordinator Thread")
+
+    def __broadcast_current_pan_tilt_selection(self):
+        setting = None
+        if self.current_label_for_joystick_adjust == 0:  # primary
+            setting = self.primary_label_current_setting
+        elif self.current_label_for_joystick_adjust == 1:  # secondary
+            setting = self.secondary_label_current_setting
+        elif self.current_label_for_joystick_adjust == 2:  # tertiary
+            setting = self.tertiary_label_current_setting
+
+        if setting == self.main_nav_index:
+            self.pan_tilt_selection_changed__signal.emit("tower_pan_tilt")
+        elif setting == self.chassis_index:
+            self.pan_tilt_selection_changed__signal.emit("chassis_pan_tilt")
+        else:
+            self.pan_tilt_selection_changed__signal.emit("no_pan_tilt")
 
     def __set_max_resolutions(self):
         if self.set_max_resolutions_flag:
@@ -178,7 +201,23 @@ class RoverVideoCoordinator(QtCore.QThread):
             if camera in names:
                 names.remove(camera)
 
-        self.valid_cameras = list(names)
+        self.valid_cameras = []
+        current_count = 0
+
+        if "main_navigation" in names:
+            self.valid_cameras.append("main_navigation")
+            self.main_nav_index = current_count
+            current_count += 1
+
+        if "chassis" in names:
+            self.valid_cameras.append("chassis")
+            self.chassis_index = current_count
+
+        if "undercarriage" in names:
+            self.valid_cameras.append("undercarriage")
+
+        if "end_effector" in names:
+            self.valid_cameras.append("end_effector")
 
     def __setup_video_threads(self):
         for camera in self.valid_cameras:
@@ -275,15 +314,19 @@ class RoverVideoCoordinator(QtCore.QThread):
         else:
             self.current_label_for_joystick_adjust = new_selection
 
+        self.__broadcast_current_pan_tilt_selection()
+
         self.update_element_stylesheet__signal.emit()
 
     def on_camera_selection_for_current_gui_element_changed(self, direction):
-        if self.current_label_for_joystick_adjust == 0: # primary
+        if self.current_label_for_joystick_adjust == 0:  # primary
             self.primary_label_current_setting = (self.primary_label_current_setting + direction) % len(self.valid_cameras)
         elif self.current_label_for_joystick_adjust == 1:  # secondary
             self.secondary_label_current_setting = (self.secondary_label_current_setting + direction) % len(self.valid_cameras)
         elif self.current_label_for_joystick_adjust == 2:  # tertiary
             self.tertiary_label_current_setting = (self.tertiary_label_current_setting + direction) % len(self.valid_cameras)
+
+        self.__broadcast_current_pan_tilt_selection()
 
         self.set_max_resolutions_flag = True
         self.update_element_stylesheet__signal.emit()

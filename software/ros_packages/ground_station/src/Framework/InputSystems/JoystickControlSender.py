@@ -16,7 +16,8 @@ from rover_control.msg import DriveCommandMessage, TowerPanTiltControlMessage
 GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
 
 DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
-DEFAULT_PAN_TILT_COMMAND_TOPIC = "/rover_control/pan_tilt/control"
+DEFAULT_TOWER_PAN_TILT_COMMAND_TOPIC = "/rover_control/tower/pan_tilt/control"
+DEFAULT_CHASSIS_PAN_TILT_COMMAND_TOPIC = "/rover_control/chassis/pan_tilt/control"
 
 DRIVE_COMMAND_HERTZ = 20
 
@@ -31,8 +32,11 @@ CAMERA_CHANGE_TIME = 0.2
 GUI_ELEMENT_CHANGE_TIME = 0.2
 CAMERA_TOGGLE_CHANGE_TIME = 0.35
 
-PAN_TILT_X_AXIS_SCALAR = 3
-PAN_TILT_Y_AXIS_SCALAR = 20
+TOWER_PAN_TILT_X_AXIS_SCALAR = 2
+TOWER_PAN_TILT_Y_AXIS_SCALAR = 15
+
+CHASSIS_PAN_TILT_X_AXIS_SCALAR = 15
+CHASSIS_PAN_TILT_Y_AXIS_SCALAR = 15
 
 
 #####################################
@@ -67,12 +71,12 @@ class LogitechJoystick(QtCore.QThread):
             "five_pressed": 0,
             "six_pressed": 0,
 
+            "seven_pressed": 0,
+            "eight_pressed": 0,
+            "nine_pressed": 0,
+            "ten_pressed": 0,
             "eleven_pressed": 0,
             "twelve_pressed": 0,
-            "thirteen_pressed": 0,
-            "fourteen_pressed": 0,
-            "fifteen_pressed": 0,
-            "sixteen_pressed": 0,
         }
 
         self.raw_mapping_to_class_mapping = {
@@ -91,12 +95,12 @@ class LogitechJoystick(QtCore.QThread):
             "BTN_TOP2": "five_pressed",
             "BTN_PINKIE": "six_pressed",
 
+            "BTN_BASE": "seven_pressed",
+            "BTN_BASE2": "eight_pressed",
+            "BTN_BASE3": "nine_pressed",
+            "BTN_BASE4": "ten_pressed",
             "BTN_BASE5": "eleven_pressed",
-            "BTN_BASE6": "twelve_pressed",
-            "BTN_BASE3": "thirteen_pressed",
-            "BTN_BASE4": "fourteen_pressed",
-            "BTN_BASE": "fifteen_pressed",
-            "BTN_BASE2": "sixteen_pressed",
+            "BTN_BASE6": "twelve_pressed"
         }
 
         self.ready = False
@@ -125,6 +129,7 @@ class LogitechJoystick(QtCore.QThread):
             events = self.gamepad.read()
 
             for event in events:
+                # print event.code
                 if event.code in self.raw_mapping_to_class_mapping:
                     self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
 
@@ -148,6 +153,7 @@ class JoystickControlSender(QtCore.QThread):
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
+        self.video_coordinator = self.shared_objects["threaded_classes"]["Video Coordinator"]
         self.right_screen = self.shared_objects["screens"]["right_screen"]
         self.speed_limit_progress_bar = self.right_screen.speed_limit_progress_bar  # type: QtWidgets.QProgressBar
         self.left_drive_progress_bar = self.right_screen.left_drive_progress_bar  # type: QtWidgets.QProgressBar
@@ -167,7 +173,12 @@ class JoystickControlSender(QtCore.QThread):
         # ########## Class Variables ##########
         # Publishers
         self.drive_command_publisher = rospy.Publisher(DEFAULT_DRIVE_COMMAND_TOPIC, DriveCommandMessage, queue_size=1)
-        self.tower_pan_tilt_command_publisher = rospy.Publisher(DEFAULT_PAN_TILT_COMMAND_TOPIC, TowerPanTiltControlMessage, queue_size=1)
+        self.tower_pan_tilt_command_publisher = rospy.Publisher(DEFAULT_TOWER_PAN_TILT_COMMAND_TOPIC,
+                                                                TowerPanTiltControlMessage, queue_size=1)
+        self.chassis_pan_tilt_command_publisher = rospy.Publisher(DEFAULT_CHASSIS_PAN_TILT_COMMAND_TOPIC,
+                                                                  TowerPanTiltControlMessage, queue_size=1)
+
+        self.current_pan_tilt_selection = "no_pan_tilt"
 
         self.last_hat_x_was_movement = False
         self.last_hat_y_was_movement = False
@@ -183,7 +194,6 @@ class JoystickControlSender(QtCore.QThread):
 
     def run(self):
         while self.run_thread_flag:
-
             start_time = time()
 
             self.check_and_set_pause_state()
@@ -197,6 +207,8 @@ class JoystickControlSender(QtCore.QThread):
         self.set_speed_limit__signal.connect(self.speed_limit_progress_bar.setValue)
         self.set_left_drive_output__signal.connect(self.left_drive_progress_bar.setValue)
         self.set_right_drive_output__signal.connect(self.right_drive_progress_bar.setValue)
+
+        self.video_coordinator.pan_tilt_selection_changed__signal.connect(self.on_pan_tilt_selection_changed__slot)
 
     def check_and_set_pause_state(self):
         thumb_pressed = self.joystick.controller_states["thumb_pressed"]
@@ -249,14 +261,31 @@ class JoystickControlSender(QtCore.QThread):
             self.last_camera_toggle_time = time()
 
     def publish_pan_tilt_control_commands(self):
+        button_eight = self.joystick.controller_states["seven_pressed"]
         hat_x = self.joystick.controller_states["hat_x_axis"]
         hat_y = self.joystick.controller_states["hat_y_axis"]
 
-        pan_tilt_message = TowerPanTiltControlMessage()
-        pan_tilt_message.relative_pan_adjustment = hat_x * PAN_TILT_X_AXIS_SCALAR
-        pan_tilt_message.relative_tilt_adjustment = -(hat_y * PAN_TILT_Y_AXIS_SCALAR)
+        if (hat_x == 0 and not self.last_hat_x_was_movement) and (
+                hat_y == 0 and not self.last_hat_y_was_movement) and not button_eight:
+            return
 
-        self.tower_pan_tilt_command_publisher.publish(pan_tilt_message)
+        self.last_hat_x_was_movement = True if hat_x != 0 else False
+        self.last_hat_y_was_movement = True if hat_y != 0 else False
+
+        pan_tilt_message = TowerPanTiltControlMessage()
+
+        if button_eight:
+            pan_tilt_message.should_center = 1
+
+        if self.current_pan_tilt_selection == "tower_pan_tilt":
+            pan_tilt_message.relative_pan_adjustment = hat_x * TOWER_PAN_TILT_X_AXIS_SCALAR
+            pan_tilt_message.relative_tilt_adjustment = -(hat_y * TOWER_PAN_TILT_Y_AXIS_SCALAR)
+            self.tower_pan_tilt_command_publisher.publish(pan_tilt_message)
+
+        elif self.current_pan_tilt_selection == "chassis_pan_tilt":
+            pan_tilt_message.relative_pan_adjustment = hat_x * CHASSIS_PAN_TILT_X_AXIS_SCALAR
+            pan_tilt_message.relative_tilt_adjustment = -(hat_y * CHASSIS_PAN_TILT_Y_AXIS_SCALAR)
+            self.chassis_pan_tilt_command_publisher.publish(pan_tilt_message)
 
     def get_drive_message(self, throttle_axis):
         drive_message = DriveCommandMessage()
@@ -277,6 +306,9 @@ class JoystickControlSender(QtCore.QThread):
         drive_message.drive_twist.angular.z = twist
 
         return drive_message
+
+    def on_pan_tilt_selection_changed__slot(self, selection):
+        self.current_pan_tilt_selection = selection
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
