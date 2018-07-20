@@ -19,14 +19,22 @@ Sends a signal to the didgital camera to control shoot and zoom.
 ### Bill of Materials
 
 [Bill of
-Materials](https://docs.google.com/spreadsheets/d/1dY48bTzPCWO-qP4mQwElCYWBNv3Bg6SGOoxIt3NPqik/edit?usp=sharing)
+Materials V1.1](https://docs.google.com/spreadsheets/d/1dY48bTzPCWO-qP4mQwElCYWBNv3Bg6SGOoxIt3NPqik/edit?usp=sharing)
 
 #### Design Files
 
 [Science node on circuit
 maker](https://workspace.circuitmaker.com/Projects/Details/Anthony-Grana/Sience-Node)
 
-### Known Issues
+[V1.1](files/SienceNode.Zip)
 
-The Drill motor controller will pull 5A but the curent power connector
-for the board can only handle 3A.
+### Known Issues
+V1.1
+
+1. The Drill motor controller will pull 5A but the curent power connector for the board can only handle 3A.
+2. For both RS 485 chips, the RX and TX pins need to be reversed.
+3. The RS 485 for the soil sensor is connected to the CAN RX TX instead of the Serial RX TX.
+
+V1.2
+
+No Known Issues
