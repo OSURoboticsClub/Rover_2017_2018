@@ -5,17 +5,17 @@
             <param name="device_path" value="/dev/rover/camera_undercarriage"/>
         </node>
 
-        <!-- Start Main Navigation Camera -->
+        <!--&lt;!&ndash; Start Main Navigation Camera &ndash;&gt;-->
         <node name="main_navigation" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 2" respawn="true" output="screen" >
             <param name="device_path" value="/dev/rover/camera_main_navigation" />
         </node>
 
-        <!-- Start Chassis Camera -->
+        <!--&lt;!&ndash; Start Chassis Camera &ndash;&gt;-->
         <node name="chassis" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 3" respawn="true" output="screen" >
             <param name="device_path" value="/dev/rover/camera_chassis" />
         </node>
 
-        <!-- Start End Effector Camera -->
+        <!--&lt;!&ndash; Start End Effector Camera &ndash;&gt;-->
         <node name="end_effector" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 4" respawn="true" output="screen" >
             <param name="is_rtsp_camera" value="True" />
             <param name="device_path" value="rtsp://192.168.1.11" />

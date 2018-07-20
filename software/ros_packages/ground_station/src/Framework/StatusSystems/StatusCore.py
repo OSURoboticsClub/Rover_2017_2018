@@ -7,6 +7,8 @@ from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from std_msgs.msg import Empty
 import PIL.Image
 from PIL.ImageQt import ImageQt
+
+from std_msgs.msg import UInt16
 # import Timer
 
 REQUEST_UPDATE_TOPIC = "/rover_status/update_requested"
@@ -18,6 +20,12 @@ FRSKY_TOPIC_NAME = "/rover_status/frsky_status"
 GPS_TOPIC_NAME = "/rover_status/gps_status"
 JETSON_TOPIC_NAME = "/rover_status/jetson_status"
 MISC_TOPIC_NAME = "/rover_status/misc_status"
+BATTERY_TOPIC_NAME = "/rover_status/battery_status"
+CO2_TOPIC_NAME = "/rover_control/tower/status/co2"
+
+COLOR_GREEN = "background-color: darkgreen; border: 1px solid black;"
+COLOR_ORANGE = "background-color: orange; border: 1px solid black;"
+COLOR_RED = "background-color: darkred; border: 1px solid black;"
 
 
 class SensorCore(QtCore.QThread):
@@ -35,6 +43,13 @@ class SensorCore(QtCore.QThread):
     bogie_connection_2_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
     bogie_connection_3_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
 
+    gps_fix_update_ready__signal = QtCore.pyqtSignal(str)
+    gps_heading_valid_update_ready__signal = QtCore.pyqtSignal(str)
+    gps_num_satellites_update_ready__signal = QtCore.pyqtSignal(str)
+    gps_accuracy_update_ready__signal = QtCore.pyqtSignal(str)
+
+    co2_levels_update_ready__signal = QtCore.pyqtSignal(str)
+
     camera_zed_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
     camera_under_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
     camera_chassis_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
@@ -43,6 +58,9 @@ class SensorCore(QtCore.QThread):
     gps_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
 
     frsky_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
+    battery_voltage_update_ready__signal = QtCore.pyqtSignal(str)
+    battery_voltage_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
 
     def __init__(self, shared_objects):
         super(SensorCore, self).__init__()
@@ -62,7 +80,10 @@ class SensorCore(QtCore.QThread):
         self.frsky = self.screen_main_window.frsky  # type: QtWidgets.QLabel
         self.nav_mouse = self.screen_main_window.nav_mouse  # type: QtWidgets.QLabel
         self.joystick = self.screen_main_window.joystick  # type: QtWidgets.QLabel
-        self.gps = self.screen_main_window.gps  # type: QtWidgets.QLabel
+        self.gps_fix_label = self.screen_main_window.gps_fix_label  # type: QtWidgets.QLabel
+        self.gps_heading_valid_label = self.screen_main_window.gps_heading_valid_label  # type: QtWidgets.QLabel
+        self.gps_num_satellites_label = self.screen_main_window.gps_num_satellites_label  # type: QtWidgets.QLabel
+        self.gps_accuracy_label = self.screen_main_window.gps_accuracy_label  # type: QtWidgets.QLabel
         self.zed = self.screen_main_window.zed  # type: QtWidgets.QLabel
         self.main_cam = self.screen_main_window.main_cam  # type: QtWidgets.QLabel
         self.chassis_cam = self.screen_main_window.chassis_cam  # type: QtWidgets.QLabel
@@ -72,6 +93,8 @@ class SensorCore(QtCore.QThread):
         self.ram = self.screen_main_window.ram  # type: QtWidgets.QLabel
         self.gpu_temp = self.screen_main_window.gpu_temp  # type: QtWidgets.QLabel
         self.emmc = self.screen_main_window.emmc  # type: QtWidgets.QLabel
+        self.battery = self.screen_main_window.battery_voltage_status_label  # type: QtWidgets.QLabel
+        self.co2_levels_label = self.screen_main_window.co2_levels_label  # type: QtWidgets.QLabel
 
         # ########## subscriptions pulling data from system_statuses_node.py ##########
         self.camera_status = rospy.Subscriber(CAMERA_TOPIC_NAME, CameraStatuses, self.__camera_callback)
@@ -79,13 +102,16 @@ class SensorCore(QtCore.QThread):
         self.gps_status = rospy.Subscriber(GPS_TOPIC_NAME, GPSInfo, self.__gps_callback)
         self.jetson_status = rospy.Subscriber(JETSON_TOPIC_NAME, JetsonInfo, self.__jetson_callback)
         self.misc_status = rospy.Subscriber(MISC_TOPIC_NAME, MiscStatuses, self.__misc_callback)
+        self.battery_status = rospy.Subscriber(BATTERY_TOPIC_NAME, BatteryStatusMessage, self.__battery_callback)
+        self.co2_status = rospy.Subscriber(CO2_TOPIC_NAME, UInt16, self.__co2_callback)
 
         self.camera_msg = CameraStatuses()
-        self.bogie_msg = BogieStatuses()
+        self.bogie_msg = None # BogieStatuses()
         self.FrSky_msg = FrSkyStatus()
         self.GPS_msg = GPSInfo()
         self.jetson_msg = JetsonInfo()
         self.misc_msg = MiscStatuses()
+        self.battery_msg = BatteryStatusMessage()
 
         self.update_requester = rospy.Publisher(REQUEST_UPDATE_TOPIC, Empty, queue_size=10)
 
@@ -102,84 +128,94 @@ class SensorCore(QtCore.QThread):
 
         if data.camera_zed is False:
             # self.zed.setStyleSheet("background-color: red;")
-            self.camera_zed_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            self.camera_zed_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            # self.zed.setStyleSheet("background-color: darkgreen;")
-            self.camera_zed_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            # self.zed.setStyleSheet(COLOR_GREEN)
+            self.camera_zed_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
         if data.camera_undercarriage is False:
-            # self.under_cam.setStyleSheet("background-color: darkred;")
-            self.camera_under_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            # self.under_cam.setStyleSheet(COLOR_RED)
+            self.camera_under_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            # self.under_cam.setStyleSheet("background-color: darkgreen;")
-            self.camera_under_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            # self.under_cam.setStyleSheet(COLOR_GREEN)
+            self.camera_under_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
         if data.camera_chassis is False:
-            # self.chassis_cam.setStyleSheet("background-color: darkred;")
-            self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            # self.chassis_cam.setStyleSheet(COLOR_RED)
+            self.camera_chassis_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            # self.chassis_cam.setStyleSheet("background-color: darkgreen;")
-            self.camera_chassis_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            # self.chassis_cam.setStyleSheet(COLOR_GREEN)
+            self.camera_chassis_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
         if data.camera_main_navigation is False:
-            # self.main_cam.setStyleSheet("background-color: darkred;")
-            self.camera_main_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            # self.main_cam.setStyleSheet(COLOR_RED)
+            self.camera_main_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            # self.main_cam.setStyleSheet("background-color: darkgreen;")
-            self.camera_main_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            # self.main_cam.setStyleSheet(COLOR_GREEN)
+            self.camera_main_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
     def __frsky_callback(self, data):
         self.FrSky_msg.FrSky_controller_connection_status = data.FrSky_controller_connection_status
 
         if self.FrSky_msg.FrSky_controller_connection_status is False:
-            self.frsky_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            self.frsky_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            self.frsky_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            self.frsky_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
     def __jetson_callback(self, data):
-        self.jetson_cpu_update_ready__signal.emit("TX2 CPU\n" + str(data.jetson_CPU) + "%")
+        self.jetson_cpu_update_ready__signal.emit("TX2 CPU\n" + str(data.jetson_CPU) + " %")
 
         if data.jetson_CPU > 85:
-            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: orange;")
+            self.jetson_cpu_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
         elif data.jetson_CPU > 95:
-            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            self.jetson_cpu_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            self.jetson_cpu_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            self.jetson_cpu_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
-        self.jetson_ram_update_ready__signal.emit("TX2 RAM\n" + str(data.jetson_RAM) + "%")
+        self.jetson_ram_update_ready__signal.emit("TX2 RAM\n" + str(data.jetson_RAM) + " %")
 
         if data.jetson_RAM > 79:
-            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: orange;")
+            self.jetson_ram_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
         elif data.jetson_RAM > 89:
-            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            self.jetson_ram_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            self.jetson_ram_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            self.jetson_ram_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
-        self.jetson_gpu_temp_update_ready__signal.emit("TX2 TEMP\n" + str(data.jetson_GPU_temp) + "°C")
+        self.jetson_gpu_temp_update_ready__signal.emit("TX2 TEMP\n" + str(data.jetson_GPU_temp) + " °C")
 
         if data.jetson_GPU_temp > 64:
-            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: orange;")
+            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
         elif data.jetson_GPU_temp > 79:
-            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            self.jetson_gpu_temp_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
-        self.jetson_emmc_update_ready__signal.emit("TX2 EMMC\n" + str(data.jetson_EMMC) + "%")
+        self.jetson_emmc_update_ready__signal.emit("TX2 EMMC\n" + str(data.jetson_EMMC) + " %")
 
         if data.jetson_EMMC > 79:
-            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: orange;")
+            self.jetson_emmc_stylesheet_change_ready__signal.emit(COLOR_ORANGE)
         elif data.jetson_EMMC > 89:
-            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: darkred;")
+            self.jetson_emmc_stylesheet_change_ready__signal.emit(COLOR_RED)
         else:
-            self.jetson_emmc_stylesheet_change_ready__signal.emit("background-color: darkgreen")
+            self.jetson_emmc_stylesheet_change_ready__signal.emit(COLOR_GREEN)
 
     def __gps_callback(self, data):
-        self.GPS_msg.UTC_GPS_time = data.UTC_GPS_time
 
-        if not data.GPS_connection_status:
-            self.gps_stylesheet_change_ready__signal.emit("background-color: darkred;")
+        if data.gps_connected:
+            self.gps_fix_update_ready__signal.emit("GPS Fix\nTrue")
+            self.gps_stylesheet_change_ready__signal.emit(COLOR_GREEN)
+
         else:
-            self.gps_stylesheet_change_ready__signal.emit("background-color: darkgreen;")
+            self.gps_stylesheet_change_ready__signal.emit(COLOR_RED)
+            self.gps_fix_update_ready__signal.emit("GPS Fix\nFalse")
+
+        if data.gps_heading != -1:
+            self.gps_heading_valid_update_ready__signal.emit("GPS Heading Valid\nTrue")
+        else:
+            self.gps_heading_valid_update_ready__signal.emit("GPS Heading Valid\nFalse")
+
+        self.gps_num_satellites_update_ready__signal.emit("GPS Satellites\n%s" % data.num_satellites)
+        self.gps_accuracy_update_ready__signal.emit("GPS Accuracy\n%2.2f m" % data.horizontal_dilution)
 
     def __misc_callback(self, data):
         self.misc_msg.arm_connection_status = data.arm_connection_status
@@ -187,6 +223,22 @@ class SensorCore(QtCore.QThread):
         self.misc_msg.sample_containment_connection_status = data.sample_containment_connection_status
         self.misc_msg.tower_connection_status = data.tower_connection_status
         self.misc_msg.chassis_pan_tilt_connection_status = data.chassis_pan_tilt_connection_status
+
+    def __battery_callback(self, data):
+        voltage = data.battery_voltage / 1000.0
+
+        if voltage >= 20:
+            self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_GREEN)
+        else:
+            self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_RED)
+
+        self.battery_voltage_update_ready__signal.emit("Battery Voltage\n" + str(voltage) + " V")
+
+    def __co2_callback(self, data):
+        if data.data != 9999:
+            self.co2_levels_update_ready__signal.emit("CO2 Levels\n%d ppm" % data.data)
+        else:
+            self.co2_levels_update_ready__signal.emit("CO2 Levels\n--- ppm")
 
     def __display_time(self):
         time = QtCore.QTime.currentTime()
@@ -212,8 +264,18 @@ class SensorCore(QtCore.QThread):
         self.camera_under_stylesheet_change_ready__signal.connect(self.under_cam.setStyleSheet)
         self.camera_chassis_stylesheet_change_ready__signal.connect(self.chassis_cam.setStyleSheet)
         self.camera_main_stylesheet_change_ready__signal.connect(self.main_cam.setStyleSheet)
-        self.gps_stylesheet_change_ready__signal.connect(self.gps.setStyleSheet)
+        self.gps_stylesheet_change_ready__signal.connect(self.gps_fix_label.setStyleSheet)
         self.frsky_stylesheet_change_ready__signal.connect(self.frsky.setStyleSheet)
+
+        self.gps_fix_update_ready__signal.connect(self.gps_fix_label.setText)
+        self.gps_heading_valid_update_ready__signal.connect(self.gps_heading_valid_label.setText)
+        self.gps_num_satellites_update_ready__signal.connect(self.gps_num_satellites_label.setText)
+        self.gps_accuracy_update_ready__signal.connect(self.gps_accuracy_label.setText)
+
+        self.co2_levels_update_ready__signal.connect(self.co2_levels_label.setText)
+
+        self.battery_voltage_update_ready__signal.connect(self.battery.setText)
+        self.battery_voltage_stylesheet_change_ready__signal.connect(self.battery.setStyleSheet)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)

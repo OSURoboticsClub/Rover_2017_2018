@@ -36,7 +36,7 @@ DEFAULT_IRIS_STATUS_TOPIC_NAME = "/rover_control/iris_status"
 DEFAULT_BOGIE_LEFT_TOPIC_NAME = '/rover_control/drive_status/left'
 DEFAULT_BOGIE_RIGHT_TOPIC_NAME = '/rover_control/drive_status/right'
 DEFAULT_BOGIE_REAR_TOPIC_NAME = '/rover_control/drive_status/rear'
-DEFAULT_GPS_NMEA_TOPIC_NAME = '/nmea_sentence'
+DEFAULT_GPS_NMEA_TOPIC_NAME = '/rover_odometry/gps/sentence'
 
 
 #####################################
@@ -130,7 +130,11 @@ class SystemStatuses:
     # Pulls the UTC GPS Information (WIP v2.0)
     def __set_gps_info(self, data):
         self.GPS_msg.gps_connected = True
-        self.Nmea_Message = pynmea2.parse(data.sentence)
+        try:
+            self.Nmea_Message = pynmea2.parse(data.sentence)
+        except:
+            return
+
         if self.Nmea_Message.sentence_type == 'GGA':
             if int(self.Nmea_Message.gps_qual) != 0:
                 self.GPS_msg.gps_fix = True

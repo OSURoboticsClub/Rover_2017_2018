@@ -1,0 +1,355 @@
+\subsection{Ken Steinfeldt}
+\subsubsection{Fall}
+\begin{longtable}{ | l | l | p{14cm} | }
+\hline
+Week & Day & Post \\
+\hline
+1 & Tuesday & Learned about capstone. \\
+ & Wednesday & Considered capstone projects. \\
+ & Friday & Decided on a capstone project. \\
+\cline{2-3}
+ & Summary & Introduction to Capstone. 
+ I spent most of the week getting my feet wet and understanding the project ahead of me. \\
+ \hline
+2 & Tuesday & Learned of project assignment. Met group members. Got the project I wanted. Very excited. \\
+ & Sunday & Met with client 2:30 - 3:30 to discuss requirements and scope of project. \\
+\cline{2-3}
+ & Summary & 
+	Struggled with \LaTeX makefile. Still don't really understand how to make it go.
+
+	Big part of this week was learning about capstone project assignment.
+	Met with client for first time. \\
+\hline
+3 & Monday & Wrote and submitted project problem statement document.  \\
+\cline{2-3}
+ & Summary & 
+Wrote Problem Statement.
+
+It was difficult to grasp the entire project so early but with help from the client and group members it went smoothly enough.
+
+Good learning experience for getting to know the project and what we were getting ourselves into. Going forward we will need to become more acquainted. \\
+\hline
+4 & Summary & Weekly meeting set for Tuesdays at 3:50 starting next week. \\
+\hline
+5 & Tuesday & First meeting with TA Andrew Fielding at 3:50. \\
+\hline
+6 & Tuesday & Weekly meeting with TA Andrew. \\
+\hline
+7 & Tuesday & Weekly meeting with TA Andrew. \\
+\cline{2-3}
+ & Summary & Requirement document individual assignments made and agreed upon. \\
+\hline
+8 & Tuesday & Weekly meeting with Andrew. \\
+\cline{2-3}
+ & Summary & Worked on requirements document rough draft. \\
+\hline
+9 & Tuesday & Weekly meeting with Andrew. \\
+\cline{2-3}
+ & Summary & This week is defined by the requirements document final draft. \\
+\hline
+10 & Tuesday & Weekly meeting with Andrew. Short meeting, we don't have much to discuss. Everything is well. \\
+ & Wednesday & Design document is created on Overleaf for group to work on. \\
+ & Thursday & Work on design document, research and some writing. \\
+ & Friday & Finish up design document. \\
+\cline{2-3}
+ & Summary & This is the final week of classes. Thursday class is an optional workshop.
+ On Friday the design document is due. Team works on document all day. The document feels rushed and we're a little overwhelmed with it. We also have a difficult time figuring out roles and ownership as no code has yet been written. \\
+ \hline
+\end{longtable}
+\subsubsection{Winter}
+\begin{longtable}{ | l | l | p{14cm} | }
+\hline
+Week & Day & Post \\
+\hline
+1 & Tuesday & First day of class. 
+
+First time group meets since winter break
+\begin{itemize}
+\item We meet in our lab
+\item Discuss current state of code base
+\item Discuss rover progress
+\begin{itemize}
+\item Current state
+\item Issues, etc.
+\end{itemize}
+\item We set group work times for the term
+\begin{itemize}
+\item Tuesday and Thursday all day (more or less)
+\item First group work day will be Thursday 1/11/18
+\end{itemize}
+\item Group needs to complete ROS tutorial before next work day
+\item Winter term TA meeting time has not yet been determined 
+\begin{itemize}
+\item Will likely be on Tuesday or Thursday as group will be together on those days
+\end{itemize}
+\end{itemize}
+\\
+\cline{2-3}
+ & Summary & 
+First week of class after winter break.
+
+Group reviews state of current code base for the project.
+Group meeting times are determined by group. These are Tuesdays and Thursdays. \\
+\hline
+2 & Tuesday & 
+Meet with group to work on project all day. 
+Begin writing StatusCore module that will grab system status information from the rover and display it to the user.
+The rover will create publishers for the necessary statuses.
+StatusCore module creates subscribers that read from the rover publishers.
+Minimal processing should be done on the information coming from the rover.\\
+\cline{2-3}
+ & Summary & Week spent primarily getting started with coding. Met with group at OSURC club meeting on Saturday. \\
+\hline
+3 & Tuesday & Met team at 10:00AM to work on system statuses \\
+ & Thursday & We reach out to project leader Nick McComb for approval of our capstone documents.
+Nick responds later in the day with approval. \\
+ & Friday & Hear from TA Andrew to setup this terms weekly meetings. 
+Corwin responds with the preferred group meeting times which are 9-11 and 1-4 on Tuesdays. \\
+ & Saturday & 
+Unable to make the OSURC Mars Rover team meeting this Saturday due to not feeling well.
+
+Work on system statuses from home. I am unable to finish SensorCore.py this week like I had hoped. However, I get a basic mockup going and generally make progress.
+
+Repository is cleaned up and reorganized for clarity between different rover teams. This is much needed and well done but causes me difficulty as my branch becomes significantly diverged from the main branch. I am unable to quickly fix the divergence and will have to do so next week. \\
+\cline{2-3}
+ & Summary & 
+ Goal is to finish system statuses by the end of this week.
+
+Not feeling well this week. \\
+\hline
+4 & Tuesday & TA meeting with Andrew
+
+Learn about PyQt framework in order to create UI layout. It is more complicated than I thought it was. \\
+ & Thursday & Implemented clock into StatusCore and tested that it worked - this was one of the ways I attempted to learn the PyQT 
+
+Began working on the stopwatch module for the ground station. This is not as trivial as I thought it would be. \\
+ & Saturday & Went to Corvallis for OSURC Rover team meeting. 
+
+Worked with team in lab after meeting. Got stop watch working as an individual module, but not integrated with StatusCore. Includes push buttons, but needs to be left - right mouse clicks for the final product.\\
+\hline
+5 & Tuesday & TA meeting with Andrew
+
+Midterms galore this week. I manage to design a very basic visual framework for the UI.\\
+ & Thursday & Visual framework is shown to team members and is not liked. I agree with the criticism and the UI for SensorCore is redesigned with the group. Instead of being text based it is now boxed labels that are either red, orange, or green depending on the values that are given. For simple on/off alerts, such as various module connectivity, the box is simply red or green.
+
+Red - something is wrong - usually  ~80\% and greater (if applicable) or a False boolean value
+Orange - warning, approaching read usually ~70\%-80\% (if applicable)
+Green - everything is great or a True boolean value \\
+\hline
+6 & Tuesday & TA meeting with Andrew.
+
+Meet with team in Corvallis to work in lab. Group picture is taken and poster rough draft is created. We are happy with the poster and don't foresee a large redesign in the future.\\
+ & Thursday & Group works on midterm report for the class. Report is written together and videos are recorded. Videos are then stiched together. \\
+\hline
+7 & Tuesday & TA meeting with Andrew. Nothing of note
+\begin{itemize}
+\item Team gives status update
+\item Nothing of concern
+\item Team gets back to work on ground station software
+\item Code base cleanup
+\end{itemize}
+\\
+ & Thursday & A little stymied by system status module on the rover side. 
+
+I help out with some random things while waiting for rover team. It's not a big deal. \\
+\cline{2-3}
+ & Summary & This week is primarily dominated by the need to produce the SAR video for the competition. If this video doesn't get done the rover cannot compete.
+
+This takes up a lot of the group's work time but work still gets done on the ground station.
+
+Work is done on the joystick and Corwin integrates the nimbro packages to cutdown on latency between the ground station and rover. \\
+\hline
+8 & Tuesday & TA meeting - All is well. Project is progressing. 
+
+Work with rover team to get system values from rover
+
+StatusCore values (green, orange, red) decided. \\
+ & Thursday & Meet team in Corvallis to work in lab.
+
+Corwin has created scripts to ease the build process of the ground station. I sit down with Corwin to learn how to use these new scripts.
+
+Work on StatusCore now that rover statuses are available for final integration. \\
+\cline{2-3}
+ & Summary & A lot happens in week 8 
+ \begin{itemize}
+ \item Repository is reorganized
+ \item New startup script is written for ground station 
+ \begin{itemize}
+ \item This greatly helps development
+ \end{itemize}
+ \item Create some more placeholders for statuses in the UI
+ \item Rover drives!
+ \end{itemize} \\
+ \hline
+9 & Tuesday & TA meeting. All is well and progressing.
+
+Do not work from lab, will meet with team on Thursday.
+
+StatusCore:
+\begin{itemize}
+\item Work on callback functions
+\begin{itemize}
+\item pickup rover statuses, evaluate their return functions
+\end{itemize}
+\item New system statuses added to rover
+\begin{itemize}
+\item System statuses are still likely to change
+\end{itemize}
+\item Needs to ask for update from rover on startup
+\begin{itemize}
+\item Peripheral systems, such as cameras, will not automatically update until a change has happened. I will need to poll the rover at startup to get initial status
+\item This requires a subscriber on rover and a publisher in StatusCore
+\end{itemize}
+\end{itemize}
+\\
+ & Thursday & Met with team in lab.
+
+Begin push to meet Beta by week 10. 
+
+StatusCore work:
+\begin{itemize}
+\item Finalize UI look in QT designer
+\item Properly lable/organize UI elements
+\item Prepare for main branch integration
+\end{itemize}
+\\
+\cline{2-3}
+ & Summary & I make some serious progress on StatusCore this week, plan to fully integrate into ground station next week to meet beta requirement.
+ \begin{itemize}
+ \item StatusCore look is (somewhat) finalized
+ \item Rover team gets their status module sending signals I can use
+ \item I clean up StatusCore in preparation for integration next week
+ \end{itemize}
+ \\
+\hline
+10 & Tuesday & Worked late to finally integrate StatusCore with main branch.
+StatusCore module hit beta status and, with the help of Corwin, integrated into the project.
+Some bugs were noticed, namely some flickering in the status alerts. The source of the bug was identified but not fixed. 
+\begin{itemize}
+\item Problem: Did not think StatusCore would require the use of Slots
+\item Solution: StatusCore needs to use QT slots in order to refresh nicely
+\end{itemize}
+\\
+ & Thursday & Last class of the term
+
+After class we worked in the lab. 
+I hooked up the clock and fixed the StatusCore bugs that were identified on Tuesday \\
+\cline{2-3}
+ & Summary & Final week of the term
+\begin{itemize}
+\item No TA meeting this week
+\item Finally got StatusCore integrated into ground station
+\begin{itemize}
+\item Very successful, only a few bugs
+\end{itemize}
+\item Some bugs exist in StatusCore and are squashed (as far as we know)
+\item Ground station hits beta!
+\end{itemize}
+All in all a very exciting week. Everyone is happy with our progress. \\
+\hline
+\end{longtable}
+\subsubsection{Spring}
+\begin{longtable}{ | l | l | p{14cm} | }
+\hline
+Week & Day & Post \\
+\hline
+1 & Tuesday & Code review of Spring break work on Rover and Ground Station.\\
+ & Wednesday & Class Meeting. \\
+ & Thursday & Team meets and goes over project. Change in venue discussed and new meeting times and requirements are discussed and agreed upon. \\
+\cline{2-3}
+ & Summary & 
+ This is the first week of Spring term. 
+
+First class meeting.
+
+First week after Spring break so the team meets to go over the status of the project and any of the changes that occurred during the last two weeks. 
+
+The Rover team is no longer going to compete in the University Mars Rover Challenge, but instead will now compete in the Canadian International Rover Challenge.
+
+Change in competition means that that some minor changes in requirements are needed, these changes are discussed. 
+
+The team also reviews the general status and progress of the project. New meeting times are discussed and agreed upon for the coming term. 
+\\
+\hline
+2 & Tuesday & Code review. \\
+ & Thursday & 
+Team meets. 
+
+Changes to design document are discussed. Work will need to be finalized and signed off on by TA Andrew. 
+
+StatusCore module changes will be small. Mostly subscribing to new publishers. Will need to wait for Rover team to get publishers up and running. May be most beneficial for me to do as much as I can to help Rover team. 
+\\
+\cline{2-3}
+ & Summary & 
+ Group deals with EXPO bureaucracy. This entails registering, requesting necessary equipment/power and signing the proper release forms. 
+
+Changes in competition requirements again discussed as they will require that the design document be amended to match the changes in software. The changes are minor but are changes none the less. 
+
+Changes to StatusCore module look to be minor. \\
+\hline
+3 & Tuesday & 
+Code review. Rover and Ground Station. 
+
+Work on stubbing out subscribers. \\
+ & Wednesday & Wired Article due. \\
+ & Thursday & Team meets. 
+
+Rover team expected to be ready to broadcast new statuses by the end of the week. Will work on them on Saturday. \\
+\cline{2-3}
+ & Summary & 
+ Beginning of week three the Rover team is still not ready for new statuses. This is not unexpected considering the quick change of design requirements. 
+
+Despite the lack of broadcasted statuses I can and do begin working on the foundational subscribers, etc. so that when the Rover team is ready I can pick them up in StatusCore.
+
+Some Statuses are also deprecated as they will no longer be used. This includes Bogies. New subscribers are stubbed out. 
+
+WIRED! Article is due this week.
+\\
+\hline
+4 & Tuesday & Code Review. StatusCore work. \\
+ & Thursday & Team meets. 
+
+EXPO poster is finalized, approved, and submitted.
+
+Final changes to requirements document made and approved.
+\\
+\cline{2-3}
+ & Summary & 
+ Continue to work on changes to StatusCore.
+
+Final poser is due this week so it is finalized and submitted after being approved. 
+
+By the end of this week we deem software to be EXPO ready. 
+
+Amendments to project requirements are made, agreed upon, and signed-off on. This includes all team members as well as client/stakeholder.
+\\
+\hline
+5 & Wednesday & Class meets. \\
+ & Thursday & Team meets, works on Spring midterm report/presentation. \\
+\cline{2-3}
+ & Summary & This is week 5 and is mid-term season. Every member of the team is swamped with work. 
+
+I am not able to get very much done on the ground station software. 
+
+Team meets and works on Spring midterm report. Report and presentation are finished by the end of the week (of course). 
+\\
+\hline
+6 & Summary & Not much capstone work. Midterms and projects in other classes. \\
+\hline
+7 & Wednesday & Class meeting to prepare for EXPO. \\
+ & Friday & EXPO! Goes great. Our team does really well and has a lot of fun. \\
+\cline{2-3}
+ & Summary & Expo happens this week. \\
+\hline
+8 & Summary & Did not work on ground station. \\
+\hline
+9 & Summary & Did not work on ground station. \\
+\hline
+10 & Thursday & Final video work begins. \\
+ & Friday & Final video presentation completed and submitted. \\
+ \cline{2-3}
+ & Summary & Team is all busy with finals and final projects. 
+
+Final presentation is due and completed by the team.\\
+\hline
+\end{longtable}

@@ -2,7 +2,7 @@
     <group ns="sender_transports">
         <arg name="target" default="192.168.1.15" />
 
-        <node name="chassis_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="chassis_1280x720" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17001" />
             <rosparam param="topics">
@@ -10,7 +10,7 @@
             </rosparam>
         </node>
 
-        <node name="undercarriage_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="undercarriage_1280x720" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17002" />
             <rosparam param="topics">
@@ -18,7 +18,7 @@
             </rosparam>
         </node>
 
-        <node name="main_navigation_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="main_navigation_1280x720" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17003" />
             <rosparam param="topics">
@@ -26,7 +26,7 @@
             </rosparam>
         </node>
 
-        <node name="end_effector_1280x720" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="end_effector_1280x720" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17004" />
             <rosparam param="topics">
@@ -34,7 +34,7 @@
             </rosparam>
         </node>
 
-        <node name="chassis_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="chassis_640x360" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17005" />
             <rosparam param="topics">
@@ -42,7 +42,7 @@
             </rosparam>
         </node>
 
-        <node name="undercarriage_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="undercarriage_640x360" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17006" />
             <rosparam param="topics">
@@ -50,7 +50,7 @@
             </rosparam>
         </node>
 
-        <node name="main_navigation_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="main_navigation_640x360" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17007" />
             <rosparam param="topics">
@@ -58,7 +58,7 @@
             </rosparam>
         </node>
 
-        <node name="end_effector_640x360" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="end_effector_640x360" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17008" />
             <rosparam param="topics">
@@ -66,7 +66,7 @@
             </rosparam>
         </node>
 
-        <node name="chassis_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="chassis_256x144" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17009" />
             <rosparam param="topics">
@@ -74,7 +74,7 @@
             </rosparam>
         </node>
 
-        <node name="undercarriage_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="undercarriage_256x144" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17010" />
             <rosparam param="topics">
@@ -82,7 +82,7 @@
             </rosparam>
         </node>
 
-        <node name="main_navigation_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="main_navigation_256x144" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17011" />
             <rosparam param="topics">
@@ -90,7 +90,7 @@
             </rosparam>
         </node>
 
-        <node name="end_effector_256x144" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="end_effector_256x144" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17012" />
             <rosparam param="topics">
@@ -98,7 +98,7 @@
             </rosparam>
         </node>
 
-        <node name="bogie_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender" output="screen">
+        <node name="bogie_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17013" />
             <rosparam param="topics">
@@ -106,7 +106,7 @@
             </rosparam>
         </node>
 
-        <node name="camera_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender" output="screen">
+        <node name="camera_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17014" />
             <rosparam param="topics">
@@ -114,7 +114,7 @@
             </rosparam>
         </node>
 
-        <node name="frsky_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender" output="screen">
+        <node name="frsky_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17015" />
             <rosparam param="topics">
@@ -122,15 +122,16 @@
             </rosparam>
         </node>
 
-        <node name="gps_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender" output="screen">
+        <node name="gps_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17016" />
             <rosparam param="topics">
-                [{name: "/rover_status/gps_status", compress: false, rate: 1.0}]
+                [{name: "/rover_status/gps_status", compress: false, rate: 1.0},
+                {name: "/rover_odometry/fix", compress: false, rate: 5.0}]
             </rosparam>
         </node>
 
-        <node name="jetson_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender" output="screen">
+        <node name="jetson_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17017" />
             <rosparam param="topics">
@@ -138,7 +139,7 @@
             </rosparam>
         </node>
 
-        <node name="misc_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender" output="screen">
+        <node name="misc_status_tcp" pkg="nimbro_topic_transport" type="tcp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17018" />
             <rosparam param="topics">
@@ -146,13 +147,13 @@
             </rosparam>
         </node>
 
-        <node name="udp_statuses_sender" pkg="nimbro_topic_transport" type="udp_sender" output="screen">
+        <node name="udp_statuses_sender" pkg="nimbro_topic_transport" type="udp_sender">
             <param name="destination_addr" value="$(arg target)" />
             <param name="destination_port" value="17019" />
             <rosparam param="topics">
                 [
-                {name: "/rover_status/gps_status", compress: true, rate: 5.0},
-                {name: "/rover_status/battery_status", compress: false, rate: 1.0}
+                {name: "/rover_status/battery_status", compress: false, rate: 1.0},
+                {name: "/rover_control/tower/status/co2", compress: false, rate: 1.0}
                 ]
             </rosparam>
         </node>

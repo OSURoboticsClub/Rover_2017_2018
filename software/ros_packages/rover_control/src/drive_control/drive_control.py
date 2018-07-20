@@ -34,7 +34,7 @@ COMMUNICATIONS_TIMEOUT = 0.01  # Seconds
 RX_DELAY = 0.01
 TX_DELAY = 0.01
 
-DEFAULT_HERTZ = 20
+DEFAULT_HERTZ = 30
 
 MODBUS_REGISTERS = {
     "DIRECTION": 0,
@@ -119,7 +119,7 @@ class DriveControl(object):
                 self.get_drive_status()
 
             except Exception, error:
-                print "Error occurred:", error
+                pass
 
             if (time() - self.bogie_last_seen) > BOGIE_LAST_SEEN_TIMEOUT:
                 print "Bogie not seen for", BOGIE_LAST_SEEN_TIMEOUT, "seconds. Exiting."

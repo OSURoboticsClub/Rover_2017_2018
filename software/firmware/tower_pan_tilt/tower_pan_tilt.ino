@@ -27,7 +27,7 @@ enum MODBUS_REGISTERS {
 };
 
 ////////// Global Variables //////////
-const uint8_t node_id = 1;
+const uint8_t node_id = 2;
 const uint8_t mobus_serial_port_number = 3;
 
 uint16_t modbus_data[] = {0, 0, 0, 0, 0};
@@ -38,12 +38,12 @@ bool communication_good = false;
 uint8_t message_count = 0;
 
 // Pan/tilt hard limits
-const int pan_min = 1415;
-const int pan_center = 1538;
-const int pan_max = 1665;
+const int pan_min = 1470;
+const int pan_center = 1600;
+const int pan_max = 1725;
 
-const int tilt_min = 0;
-const int tilt_center = 1900;
+const int tilt_min = 1020;
+const int tilt_center = 1820;
 const int tilt_max = 2400;
 
 // Pan/tilt positions
@@ -57,6 +57,8 @@ Servo pan_servo;
 Servo tilt_servo;
 
 void setup() {
+//  Serial.begin(9600);
+//  while(!Serial);
   setup_hardware();
 
   num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
@@ -82,8 +84,8 @@ void setup_hardware() {
   pan_servo.attach(HARDWARE::SERVO_PAN);
   tilt_servo.attach(HARDWARE::SERVO_TILT);
 
-  pan_servo.write(pan_center);
-  tilt_servo.write(tilt_center);
+  pan_servo.writeMicroseconds(pan_center);
+  tilt_servo.writeMicroseconds(tilt_center);
 
   pinMode(HARDWARE::LED_RED, OUTPUT);
   pinMode(HARDWARE::LED_GREEN, OUTPUT);
@@ -124,8 +126,8 @@ void set_leds() {
 void set_pan_tilt_adjustments() {
   if (communication_good) {
     if (modbus_data[MODBUS_REGISTERS::CENTER_ALL]) {
-      pan_servo.write(constrain(pan_position, pan_min, pan_max));
-      tilt_servo.write(constrain(tilt_position, tilt_min, tilt_max));
+      pan_servo.writeMicroseconds(constrain(pan_position, pan_min, pan_max));
+      tilt_servo.writeMicroseconds(constrain(tilt_position, tilt_min, tilt_max));
 
       pan_position = pan_center;
       tilt_position = tilt_center;
@@ -133,11 +135,15 @@ void set_pan_tilt_adjustments() {
       modbus_data[MODBUS_REGISTERS::CENTER_ALL] = 0;
     }
 
-    pan_position = pan_position - modbus_data[MODBUS_REGISTERS::PAN_ADJUST_POSITIVE] + modbus_data[MODBUS_REGISTERS::PAN_ADJUST_NEGATIVE];
-    tilt_position = tilt_position + modbus_data[MODBUS_REGISTERS::TILT_ADJUST_POSITIVE] - modbus_data[MODBUS_REGISTERS::TILT_ADJUST_NEGATIVE];
+    pan_position = constrain(pan_position - modbus_data[MODBUS_REGISTERS::PAN_ADJUST_POSITIVE] + modbus_data[MODBUS_REGISTERS::PAN_ADJUST_NEGATIVE], pan_min, pan_max);
+    tilt_position = constrain(tilt_position + modbus_data[MODBUS_REGISTERS::TILT_ADJUST_POSITIVE] - modbus_data[MODBUS_REGISTERS::TILT_ADJUST_NEGATIVE], tilt_min, tilt_max);
 
-    pan_servo.write(constrain(pan_position, pan_min, pan_max));
-    tilt_servo.write(constrain(tilt_position, tilt_min, tilt_max));
+    pan_servo.writeMicroseconds(pan_position);
+    tilt_servo.writeMicroseconds(tilt_position);
+
+//    Serial.print(pan_position);
+//    Serial.print("\t");
+//    Serial.println(tilt_position);
 
     modbus_data[MODBUS_REGISTERS::PAN_ADJUST_POSITIVE] = 0;
     modbus_data[MODBUS_REGISTERS::PAN_ADJUST_NEGATIVE] = 0;

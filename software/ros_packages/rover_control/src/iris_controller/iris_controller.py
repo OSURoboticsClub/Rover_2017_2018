@@ -70,6 +70,8 @@ REGISTER_STATE_MAPPING = {
     "DRIVE_VS_ARM": "SE_SWITCH"
 }
 
+IRIS_LAST_SEEN_TIMEOUT = 1  # seconds
+
 
 #####################################
 # IrisController Class Definition
@@ -98,6 +100,8 @@ class IrisController(object):
 
         self.iris_connected = False
 
+        self.iris_last_seen_time = time()
+
         self.run()
 
     def __setup_minimalmodbus_for_485(self):
@@ -114,10 +118,15 @@ class IrisController(object):
                 self.broadcast_drive_if_current_mode()
                 self.broadcast_arm_if_current_mode()
                 self.broadcast_iris_status()
+                self.iris_last_seen_time = time()
 
             except Exception, error:
                 print "Error occurred:", error
                 return
+
+            if (time() - self.iris_last_seen_time) > IRIS_LAST_SEEN_TIMEOUT:
+                print "Iris not seen for", IRIS_LAST_SEEN_TIMEOUT, "seconds. Exiting."
+                return  # Exit so respawn can take over
 
             time_diff = time() - start_time
 

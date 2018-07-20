@@ -1,6 +1,6 @@
 import paramiko
 import json
-from pprint import pprint
+import time
 
 # ath0      21 channels in total; available frequencies :
 #           Channel 01 : 2.412 GHz
@@ -43,12 +43,25 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
 # Before anyone complains, I'm not worried about this password being online.
 # We only set one because the web interfaces HAVE to have one
 ssh.connect("192.168.1.20", username="ubnt", password="rover4lyfe^", compress=True)
-ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(get_general_info)
 
-pprint( json.loads(ssh_stdout.read()) )
+while True:
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(get_general_info)
 
-ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(set_wireless_frequency)
-ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(get_wireless_info)
+    output_json = json.loads(ssh_stdout.read())[0]
 
+    successful_transmit_percent = output_json["ccq"]
+    quality = output_json["airmax"]["quality"]
+    capacity = output_json["airmax"]["capacity"]
+    rx_rate = output_json["rx"]
+    tx_rate = output_json["tx"]
+    ground_tx_latency = output_json["tx_latency"]
+    rover_tx_latency = output_json["remote"]["tx_latency"]
 
-print ssh_stdout.read()
+    print successful_transmit_percent, " | ", quality, " | ", capacity, " | ", rx_rate, " | ", tx_rate, " | ", ground_tx_latency, " | ", rover_tx_latency
+
+    time.sleep(0.25)
+# ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(set_wireless_frequency)
+# ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(get_wireless_info)
+#
+# print ssh_stdout.read()
+
