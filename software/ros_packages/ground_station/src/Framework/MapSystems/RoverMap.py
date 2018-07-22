@@ -26,8 +26,12 @@ from io import StringIO, BytesIO
 import os
 import time
 import PIL.ImageDraw
+import PIL.Image
+import PIL.ImageFont
 import signing
 import RoverMapHelper as MapHelper
+import cv2
+import numpy as np
 
 #####################################
 # Constants
@@ -36,7 +40,8 @@ _KEYS = []
 # Number of pixels in half the earth's circumference at zoom = 21
 _EARTHPIX = 268435456
 # Number of decimal places for rounding coordinates
-_DEGREE_PRECISION = 4
+_DEGREE_PRECISION = 6
+_PRECISION_FORMAT = '%.' + str(_DEGREE_PRECISION) + 'f'
 # Larget tile we can grab without paying
 _TILESIZE = 640
 # Fastest rate at which we can download tiles without paying
@@ -113,14 +118,14 @@ class GMapsStitcher(object):
         # Make the url string for polling
         # GET request header gets appended to the string
         urlbase = 'https://maps.googleapis.com/maps/api/staticmap?'
-        urlbase += 'center=%.4f,%.4f&zoom=%d&maptype=%s'
+        urlbase += 'center=' + _PRECISION_FORMAT + ',' + _PRECISION_FORMAT + '&zoom=%d&maptype=%s'
         urlbase += '&size=%dx%d&format=png&key=%s'
 
         # Fill the formatting
         specs = (self.helper.fast_round(latitude, _DEGREE_PRECISION),
                  self.helper.fast_round(longitude, _DEGREE_PRECISION),
                  self.zoom, self.maptype, _TILESIZE, _TILESIZE, _KEYS[0])
-        filename = 'Resources/Maps/' + ('%.4f_%.4f_%d_%s_%d_%d_%s' % specs)
+        filename = 'Resources/Maps/' + ((_PRECISION_FORMAT + '_' + _PRECISION_FORMAT + '_%d_%s_%d_%d_%s') % specs)
         filename += '.png'
 
         # Tile Image object
@@ -165,10 +170,10 @@ class GMapsStitcher(object):
         """
         # Magic Lines
         return math.degrees(math.pi / 2 - 2 * math.atan(math.exp(((lat_pixels +
-                            self.helper.pixels_to_degrees(
-                                (iterator - self.num_tiles /
-                                 2) * _TILESIZE, self.zoom)) -
-                                 _EARTHPIX) / _PIXRAD)))
+                                                                   self.helper.pixels_to_degrees(
+                                                                       (iterator - self.num_tiles /
+                                                                        2) * _TILESIZE, self.zoom)) -
+                                                                  _EARTHPIX) / _PIXRAD)))
 
     def fetch_tiles(self):
         """
@@ -188,14 +193,14 @@ class GMapsStitcher(object):
         # latitude to desired radius in meters
         if self.radius_meters is not None:
             self.num_tiles = (int(
-                              round(2 * self.helper.pixels_to_meters(
-                               self.latitude, self.zoom) /
-                               (_TILESIZE / 2. / self.radius_meters))))
+                round(2 * self.helper.pixels_to_meters(
+                    self.latitude, self.zoom) /
+                      (_TILESIZE / 2. / self.radius_meters))))
 
         lon_pixels = _EARTHPIX + self.longitude * math.radians(_PIXRAD)
 
         sin_lat = math.sin(math.radians(self.latitude))
-        lat_pixels = _EARTHPIX - _PIXRAD * math.log((1+sin_lat)/(1-sin_lat))/2
+        lat_pixels = _EARTHPIX - _PIXRAD * math.log((1 + sin_lat) / (1 - sin_lat)) / 2
         self.big_size = self.num_tiles * _TILESIZE
         big_image = self.helper.new_image(self.big_size, self.big_size)
 
@@ -231,7 +236,7 @@ class GMapsStitcher(object):
         new_value = self.left_x - diff
 
         if ((not new_value > 0) and
-           (new_value < self.big_image.size[0] - self.width)):
+                (new_value < self.big_image.size[0] - self.width)):
             return self.left_x
         else:
             return new_value
@@ -243,7 +248,7 @@ class GMapsStitcher(object):
         new_value = self.upper_y - diff
 
         if ((not new_value > 0) and
-           (new_value < self.big_image.size[1] - self.height)):
+                (new_value < self.big_image.size[1] - self.height)):
             return self.upper_y
         else:
             return new_value
@@ -266,8 +271,8 @@ class GMapsStitcher(object):
         Function to move the object/rover
         """
         x, y = self._get_cartesian(lat, lon)
-        self._constrain_x(self.center_x-x)
-        self._constrain_y(self.center_y-y)
+        self._constrain_x(self.center_x - x)
+        self._constrain_y(self.center_y - y)
         self.update()
 
     def _get_cartesian(self, lat, lon):
@@ -309,9 +314,9 @@ class GMapsStitcher(object):
         x, y = self._get_cartesian(lat, lon)
         draw = PIL.ImageDraw.Draw(self.big_image)
         if shape is "ellipsis":
-            draw.ellipsis((x-size, y-size, x+size, y+size), fill)
+            draw.ellipsis((x - size, y - size, x + size, y + size), fill)
         else:
-            draw.rectangle([x-size, y-size, x+size, y+size], fill)
+            draw.rectangle([x - size, y - size, x + size, y + size], fill)
         self.update()
 
     def center_display(self, lat, lon):
@@ -322,8 +327,8 @@ class GMapsStitcher(object):
         self.center_x = x
         self.center_y = y
 
-        self.left_x = (self.center_x - (self.width/2))
-        self.upper_y = (self.center_y - (self.height/2))
+        self.left_x = (self.center_x - (self.width / 2))
+        self.upper_y = (self.center_y - (self.height / 2))
         self.update()
 
     # def update_rover_map_location(self, lat, lon):
@@ -348,7 +353,9 @@ class OverlayImage(object):
         self.width = width
         self.height = height
         self.big_image = None
+        self.big_image_copy = None
         self.display_image = None
+        self.display_image_copy = None
         self.indicator = None
         self.helper = MapHelper.MapHelper()
 
@@ -356,11 +363,18 @@ class OverlayImage(object):
         self.center_x = x
         self.center_y = y
 
-        self.left_x = (self.center_x - (self.width/2))
-        self.upper_y = (self.center_y - (self.height/2))
+        self.left_x = (self.center_x - (self.width / 2))
+        self.upper_y = (self.center_y - (self.height / 2))
 
         self.generate_image_files()
         self.write_once = True
+
+        # Text Drawing Variables
+        self.font = cv2.FONT_HERSHEY_TRIPLEX
+        self.font_thickness = 1
+        self.font_baseline = 0
+
+        self.nav_coordinates_text_image = None
 
     def generate_image_files(self):
         """
@@ -370,8 +384,14 @@ class OverlayImage(object):
         """
         self.big_image = self.helper.new_image(self.big_width, self.big_height,
                                                True)
+
+        self.big_image_copy = self.big_image.copy()
+
         self.display_image = self.helper.new_image(self.width, self.height,
                                                    True)
+
+        self.display_image_copy = self.display_image.copy()
+
         self.generate_dot_and_hat()
         self.indicator.save("location.png")
 
@@ -404,45 +424,65 @@ class OverlayImage(object):
 
         return int(x), int(y)
 
-    def update_new_location(self, latitude, longitude, 
+    def update_new_location(self, latitude, longitude,
                             compass, navigation_list, landmark_list):
+        self.big_image = self.big_image_copy.copy()
+        self.display_image = self.display_image_copy.copy()
+
         size = 5
         draw = PIL.ImageDraw.Draw(self.big_image)
         for element in navigation_list:
             x, y = self._get_cartesian(float(element[2]), float(element[1]))
-            draw.ellipse((x-size, y-size, x+size, y+size), fill="red")
+            draw.ellipse((x - size, y - size, x + size, y + size), fill="red")
         # for element in landmark_list:
         #     x, y = self._get_cartesian(element[1], element[2])
         #     draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
-        self._draw_rover(longitude, latitude, compass)
-        self.update()
+        self._draw_rover(latitude, longitude, compass)
+        self._draw_coordinate_text(latitude, longitude)
+        self.update(latitude, longitude)
 
         return self.display_image
 
     def generate_dot_and_hat(self):
-        self.indicator = self.helper.new_image(100, 100, True)
-        draw = PIL.ImageDraw.Draw(self.indicator)
-        draw.ellipse((50-12, 50-12, 50+12, 50+12), fill="red")
-        draw.line((25, 40, 50, 12), fill="red", width=7)
-        draw.line((50, 12, 75, 40), fill="red", width=7)
+        self.indicator = PIL.Image.open("Resources/Images/rover.png").resize((50, 50))
+        # self.indicator = self.helper.new_image(100, 100, True)
+        # draw = PIL.ImageDraw.Draw(self.indicator)
+        # draw.ellipse((50 - 12, 50 - 12, 50 + 12, 50 + 12), fill="red")
+        # draw.line((25, 40, 50, 12), fill="red", width=7)
+        # draw.line((50, 12, 75, 40), fill="red", width=7)
+
+    def _draw_coordinate_text(self, latitude, longitude):
+        location_text = "LAT: %+014.9f\nLON: %+014.9f" % (latitude, longitude)
+        # location_text = "LAT: " + str(latitude) + "\nLON: " + str(longitude)
+
+        font = PIL.ImageFont.truetype("UbuntuMono-R", size=20)
+
+        new_image = PIL.Image.new('RGBA', (200, 45), "black")
+
+        draw = PIL.ImageDraw.Draw(new_image)
+
+        draw.multiline_text((5, 0), location_text, font=font)
+
+        self.display_image.paste(new_image, (0, 0))
 
     def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
-        # print x,y
-        # Center of the circle on the indicator is (12.5, 37.5)
-        x = x - 50
-        y = y - 50
+
+        x -= 25
+        y -= 25
+
         rotated = self.indicator.copy()
-        rotated = rotated.rotate(angle, expand=True)
-        rotated.save("rotated.png")
+        rotated = rotated.rotate(angle, resample=PIL.Image.BICUBIC)
+        # rotated.save("rotated.png")
         self.big_image.paste(rotated, (x, y), rotated)
         if self.write_once:
-            self.display_image.save("Something.png")
+            # self.display_image.save("Something.png")
             self.write_once = False
 
-    def update(self):
+    def update(self, latitude, longitude):
+
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
+        self._draw_coordinate_text(latitude, longitude)
 
     def connect_signals_and_slots(self):
         pass
-

@@ -47,18 +47,20 @@ class RoverMapCoordinator(QtCore.QThread):
 
         self.google_maps_object = None
         self.map_image = None
+        self.map_image_copy = None
         self.overlay_image = None
         self.overlay_image_object = None
 
-        self.map_pixmap = None
+        self.map_pixmap = QtGui.QPixmap.fromImage(ImageQt(Image.open("Resources/Images/maps_loading.png").resize((1280, 720), Image.BICUBIC)))
         self.last_map_pixmap_cache_key = None
 
         self.longitude = None
         self.latitude = None
+        self.last_heading = 0
 
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
-
+        self.pixmap_ready_signal.emit()  # This gets us the loading map
         while self.run_thread_flag:
             if self.setup_map_flag:
                 self._map_setup()
@@ -83,7 +85,7 @@ class RoverMapCoordinator(QtCore.QThread):
                                                          720,
                                                          44.5675721667,
                                                          -123.2750535,
-                                                         20,  # FIXME: Used to be 18
+                                                         18,  # FIXME: Used to be 18
                                                          'satellite',
                                                          None, 20)
         self.overlay_image_object = (
@@ -97,12 +99,17 @@ class RoverMapCoordinator(QtCore.QThread):
     def _get_map_image(self):
         while self.map_image is None:
             self.map_image = self.google_maps_object.display_image
+
+            if self.map_image:
+                self.map_image_copy = self.map_image.copy()
         # self.overlay_image_object.update_new_location(44.567161,
         #                                               -123.278432,
         #                                               .7,
         #                                               [],
         #                                               [])
         self.update_overlay()
+
+        self.map_image = self.map_image_copy.copy()
         self.map_image.paste(self.overlay_image_object.display_image,
                              (0, 0),
                              self.overlay_image_object.display_image)
@@ -147,9 +154,8 @@ class RoverMapCoordinator(QtCore.QThread):
     def update_overlay(self):
         if self.latitude and self.longitude:
             if not numpy.isnan(self.latitude) and not numpy.isnan(self.longitude):
-
-                longitude = self.latitude
-                latitude = self.longitude
+                latitude = float(self.latitude)
+                longitude = float(self.longitude)
 
                 navigation_list = self._get_table_elements(self.navigation_label)
                 # landmark_list = self._get_table_elements(self.landmark_label)
@@ -157,9 +163,10 @@ class RoverMapCoordinator(QtCore.QThread):
                 self.overlay_image = self.overlay_image_object.update_new_location(
                                                               latitude,
                                                               longitude,
-                                                              70,
+                                                              self.last_heading,
                                                               navigation_list,
                                                               landmark_list)
+                self.last_heading = (self.last_heading + 5) % 360
                 # self.overlay_image.save("something.png")
 
     def gps_position_updated_callback(self, data):

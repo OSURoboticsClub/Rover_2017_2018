@@ -121,7 +121,7 @@ class IrisController(object):
                 self.iris_last_seen_time = time()
 
             except Exception, error:
-                print "Error occurred:", error
+                print "IRIS: Error occurred:", error
                 return
 
             if (time() - self.iris_last_seen_time) > IRIS_LAST_SEEN_TIMEOUT:

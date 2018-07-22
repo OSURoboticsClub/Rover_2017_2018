@@ -83,7 +83,7 @@ class DriveCoordinator(object):
             try:
                 self.process_drive_commands()
             except Exception, error:
-                print "Error occurred:", error
+                print "COORDINATOR: Error occurred:", error
 
             time_diff = time() - start_time
 
