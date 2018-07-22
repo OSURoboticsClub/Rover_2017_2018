@@ -2153,12 +2153,12 @@ QTableView QTableCornerButton::section{
                </item>
                <item row="0" column="1">
                 <property name="text">
-                 <string>32.1665</string>
+                 <string>44.5674</string>
                 </property>
                </item>
                <item row="0" column="2">
                 <property name="text">
-                 <string>-112.1115</string>
+                 <string>-123.2756</string>
                 </property>
                </item>
                <item row="0" column="3">
@@ -2173,12 +2173,12 @@ QTableView QTableCornerButton::section{
                </item>
                <item row="1" column="1">
                 <property name="text">
-                 <string>33.1124</string>
+                 <string>44.5677</string>
                 </property>
                </item>
                <item row="1" column="2">
                 <property name="text">
-                 <string>-111.4334</string>
+                 <string>-123.2748</string>
                 </property>
                </item>
                <item row="1" column="3">
@@ -2452,12 +2452,12 @@ QTableView QTableCornerButton::section{
                </item>
                <item row="0" column="1">
                 <property name="text">
-                 <string>32.1665</string>
+                 <string>44.56745</string>
                 </property>
                </item>
                <item row="0" column="2">
                 <property name="text">
-                 <string>-112.1115</string>
+                 <string>-123.2756</string>
                 </property>
                </item>
                <item row="0" column="3">
@@ -2472,12 +2472,12 @@ QTableView QTableCornerButton::section{
                </item>
                <item row="1" column="1">
                 <property name="text">
-                 <string>33.1124</string>
+                 <string>44.56775</string>
                 </property>
                </item>
                <item row="1" column="2">
                 <property name="text">
-                 <string>-111.4334</string>
+                 <string>-123.2748</string>
                 </property>
                </item>
                <item row="1" column="3">

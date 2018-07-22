@@ -392,7 +392,7 @@ class OverlayImage(object):
 
         self.display_image_copy = self.display_image.copy()
 
-        self.generate_dot_and_hat()
+        self.load_rover_icon()
         self.indicator.save("location.png")
 
     def _get_cartesian(self, lat, lon):
@@ -431,29 +431,26 @@ class OverlayImage(object):
 
         size = 5
         draw = PIL.ImageDraw.Draw(self.big_image)
+
         for element in navigation_list:
-            x, y = self._get_cartesian(float(element[2]), float(element[1]))
+            x, y = self._get_cartesian(float(element[1]), float(element[2]))
             draw.ellipse((x - size, y - size, x + size, y + size), fill="red")
-        # for element in landmark_list:
-        #     x, y = self._get_cartesian(element[1], element[2])
-        #     draw.ellipsis((x-size, y-size, x+size, y+size), fill="blue")
+
+        for element in landmark_list:
+            x, y = self._get_cartesian(element[1], element[2])
+            draw.ellipse((x - size, y - size, x + size, y + size), fill="blue")
+
         self._draw_rover(latitude, longitude, compass)
         self._draw_coordinate_text(latitude, longitude)
         self.update(latitude, longitude)
 
         return self.display_image
 
-    def generate_dot_and_hat(self):
+    def load_rover_icon(self):
         self.indicator = PIL.Image.open("Resources/Images/rover.png").resize((50, 50))
-        # self.indicator = self.helper.new_image(100, 100, True)
-        # draw = PIL.ImageDraw.Draw(self.indicator)
-        # draw.ellipse((50 - 12, 50 - 12, 50 + 12, 50 + 12), fill="red")
-        # draw.line((25, 40, 50, 12), fill="red", width=7)
-        # draw.line((50, 12, 75, 40), fill="red", width=7)
 
     def _draw_coordinate_text(self, latitude, longitude):
         location_text = "LAT: %+014.9f\nLON: %+014.9f" % (latitude, longitude)
-        # location_text = "LAT: " + str(latitude) + "\nLON: " + str(longitude)
 
         font = PIL.ImageFont.truetype("UbuntuMono-R", size=20)
 
@@ -468,7 +465,7 @@ class OverlayImage(object):
     def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
 
-        x -= 25
+        x -= 25 # Half the height of the icon
         y -= 25
 
         rotated = self.indicator.copy()

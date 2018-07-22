@@ -71,21 +71,12 @@ class RoverMapCoordinator(QtCore.QThread):
 
         self.logger.debug("Stopping Map Coordinator Thread")
 
-    # def _setup_map_threads(self):
-    #     self.google_maps_object = RoverMap.GMapsStitcher(1280,
-    #                                                      720,
-    #                                                      44.567161,
-    #                                                      -123.278432,
-    #                                                      18,
-    #                                                      'satellite',
-    #                                                      None, 20)
-
     def _map_setup(self):
         self.google_maps_object = RoverMap.GMapsStitcher(1280,
                                                          720,
                                                          44.5675721667,
                                                          -123.2750535,
-                                                         18,  # FIXME: Used to be 18
+                                                         19,  # FIXME: Used to be 18
                                                          'satellite',
                                                          None, 20)
         self.overlay_image_object = (
@@ -102,11 +93,7 @@ class RoverMapCoordinator(QtCore.QThread):
 
             if self.map_image:
                 self.map_image_copy = self.map_image.copy()
-        # self.overlay_image_object.update_new_location(44.567161,
-        #                                               -123.278432,
-        #                                               .7,
-        #                                               [],
-        #                                               [])
+
         self.update_overlay()
 
         self.map_image = self.map_image_copy.copy()
@@ -158,15 +145,14 @@ class RoverMapCoordinator(QtCore.QThread):
                 longitude = float(self.longitude)
 
                 navigation_list = self._get_table_elements(self.navigation_label)
-                # landmark_list = self._get_table_elements(self.landmark_label)
-                landmark_list = []
+                landmark_list = self._get_table_elements(self.landmark_label)
                 self.overlay_image = self.overlay_image_object.update_new_location(
                                                               latitude,
                                                               longitude,
                                                               self.last_heading,
                                                               navigation_list,
                                                               landmark_list)
-                self.last_heading = (self.last_heading + 5) % 360
+                # self.last_heading = (self.last_heading + 5) % 360
                 # self.overlay_image.save("something.png")
 
     def gps_position_updated_callback(self, data):

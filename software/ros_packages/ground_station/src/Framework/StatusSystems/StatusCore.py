@@ -27,6 +27,8 @@ COLOR_GREEN = "background-color: darkgreen; border: 1px solid black;"
 COLOR_ORANGE = "background-color: orange; border: 1px solid black;"
 COLOR_RED = "background-color: darkred; border: 1px solid black;"
 
+GPS_BEST_CASE_ACCURACY = 3
+
 
 class SensorCore(QtCore.QThread):
     # ########## create signals for slots ##########
@@ -215,7 +217,7 @@ class SensorCore(QtCore.QThread):
             self.gps_heading_valid_update_ready__signal.emit("GPS Heading Valid\nFalse")
 
         self.gps_num_satellites_update_ready__signal.emit("GPS Satellites\n%s" % data.num_satellites)
-        self.gps_accuracy_update_ready__signal.emit("GPS Accuracy\n%2.2f m" % data.horizontal_dilution)
+        self.gps_accuracy_update_ready__signal.emit("GPS Accuracy\n%2.2f m" % (data.horizontal_dilution * GPS_BEST_CASE_ACCURACY))
 
     def __misc_callback(self, data):
         self.misc_msg.arm_connection_status = data.arm_connection_status
@@ -227,7 +229,7 @@ class SensorCore(QtCore.QThread):
     def __battery_callback(self, data):
         voltage = data.battery_voltage / 1000.0
 
-        if voltage >= 20:
+        if voltage >= 21:
             self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_GREEN)
         else:
             self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_RED)
