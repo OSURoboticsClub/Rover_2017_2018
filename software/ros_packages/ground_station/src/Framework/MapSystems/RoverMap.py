@@ -139,7 +139,13 @@ class GMapsStitcher(object):
             # make the url
             url = urlbase % specs
             url = signing.sign_url(url, _KEYS[1])
-            result = urllib2.urlopen(urllib2.Request(url)).read()
+            try:
+                result = urllib2.urlopen(urllib2.Request(url)).read()
+            except urllib2.HTTPError, e:
+                print "Error accessing url for reason:", e
+                print url
+                return
+
             tile_object = PIL.Image.open(BytesIO(result))
             if not os.path.exists('Resources/Maps'):
                 os.mkdir('Resources/Maps')
