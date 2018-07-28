@@ -14,6 +14,7 @@ from tf import transformations
 from scipy.interpolate import interp1d
 import math
 from sensor_msgs.msg import Imu
+from Resources.Settings import Mapping as MappingSettings
 
 #####################################
 # Global Variables
@@ -107,7 +108,7 @@ class SpeedAndHeadingIndication(QtCore.QThread):
             self.imu_data.orientation.w,
         )
         self.roll, self.pitch, self.yaw = transformations.euler_from_quaternion(quat)
-        self.current_heading = self.euler_interpolator(self.yaw) % 360
+        self.current_heading = (self.euler_interpolator(self.yaw) + MappingSettings.DECLINATION_OFFSET) % 360
 
     def rotate_compass_if_needed(self):
 

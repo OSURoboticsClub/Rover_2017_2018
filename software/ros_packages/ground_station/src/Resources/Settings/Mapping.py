@@ -18,3 +18,6 @@ MAPPING_LOCATIONS = {
         "pre_cache_map_zoom_levels": [18, 19, 20]
     }
 }
+
+# ##### This is the offset from magnetic north to true north
+DECLINATION_OFFSET = 15

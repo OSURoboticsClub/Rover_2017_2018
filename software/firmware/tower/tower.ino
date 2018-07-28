@@ -163,7 +163,7 @@ void send_imu_stream_line(JsonObject &root) {
   JsonObject& imu_object = root.createNestedObject("imu");
 
   quat = bno.getQuat();
-  linear_accel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+  linear_accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
   angular_vel = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 
   imu_object["ox"] = quat.x();

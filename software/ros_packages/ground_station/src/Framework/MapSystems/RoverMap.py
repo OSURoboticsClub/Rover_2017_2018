@@ -447,26 +447,15 @@ class OverlayImage(object):
             draw.ellipse((x - size, y - size, x + size, y + size), fill="blue")
 
         self._draw_rover(latitude, longitude, compass)
-        self._draw_coordinate_text(latitude, longitude)
+        # self._draw_coordinate_text(latitude, longitude)
         self.update(latitude, longitude)
 
         return self.display_image
 
     def load_rover_icon(self):
-        self.indicator = PIL.Image.open("Resources/Images/rover.png").resize((60, 60))
+        self.indicator = PIL.Image.open("Resources/Images/rover.png").resize((40, 40))
 
-    def _draw_coordinate_text(self, latitude, longitude):
-        location_text = "LAT: %+014.9f\nLON: %+014.9f" % (latitude, longitude)
 
-        font = PIL.ImageFont.truetype("UbuntuMono-R", size=20)
-
-        new_image = PIL.Image.new('RGBA', (200, 45), "black")
-
-        draw = PIL.ImageDraw.Draw(new_image)
-
-        draw.multiline_text((5, 0), location_text, font=font)
-
-        self.display_image.paste(new_image, (0, 0))
 
     def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
@@ -486,7 +475,7 @@ class OverlayImage(object):
         # self.left_x -= 50
         # self.upper_y -= 50
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
-        self._draw_coordinate_text(latitude, longitude)
+        # self._draw_coordinate_text(latitude, longitude)
 
     def connect_signals_and_slots(self):
         pass
