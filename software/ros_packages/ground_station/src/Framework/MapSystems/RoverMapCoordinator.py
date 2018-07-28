@@ -94,6 +94,9 @@ class RoverMapCoordinator(QtCore.QThread):
         self.x_drag_start = -1
         self.y_drag_start = -1
 
+        self.x_drag_end = -1
+        self.y_drag_end = -1
+
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
         self.pixmap_ready_signal.emit()  # This gets us the loading map
@@ -145,10 +148,10 @@ class RoverMapCoordinator(QtCore.QThread):
         if self.zoom_subtraction:
             self.zoom_subtraction = self.constrain(self.zoom_subtraction, 0, 520)
 
-            crop_x_start = ((self.zoom_subtraction * MAP_WIDGET_RATIO) / 2) - self.x_drag
-            crop_y_start = (self.zoom_subtraction / 2) - self.y_drag
-            crop_x_end = (MAP_WIDGET_WIDTH - ((self.zoom_subtraction * MAP_WIDGET_RATIO) / 2)) - self.x_drag
-            crop_y_end = (MAP_WIDGET_HEIGHT - (self.zoom_subtraction / 2)) - self.y_drag
+            crop_x_start = ((self.zoom_subtraction * MAP_WIDGET_RATIO) / 2) - self.x_drag - self.x_drag_end
+            crop_y_start = (self.zoom_subtraction / 2) - self.y_drag - self.y_drag_end
+            crop_x_end = (MAP_WIDGET_WIDTH - ((self.zoom_subtraction * MAP_WIDGET_RATIO) / 2)) - self.x_drag - self.x_drag_end
+            crop_y_end = (MAP_WIDGET_HEIGHT - (self.zoom_subtraction / 2)) - self.y_drag - self.y_drag_end
             crop_box = (int(crop_x_start), int(crop_y_start), int(crop_x_end), int(crop_y_end))
 
             self.map_image = self.map_image.crop(crop_box)
@@ -243,9 +246,15 @@ class RoverMapCoordinator(QtCore.QThread):
         self.roll, self.pitch, self.yaw = transformations.euler_from_quaternion(quat)
         self.last_heading = (self.euler_interpolator(self.yaw) + MappingSettings.DECLINATION_OFFSET) % 360
 
-    def __mouse_released_event(self, event):
+    def __mouse_released_event(self, _):
         self.x_drag_start = -1
         self.y_drag_start = -1
+
+        self.x_drag_end += self.x_drag
+        self.y_drag_end += self.y_drag
+
+        self.x_drag = 0
+        self.x_drag = 0
 
 
     def __mouse_wheel_event(self, event):
