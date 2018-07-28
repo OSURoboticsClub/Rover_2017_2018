@@ -2,6 +2,8 @@
 #include <ModbusRtu.h>
 #include <Adafruit_BNO055_t3.h>
 #include <ArduinoJson.h>
+#include <utility/imumaths.h>
+#include <EEPROM.h>
 
 /*
    Imu/data (Imu)
@@ -99,7 +101,7 @@ const char baud115200[] = "PUBX,41,1,3,3,115200,0";
 void setup() {
   // Debugging
   Serial.begin(9600);
-//  while (!Serial);
+ // while (!Serial);
 
   // Raw pin setup
   setup_hardware();
@@ -113,16 +115,7 @@ void setup() {
   GPS_IMU_STREAMING_PORT.begin(115200);
   GPS_IMU_STREAMING_PORT.transmitterEnable(HARDWARE::GPS_IMU_RS485_EN);
 
-  // IMU Setup
-  Serial.println("Setting up IMU");
-  if (!bno.begin()) {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while (1);
-  }
-  Serial.println("IMU Online. Setting to external crystal.");
-  bno.setExtCrystalUse(true);
-  Serial.println("IMU Configured.");
+  setup_imu();
 
   // GPS Setup
   GPS_SERIAL_PORT.begin(9600);
@@ -186,18 +179,73 @@ void send_imu_stream_line(JsonObject &root) {
   imu_object["avy"] = angular_vel.y();
   imu_object["avz"] = angular_vel.z();
 
-  //
-  //  /* Display calibration status for each sensor. */
-  //  uint8_t system, gyro, accel, mag = 0;
-  //  bno.getCalibration(&system, &gyro, &accel, &mag);
-  //  Serial.print("CALIBRATION: Sys=");
-  //  Serial.print(system, DEC);
-  //  Serial.print(" Gyro=");
-  //  Serial.print(gyro, DEC);
-  //  Serial.print(" Accel=");
-  //  Serial.print(accel, DEC);
-  //  Serial.print(" Mag=");
-  //  Serial.print(mag, DEC);
+}
+
+void setup_imu(){
+
+    // IMU Setup
+    Serial.println("Setting up IMU");
+    if (!bno.begin()) {
+      /* There was a problem detecting the BNO055 ... check your connections */
+      Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+      while (1);
+    }
+    Serial.println("IMU Online. Setting to external crystal.");
+
+    int eeAddress = 0;
+    long bnoID;
+    bool foundCalib = false;
+
+    EEPROM.get(eeAddress, bnoID);
+
+    adafruit_bno055_offsets_t calibrationData;
+    sensor_t sensor;
+
+    /*
+    *  Look for the sensor's unique ID at the beginning oF EEPROM.
+    *  This isn't foolproof, but it's better than nothing.
+    */
+    bno.getSensor(&sensor);
+    eeAddress += sizeof(long);
+    EEPROM.get(eeAddress, calibrationData);
+    bno.setSensorOffsets(calibrationData);
+    bno.setAxisConfig(Adafruit_BNO055::REMAP_CONFIG_P6);
+    bno.setAxisSign(Adafruit_BNO055::REMAP_SIGN_P6);
+    bno.setMode(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
+    delay(300);
+
+    bno.setExtCrystalUse(true);
+    Serial.println("IMU Configured");
+    // while(1){
+    //     display_cal_status();
+    // }
+}
+
+void display_cal_status(void)
+{
+  /* Get the four calibration values (0..3) */
+  /* Any sensor data reporting 0 should be ignored, */
+  /* 3 means 'fully calibrated" */
+  uint8_t system, gyro, accel, mag;
+  system = gyro = accel = mag = 0;
+  bno.getCalibration(&system, &gyro, &accel, &mag);
+
+  /* The data should be ignored until the system calibration is > 0 */
+  Serial.print("\t");
+  if (!system)
+  {
+    Serial.print("! ");
+  }
+
+  /* Display the individual values */
+  Serial.print("Sys:");
+  Serial.print(system, DEC);
+  Serial.print(" G:");
+  Serial.print(gyro, DEC);
+  Serial.print(" A:");
+  Serial.print(accel, DEC);
+  Serial.print(" M:");
+  Serial.println(mag, DEC);
 }
 
 void process_gps_and_send_if_ready(JsonObject &root) {

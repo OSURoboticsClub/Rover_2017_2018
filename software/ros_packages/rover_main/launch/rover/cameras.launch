@@ -3,6 +3,7 @@
         <!-- Start Undercarriage Camera -->
         <node name="undercarriage" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 1" respawn="true" output="screen">
             <param name="device_path" value="/dev/rover/camera_undercarriage"/>
+            <param name="upside_down" value="true"/>
         </node>
 
         <!--&lt;!&ndash; Start Main Navigation Camera &ndash;&gt;-->
@@ -17,7 +18,7 @@
 
         <!--&lt;!&ndash; Start End Effector Camera &ndash;&gt;-->
         <node name="end_effector" pkg="rover_camera" type="rover_camera" launch-prefix="taskset -c 4" respawn="true" output="screen" >
-            <param name="is_rtsp_camera" value="True" />
+            <param name="is_rtsp_camera" value="true" />
             <param name="device_path" value="rtsp://192.168.1.11" />
         </node>
     </group>

@@ -10,6 +10,10 @@ import numpy
 import logging
 
 import rospy
+from tf import transformations
+from scipy.interpolate import interp1d
+import math
+from sensor_msgs.msg import Imu
 
 # Custom Imports
 import RoverMap
@@ -21,6 +25,7 @@ from sensor_msgs.msg import NavSatFix
 # put some stuff here later so you can remember
 
 GPS_POSITION_TOPIC = "/rover_odometry/fix"
+IMU_DATA_TOPIC = "/rover_odometry/imu/data"
 
 
 class RoverMapCoordinator(QtCore.QThread):
@@ -58,6 +63,17 @@ class RoverMapCoordinator(QtCore.QThread):
         self.latitude = None
         self.last_heading = 0
 
+        self.imu_data = None
+        self.new_imu_data = False
+
+        self.yaw = None
+        self.pitch = None
+        self.roll = None
+
+        self.euler_interpolator = interp1d([math.pi, -math.pi], [-180, 180])
+
+        self.imu_data_subscriber = rospy.Subscriber(IMU_DATA_TOPIC, Imu, self.on_imu_data_received)
+
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
         self.pixmap_ready_signal.emit()  # This gets us the loading map
@@ -66,6 +82,10 @@ class RoverMapCoordinator(QtCore.QThread):
                 self._map_setup()
                 self.setup_map_flag = False
             else:
+                if self.new_imu_data:
+                    self.calculate_euler_from_imu()
+                    self.new_imu_data = False
+
                 self._get_map_image()
             self.msleep(30)
 
@@ -158,3 +178,17 @@ class RoverMapCoordinator(QtCore.QThread):
     def gps_position_updated_callback(self, data):
         self.latitude = data.latitude
         self.longitude = data.longitude
+
+    def on_imu_data_received(self, data):
+        self.imu_data = data
+        self.new_imu_data = True
+
+    def calculate_euler_from_imu(self):
+        quat = (
+            self.imu_data.orientation.x,
+            self.imu_data.orientation.y,
+            self.imu_data.orientation.z,
+            self.imu_data.orientation.w,
+        )
+        self.roll, self.pitch, self.yaw = transformations.euler_from_quaternion(quat)
+        self.last_heading = self.euler_interpolator(self.yaw) % 360

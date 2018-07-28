@@ -453,7 +453,7 @@ class OverlayImage(object):
         return self.display_image
 
     def load_rover_icon(self):
-        self.indicator = PIL.Image.open("Resources/Images/rover.png").resize((50, 50))
+        self.indicator = PIL.Image.open("Resources/Images/rover.png").resize((60, 60))
 
     def _draw_coordinate_text(self, latitude, longitude):
         location_text = "LAT: %+014.9f\nLON: %+014.9f" % (latitude, longitude)
@@ -475,7 +475,7 @@ class OverlayImage(object):
         y -= 25
 
         rotated = self.indicator.copy()
-        rotated = rotated.rotate(angle, resample=PIL.Image.BICUBIC)
+        rotated = rotated.rotate(-angle, resample=PIL.Image.BICUBIC)
         # rotated.save("rotated.png")
         self.big_image.paste(rotated, (x, y), rotated)
         if self.write_once:
@@ -483,7 +483,8 @@ class OverlayImage(object):
             self.write_once = False
 
     def update(self, latitude, longitude):
-
+        # self.left_x -= 50
+        # self.upper_y -= 50
         self.display_image.paste(self.big_image, (-self.left_x, -self.upper_y))
         self._draw_coordinate_text(latitude, longitude)
 
