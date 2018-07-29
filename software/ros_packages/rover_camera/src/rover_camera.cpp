@@ -26,6 +26,8 @@ public:
         node_handle->param("device_path", capture_device_path, std::string("/dev/video0"));
         node_handle->param("fps", fps, 30);
 
+        node_handle->param("upside_down", upside_down, false);
+
         node_handle->param("large_image_width", large_image_width, 1280);
         node_handle->param("large_image_height", large_image_height, 720);
         node_handle->param("medium_image_width", medium_image_width, 640);
@@ -97,30 +99,22 @@ public:
             }
 
             if(!image_large.empty()){
-                bool large_ready_to_broadcast = false;
-                bool medium_ready_to_broadcast = false;
-                bool small_ready_to_broadcast = false;
+                if(upside_down){
+                    cv::flip(image_large, image_large, -1);
+                }
 
                 if(broadcast_large_image){
                     large_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_large).toImageMsg();
-                    large_ready_to_broadcast = true;
-                }
-
-                if(broadcast_medium_image){
+                    large_image_publisher.publish(large_image_message);
+                }else if(broadcast_medium_image){
                     cv::resize(image_large, image_medium, cv::Size(medium_image_width, medium_image_height));
                     medium_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_medium).toImageMsg();
-                    medium_ready_to_broadcast = true;
-                }
-
-                if(broadcast_small_image){
+                    medium_image_publisher.publish(medium_image_message);
+                }else if(broadcast_small_image){
                     cv::resize(image_large, image_small, cv::Size(small_image_width, small_image_height));
                     small_image_message = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_small).toImageMsg();
-                    small_ready_to_broadcast = true;
+                    small_image_publisher.publish(small_image_message);
                 }
-
-                if(large_ready_to_broadcast){ large_image_publisher.publish(large_image_message); };
-                if(medium_ready_to_broadcast){ medium_image_publisher.publish(medium_image_message); };
-                if(small_ready_to_broadcast){ small_image_publisher.publish(small_image_message); };
             }
 
             ros::spinOnce();
@@ -151,6 +145,8 @@ private:
     int fps;
 
     ros::Rate *loop_rate;
+
+    bool upside_down;
 
     int large_image_width;
     int large_image_height;

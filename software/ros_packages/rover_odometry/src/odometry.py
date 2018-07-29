@@ -28,6 +28,8 @@ DEFAULT_IMU_TOPIC = "imu/data"
 
 DEFAULT_HERTZ = 100
 
+ODOM_LAST_SEEN_TIMEOUT = 1  # seconds
+
 
 #####################################
 # DriveControl Class Definition
@@ -50,6 +52,8 @@ class Odometry(object):
         self.sentence_publisher = rospy.Publisher(self.gps_sentence_topic, Sentence, queue_size=1)
         self.imu_data_publisher = rospy.Publisher(self.imu_data_topic, Imu, queue_size=1)
 
+        self.odom_last_seen_time = time()
+
         self.run()
 
     def run(self):
@@ -58,9 +62,14 @@ class Odometry(object):
 
             try:
                 self.process_messages()
+                self.odom_last_seen_time = time()
 
             except Exception, error:
-                print "Error occurred:", error
+                pass
+
+            if (time() - self.odom_last_seen_time) > ODOM_LAST_SEEN_TIMEOUT:
+                print "Odometry not seen for", ODOM_LAST_SEEN_TIMEOUT, "seconds. Exiting."
+                return  # Exit so respawn can take over
 
             time_diff = time() - start_time
 

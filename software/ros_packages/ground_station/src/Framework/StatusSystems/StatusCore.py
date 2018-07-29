@@ -7,12 +7,13 @@ from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from std_msgs.msg import Empty
 import PIL.Image
 from PIL.ImageQt import ImageQt
+import time
 
 from std_msgs.msg import UInt16
+
 # import Timer
 
 REQUEST_UPDATE_TOPIC = "/rover_status/update_requested"
-
 
 CAMERA_TOPIC_NAME = "/rover_status/camera_status"
 BOGIE_TOPIC_NAME = "/rover_status/bogie_status"
@@ -25,7 +26,13 @@ CO2_TOPIC_NAME = "/rover_control/tower/status/co2"
 
 COLOR_GREEN = "background-color: darkgreen; border: 1px solid black;"
 COLOR_ORANGE = "background-color: orange; border: 1px solid black;"
+COLOR_YELLOW = "background-color: rgb(204,204,0); border: 1px solid black; color: black;"
 COLOR_RED = "background-color: darkred; border: 1px solid black;"
+
+GPS_BEST_CASE_ACCURACY = 3
+
+LOW_BATTERY_DIALOG_TIMEOUT = 120
+CRITICAL_BATTERY_DIALOG_TIMEOUT = 30
 
 
 class SensorCore(QtCore.QThread):
@@ -61,6 +68,9 @@ class SensorCore(QtCore.QThread):
 
     battery_voltage_update_ready__signal = QtCore.pyqtSignal(str)
     battery_voltage_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
+
+    show_battery_low__signal = QtCore.pyqtSignal()
+    show_battery_critical__signal = QtCore.pyqtSignal()
 
     def __init__(self, shared_objects):
         super(SensorCore, self).__init__()
@@ -106,7 +116,7 @@ class SensorCore(QtCore.QThread):
         self.co2_status = rospy.Subscriber(CO2_TOPIC_NAME, UInt16, self.__co2_callback)
 
         self.camera_msg = CameraStatuses()
-        self.bogie_msg = None # BogieStatuses()
+        self.bogie_msg = None  # BogieStatuses()
         self.FrSky_msg = FrSkyStatus()
         self.GPS_msg = GPSInfo()
         self.jetson_msg = JetsonInfo()
@@ -119,6 +129,28 @@ class SensorCore(QtCore.QThread):
         self.osurc_logo_pil = PIL.Image.open("Resources/Images/osurclogo.png").resize((210, 75), PIL.Image.BICUBIC)
         self.osurc_logo_pixmap = QtGui.QPixmap.fromImage(ImageQt(self.osurc_logo_pil))
         self.osurc_logo_label.setPixmap(self.osurc_logo_pixmap)  # Init should be in main thread, should be fine
+
+        self.low_battery_warning_dialog = QtWidgets.QMessageBox()
+        self.low_battery_warning_dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        self.low_battery_warning_dialog.setText("\n\n\n\nRover battery low!\nReturn and charge soon to avoid battery damage!\n\n\n\n")
+        self.low_battery_warning_dialog.setWindowTitle("Low Battery")
+        self.low_battery_warning_dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        self.low_battery_warning_dialog.setWindowFlags(
+            QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.X11BypassWindowManagerHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+        self.low_battery_warning_dialog.setStyleSheet(COLOR_YELLOW)
+
+        self.critical_battery_warning_dialog = QtWidgets.QMessageBox()
+        self.critical_battery_warning_dialog.setIcon(QtWidgets.QMessageBox.Critical)
+        self.critical_battery_warning_dialog.setText(
+            "\n\n\n\nRover battery critical!\nPower down immediately or battery damage will occur!\n\n\n\n")
+        self.critical_battery_warning_dialog.setWindowTitle("Critical Battery")
+        self.critical_battery_warning_dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        self.critical_battery_warning_dialog.setWindowFlags(
+            QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.X11BypassWindowManagerHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+        self.critical_battery_warning_dialog.setStyleSheet(COLOR_RED)
+
+        self.low_battery_warning_last_shown = 0
+        self.critical_battery_warning_last_shown = 0
 
     def __camera_callback(self, data):
         self.camera_msg.camera_zed = data.camera_zed
@@ -215,7 +247,8 @@ class SensorCore(QtCore.QThread):
             self.gps_heading_valid_update_ready__signal.emit("GPS Heading Valid\nFalse")
 
         self.gps_num_satellites_update_ready__signal.emit("GPS Satellites\n%s" % data.num_satellites)
-        self.gps_accuracy_update_ready__signal.emit("GPS Accuracy\n%2.2f m" % data.horizontal_dilution)
+        self.gps_accuracy_update_ready__signal.emit(
+            "GPS Accuracy\n%2.2f m" % (data.horizontal_dilution * GPS_BEST_CASE_ACCURACY))
 
     def __misc_callback(self, data):
         self.misc_msg.arm_connection_status = data.arm_connection_status
@@ -227,10 +260,21 @@ class SensorCore(QtCore.QThread):
     def __battery_callback(self, data):
         voltage = data.battery_voltage / 1000.0
 
-        if voltage >= 20:
+        if voltage >= 21:
             self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_GREEN)
+        elif voltage >= 19:
+            self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_YELLOW)
+
+            if (time.time() - self.low_battery_warning_last_shown) > LOW_BATTERY_DIALOG_TIMEOUT:
+                self.show_battery_low__signal.emit()
+                self.low_battery_warning_last_shown = time.time()
+
         else:
             self.battery_voltage_stylesheet_change_ready__signal.emit(COLOR_RED)
+
+            if (time.time() - self.critical_battery_warning_last_shown) > CRITICAL_BATTERY_DIALOG_TIMEOUT:
+                self.show_battery_critical__signal.emit()
+                self.critical_battery_warning_last_shown = time.time()
 
         self.battery_voltage_update_ready__signal.emit("Battery Voltage\n" + str(voltage) + " V")
 
@@ -247,7 +291,7 @@ class SensorCore(QtCore.QThread):
 
     def run(self):
         while self.run_thread_flag:
-            self.update_requester.publish(Empty())
+            # self.update_requester.publish(Empty())
             self.__display_time()
             self.msleep(1000)
 
@@ -276,6 +320,9 @@ class SensorCore(QtCore.QThread):
 
         self.battery_voltage_update_ready__signal.connect(self.battery.setText)
         self.battery_voltage_stylesheet_change_ready__signal.connect(self.battery.setStyleSheet)
+
+        self.show_battery_low__signal.connect(self.low_battery_warning_dialog.show)
+        self.show_battery_critical__signal.connect(self.critical_battery_warning_dialog.show)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)

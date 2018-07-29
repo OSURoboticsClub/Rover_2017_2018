@@ -9,6 +9,12 @@ from time import time
 import PIL.Image
 from PIL.ImageQt import ImageQt
 from random import random
+import rospy
+from tf import transformations
+from scipy.interpolate import interp1d
+import math
+from sensor_msgs.msg import Imu
+from Resources.Settings import Mapping as MappingSettings
 
 #####################################
 # Global Variables
@@ -16,6 +22,8 @@ from random import random
 THREAD_HERTZ = 20
 
 ROTATION_SPEED_MODIFIER = 2.5
+
+IMU_DATA_TOPIC = "/rover_odometry/imu/data"
 
 
 #####################################
@@ -58,14 +66,29 @@ class SpeedAndHeadingIndication(QtCore.QThread):
 
         self.shown_heading = (self.current_heading + (1.5 * ROTATION_SPEED_MODIFIER)) % 360
         self.current_heading_shown_rotation_angle = 0
-        self.last_current_heading_shown = 0
+        self.last_current_heading_shown = -1000
         self.rotation_direction = 1
+
+        self.imu_data = None
+        self.new_imu_data = False
+
+        self.yaw = None
+        self.pitch = None
+        self.roll = None
+
+        self.euler_interpolator = interp1d([math.pi, -math.pi], [-180, 180])
+
+        self.imu_data_subscriber = rospy.Subscriber(IMU_DATA_TOPIC, Imu, self.on_imu_data_received)
 
     def run(self):
         self.on_heading_changed__slot(self.current_heading)
 
         while self.run_thread_flag:
             start_time = time()
+
+            if self.new_imu_data:
+                self.calculate_euler_from_imu()
+                self.new_imu_data = False
 
             if self.current_heading_changed:
                 self.update_heading_movement()
@@ -77,27 +100,27 @@ class SpeedAndHeadingIndication(QtCore.QThread):
 
             self.msleep(max(int(self.wait_time - time_diff), 0))
 
+    def calculate_euler_from_imu(self):
+        quat = (
+            self.imu_data.orientation.x,
+            self.imu_data.orientation.y,
+            self.imu_data.orientation.z,
+            self.imu_data.orientation.w,
+        )
+        self.roll, self.pitch, self.yaw = transformations.euler_from_quaternion(quat)
+        self.current_heading = (self.euler_interpolator(self.yaw) + MappingSettings.DECLINATION_OFFSET) % 360
+
     def rotate_compass_if_needed(self):
-        heading_difference = abs(int(self.shown_heading) - self.current_heading)
-        should_update = False
 
-        if heading_difference > ROTATION_SPEED_MODIFIER:
-            self.shown_heading += self.rotation_direction * ROTATION_SPEED_MODIFIER
-            self.shown_heading %= 360
-            should_update = True
-        elif heading_difference != 0:
-            self.shown_heading = self.current_heading
-            should_update = True
+        self.current_heading_shown_rotation_angle = int(self.current_heading)
 
-        if should_update:
-            self.current_heading_shown_rotation_angle = int(self.shown_heading)
+        if self.current_heading_shown_rotation_angle != self.last_current_heading_shown:
+            new_compass_image = self.main_compass_image.rotate(self.current_heading_shown_rotation_angle, resample=PIL.Image.BICUBIC)
+            self.last_current_heading_shown = self.current_heading_shown_rotation_angle
 
-            if self.current_heading_shown_rotation_angle != self.last_current_heading_shown:
-                new_compass_image = self.main_compass_image.rotate(self.current_heading_shown_rotation_angle, resample=PIL.Image.BICUBIC)
-                self.last_current_heading_shown = self.current_heading_shown_rotation_angle
-
-                self.compass_pixmap = QtGui.QPixmap.fromImage(ImageQt(new_compass_image))
-                self.show_compass_image__signal.emit()
+            self.compass_pixmap = QtGui.QPixmap.fromImage(ImageQt(new_compass_image))
+            self.show_compass_image__signal.emit()
+            self.heading_text_update_ready__signal.emit(str(self.current_heading_shown_rotation_angle) + "°")
 
     def update_heading_movement(self):
         current_minus_shown = (self.current_heading - self.shown_heading) % 360
@@ -125,6 +148,10 @@ class SpeedAndHeadingIndication(QtCore.QThread):
 
     def on_new_compass_image_ready__slot(self):
         self.heading_compass_label.setPixmap(self.compass_pixmap)
+
+    def on_imu_data_received(self, data):
+        self.imu_data = data
+        self.new_imu_data = True
 
     def connect_signals_and_slots(self):
         self.show_compass_image__signal.connect(self.on_new_compass_image_ready__slot)

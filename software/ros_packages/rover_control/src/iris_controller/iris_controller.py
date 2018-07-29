@@ -118,11 +118,9 @@ class IrisController(object):
                 self.broadcast_drive_if_current_mode()
                 self.broadcast_arm_if_current_mode()
                 self.broadcast_iris_status()
-                self.iris_last_seen_time = time()
 
             except Exception, error:
-                print "Error occurred:", error
-                return
+                print "IRIS: Error occurred:", error
 
             if (time() - self.iris_last_seen_time) > IRIS_LAST_SEEN_TIMEOUT:
                 print "Iris not seen for", IRIS_LAST_SEEN_TIMEOUT, "seconds. Exiting."
@@ -135,6 +133,7 @@ class IrisController(object):
     def read_registers(self):
         try:
             self.registers = self.iris.read_registers(0, len(MODBUS_REGISTERS))
+            self.iris_last_seen_time = time()
         except Exception, error:
             self.iris_connected = False
 

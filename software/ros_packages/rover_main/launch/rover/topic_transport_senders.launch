@@ -153,7 +153,8 @@
             <rosparam param="topics">
                 [
                 {name: "/rover_status/battery_status", compress: false, rate: 1.0},
-                {name: "/rover_control/tower/status/co2", compress: false, rate: 1.0}
+                {name: "/rover_control/tower/status/co2", compress: false, rate: 1.0},
+                {name: "/rover_odometry/imu/data", compress: false, rate: 10.0},
                 ]
             </rosparam>
         </node>

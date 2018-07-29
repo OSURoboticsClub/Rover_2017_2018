@@ -2,6 +2,10 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import logging
 import rospy
 
+from sensor_msgs.msg import NavSatFix
+
+GPS_POSITION_TOPIC = "/rover_odometry/fix"
+
 
 class WaypointsCoordinator(QtCore.QThread):
     new_manual_waypoint_entry = QtCore.pyqtSignal(str, float, float, int)
@@ -20,13 +24,10 @@ class WaypointsCoordinator(QtCore.QThread):
                                  navigation_waypoints_table_widget)
         self.landmark_label = self.left_screen.landmark_waypoints_table_widget
 
-        self.name_edit_label = (self.left_screen.
-                                manual_waypoint_landmark_name_line_edit)
-        self.latitude_label = (self.left_screen.
-                               manual_waypoint_decimal_lattitude_spin_box)
-        self.longitude_label = (self.left_screen.
-                                manual_waypoint_decimal_longitude_spin_box)
-        
+        self.name_edit_label = self.left_screen.manual_waypoint_landmark_name_line_edit
+        self.latitude_label = self.left_screen.manual_waypoint_decimal_lattitude_spin_box
+        self.longitude_label = self.left_screen.manual_waypoint_decimal_longitude_spin_box
+
         self.latitude_degree_label = self.left_screen.manual_waypoint_degrees_lattitude_spin_box
 
         self.longitude_degree_label = self.left_screen.manual_waypoint_degrees_longitude_spin_box
@@ -43,11 +44,18 @@ class WaypointsCoordinator(QtCore.QThread):
 
         self.longitude_card_label = self.left_screen.manual_waypoint_cardinal_longitude_combo_box
 
+        # Color Labels and Buttons
+        self.nav_color_label = self.left_screen.manual_waypoint_navigation_color_label
+        self.nav_color_set_button = self.left_screen.manual_waypoint_navigation_color_set_button
+
+        self.landmark_color_label = self.left_screen.manual_waypoint_landmark_color_label
+        self.landmark_color_set_button = self.left_screen.manual_waypoint_landmark_color_set_button
+
         # Nav Table Buttons
         self.nav_set_button_label = (self.left_screen.
                                      navigation_waypoints_set_button)
         self.nav_add_manual_button_label = (
-                     self.left_screen.navigation_waypoints_add_manual_button)
+            self.left_screen.navigation_waypoints_add_manual_button)
         self.nav_add_gps_button_label = (self.left_screen.
                                          navigation_waypoints_add_gps_button)
         self.nav_delete_button_label = (self.left_screen.
@@ -58,7 +66,7 @@ class WaypointsCoordinator(QtCore.QThread):
                                       landmark_waypoints_set_button)
 
         self.land_add_manual_button_label = (
-                       self.left_screen.landmark_waypoints_add_manual_button)
+            self.left_screen.landmark_waypoints_add_manual_button)
 
         self.land_add_gps_button_label = (self.left_screen.
                                           landmark_waypoints_add_gps_button)
@@ -69,6 +77,23 @@ class WaypointsCoordinator(QtCore.QThread):
         self.settings = QtCore.QSettings()
 
         self.logger = logging.getLogger("groundstation")
+
+        self.gps_position_subscriber = rospy.Subscriber(GPS_POSITION_TOPIC, NavSatFix,
+                                                        self.gps_position_updated_callback)
+
+        self.longitude = None
+        self.latitude = None
+
+        self.nav_color = QtCore.Qt.yellow
+        self.landmark_color = QtCore.Qt.blue
+
+        self.nav_color_dialog = QtWidgets.QColorDialog()
+        self.nav_color_dialog.setWindowFlags(
+            QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.X11BypassWindowManagerHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+
+        self.landmark_color_dialog = QtWidgets.QColorDialog()
+        self.landmark_color_dialog.setWindowFlags(
+            QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.X11BypassWindowManagerHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
 
     def run(self):
         while self.run_thread_flag:
@@ -93,13 +118,22 @@ class WaypointsCoordinator(QtCore.QThread):
         self.navigation_label.cellClicked.connect(self._on_nav_clicked)
         self.landmark_label.cellClicked.connect(self._on_land_clicked)
 
-    def _add_to_table(self, name, lat, lng, dist, table):
+        self.nav_color_set_button.clicked.connect(self.nav_color_dialog.show)
+        self.landmark_color_set_button.clicked.connect(self.landmark_color_dialog.show)
+
+        self.nav_color_dialog.currentColorChanged.connect(self.__on_new_nav_color_selected)
+        self.landmark_color_dialog.currentColorChanged.connect(self.__on_new_landmark_color_selected)
+
+    def _add_to_table(self, name, lat, lng, color, table):
+        color_table_item = QtWidgets.QTableWidgetItem()
+        color_table_item.setBackground(color)
+
         count = table.rowCount()
         table.insertRow(count)
         table.setItem(count, 0, QtWidgets.QTableWidgetItem(name))
         table.setItem(count, 1, QtWidgets.QTableWidgetItem(lat))
         table.setItem(count, 2, QtWidgets.QTableWidgetItem(lng))
-        table.setItem(count, 3, QtWidgets.QTableWidgetItem(dist))
+        table.setItem(count, 3, color_table_item)
 
     def _clear_inputs(self):
         self.name_edit_label.clear()
@@ -107,50 +141,54 @@ class WaypointsCoordinator(QtCore.QThread):
         self.longitude_label.clear()
 
     def _is_empty_inputs(self):
-        if self.name_edit_label.text().isEmpty():
+        if not self.name_edit_label.text():
             return True
-        if self.latitude_label.text().isEmpty():
+        if not self.latitude_label.text():
             return True
-        if self.longitude_label.text().isEmpty():
+        if not self.longitude_label.text():
             return True
         return False
 
     def _nav_add_gps(self):
-        # request GPS data
-        name = self.navigation_label.rowCount()
-        lat = 44.567200
-        lng = -123.27860
-        distance = 200
-        self._add_to_table(str(name+1), str(lat),
-                           str(lng), str(distance),
-                           self.navigation_label)
-        self._clear_inputs()
+        if self.longitude and self.latitude:
+            name = self.navigation_label.rowCount()
+            self._add_to_table(str(name + 1), str(self.latitude),
+                               str(self.longitude), self.nav_color,
+                               self.navigation_label)
+            self._clear_inputs()
 
     def _nav_save(self):
         if not self._is_empty_inputs():
-            lat = self.latitude_label.getText()
-            lng = self.longitude_label.getText()
+            lat = self.latitude_label.text()
+            lng = self.longitude_label.text()
             self.navigation_label.setItem(
                 self.navigation_table_cur_click,
                 1,
                 QtWidgets.QTableWidgetItem(lat))
             self.navigation_label.setItem(
-                self.navigation_label,
+                self.navigation_table_cur_click,
                 2,
                 QtWidgets.QTableWidgetItem(lng))
+
+            color_table_item = QtWidgets.QTableWidgetItem()
+            color_table_item.setBackground(self.nav_color)
+
+            self.navigation_label.setItem(
+                self.navigation_table_cur_click,
+                3,
+                color_table_item)
             self._clear_inputs()
 
     def _nav_add_manual(self):
         # request GPS data
         if not self._is_empty_inputs():
             name = self.navigation_label.rowCount()
-            lat = self.latitude_label.getText()
-            lng = self.longitude_label.getText()
-            distance = 200
-            self._add_to_table(str(name+1), lat,
-                               lng, str(distance),
+            lat = self.latitude_label.text()
+            lng = self.longitude_label.text()
+            self._add_to_table(str(name + 1), lat,
+                               lng, self.nav_color,
                                self.navigation_label)
-            self._clear_inputs
+            self._clear_inputs()
 
     def _nav_del(self):
         if self.navigation_table_cur_click is not None:
@@ -160,27 +198,22 @@ class WaypointsCoordinator(QtCore.QThread):
                 self.navigation_label.setItem(x,
                                               0,
                                               QtWidgets.
-                                              QTableWidgetItem(str(x+1)))
+                                              QTableWidgetItem(str(x + 1)))
             self._clear_inputs()
 
     def _land_add_gps(self):
-        name = self.name_edit_label.getText()
-        lat = 44.19223
-        lng = -123.12394
-        distance = 200
-        self._add_to_table(name, str(lat),
-                           str(lng), str(distance),
-                           self.landmark_label)
-        self._clear_inputs()
+        if self.longitude and self.latitude:
+            name = self.name_edit_label.text()
+            self._add_to_table(name, str(self.latitude), str(self.longitude), self.landmark_color, self.landmark_label)
+            self._clear_inputs()
 
     def _land_add_manual(self):
         if not self._is_empty_inputs():
-            name = self.name_edit_label.getText()
-            lat = self.latitude_label.getText()
-            lng = self.longitude_label.getText()
-            distance = 200
+            name = self.name_edit_label.text()
+            lat = self.latitude_label.text()
+            lng = self.longitude_label.text()
             self._add_to_table(name, lat,
-                               lng, str(distance),
+                               lng, self.landmark_color,
                                self.landmark_label)
             self._clear_inputs()
 
@@ -192,14 +225,14 @@ class WaypointsCoordinator(QtCore.QThread):
                 self.navigation_label.setItem(x,
                                               0,
                                               QtWidgets.
-                                              QTableWidgetItem(str(x+1)))
+                                              QTableWidgetItem(str(x + 1)))
             self._clear_inputs()
 
     def _land_save(self):
         if not self._is_empty_inputs():
-            name = self.name_edit_label.getText()
-            lat = self.latitude_label.getText()
-            lng = self.longitude_label.getText()
+            name = self.name_edit_label.text()
+            lat = self.latitude_label.text()
+            lng = self.longitude_label.text()
             self.landmark_label.setItem(self.landmark_table_cur_click, 0,
                                         QtWidgets.QTableWidgetItem(name))
 
@@ -208,6 +241,12 @@ class WaypointsCoordinator(QtCore.QThread):
 
             self.landmark_label.setItem(self.landmark_table_cur_click, 2,
                                         QtWidgets.QTableWidgetItem(lng))
+
+            color_table_item = QtWidgets.QTableWidgetItem()
+            color_table_item.setBackground(self.landmark_color)
+
+            self.landmark_label.setItem(self.landmark_table_cur_click, 3,
+                                        color_table_item)
 
             self._clear_inputs()
 
@@ -228,7 +267,7 @@ class WaypointsCoordinator(QtCore.QThread):
 
         lat_d = float(abs(int(lat)))
         lat_m = float(int((abs(lat) - lat_d) * 60))
-        lat_s = ((abs(lat) - lat_d - (lat_m/60.0)) * 3600.)
+        lat_s = ((abs(lat) - lat_d - (lat_m / 60.0)) * 3600.)
         if lat > 0.:
             self.latitude_card_label.setCurrentText("N")
         else:
@@ -239,7 +278,7 @@ class WaypointsCoordinator(QtCore.QThread):
 
         lng_d = float(abs(int(lng)))
         lng_m = float(int((abs(lng) - lng_d) * 60))
-        lng_s = ((abs(lng) - lng_d - (lng_m/60.0)) * 3600.)
+        lng_s = ((abs(lng) - lng_d - (lng_m / 60.0)) * 3600.)
         if lng > 0.:
             self.longitude_card_label.setCurrentText("E")
         else:
@@ -267,3 +306,19 @@ class WaypointsCoordinator(QtCore.QThread):
             float(self.landmark_label.item(row, 2).text()),
             1
         )
+
+    def __on_new_nav_color_selected(self, color):
+        self.nav_color_label.setStyleSheet(
+            "background-color: rgb(%s, %s, %s)" % (color.red(), color.green(), color.blue()))
+
+        self.nav_color = color
+
+    def __on_new_landmark_color_selected(self, color):
+        self.landmark_color_label.setStyleSheet(
+            "background-color: rgb(%s, %s, %s)" % (color.red(), color.green(), color.blue()))
+
+        self.landmark_color = color
+
+    def gps_position_updated_callback(self, data):
+        self.latitude = data.latitude
+        self.longitude = data.longitude
