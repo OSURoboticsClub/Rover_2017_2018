@@ -21,7 +21,7 @@ enum HARDWARE {
 };
 
 ////////// Global Variables //////////
-// define user words for motor states
+// define nice words for motor states
 #define BRAKE     0
 #define FWD       1
 #define REV       2
@@ -48,11 +48,12 @@ double signed_setpoint_vel = -200;
 // Position
 double setpoint_pos = 0; //PID position variables
 double input_pos, output_pos;
-PID motor_pos(&input_pos, &output_pos, &setpoint_pos, 10, 0, 0, DIRECT); //position PID
-long current_pos = 1000;
+PID motor_pos(&input_pos, &output_pos, &setpoint_pos, 500, 0, 0, DIRECT); //position PID
+
+long current_pos = 0;
 
 // Homing
-int trip_threshold = 650;
+int trip_threshold = 550;
 bool home_flag = true;
 long prev_millis = 0;
 
@@ -72,67 +73,80 @@ void setup() {
 void loop() {
 
   // Position based homing
+  //Serial.println(analogRead(HARDWARE::MOTOR_CURRENT_SENSE));
   // if (home_flag == true){
   //   Serial.println("homing");
-  //   Serial.println(analogRead(HARDWARE::MOTOR_CURRENT_SENSE));
   //
-  //   unsigned long curr_millis = millis();
   //   // if it is time to move the motor and we haven't tripped the current yet:
+  //   unsigned long curr_millis = millis();
   //   if (curr_millis - prev_millis > interval){
   //     prev_millis = curr_millis;
-  //     current_pos += 5; // increment by counts
-  //
-  //     if (analogRead(HARDWARE::MOTOR_CURRENT_SENSE) < trip_threshold){
-  //       current_pos = 0;
-  //       enc.write(0);
-  //       home_flag = false;
+  //     current_pos -= 10; // increment by counts
   //     }
+  //   if ((analogRead(HARDWARE::MOTOR_CURRENT_SENSE) > trip_threshold) && (curr_millis > 1000)){
+  //     enc.write(0);
+  //     current_pos = 0;
+  //     home_flag = false;
+  //     Serial.println("homing complete");
   //   }
   // }
-
-  // Position movement test
-  // unsigned long curr_millis = millis();
-  // // if it is time to move the motor and we haven't tripped the current yet:
-  // if (curr_millis - prev_millis > interval){
-  //   prev_millis = curr_millis;
-  //   current_pos += 1; // increment by counts
-  // }
   //
-  // set_position(10000);
-  //
+  // set_position(current_pos);
   // Serial.print("Set Pos:  ");
   // Serial.println(current_pos);
   // Serial.print("Curr Pos: ");
   // Serial.println(enc.read());
   // delay(1);
 
-  // Velocity based non blocking homing
-  if (home_flag == true){
+/*----------------------------------------------------------------------------*/
 
-    set_velocity(-150);
+  // Position movement test
+  // unsigned long curr_millis = millis();
+  // // if it is time to move the motor and we haven't tripped the current yet:
+  // if (curr_millis - prev_millis > interval){
+  //   prev_millis = curr_millis;
 
-    Serial.println("Homing");
+  //   current_pos += 10; // increment by counts
 
-    Serial.print("Current: ");
-    Serial.println(analogRead(HARDWARE::MOTOR_CURRENT_SENSE));
+  // }
+  //
+  set_position(current_pos);
 
-    if ((analogRead(HARDWARE::MOTOR_CURRENT_SENSE) > trip_threshold) && (millis() > 500)){
-      Serial.println("Tripped current sensor!");
-      set_motor_output(BRAKE, 0); //stop moving
-      home_flag = false; // no more homing
-      //set_motor_output(COAST, 0); //stop moving
-      enc.write(0); // reset encoder
-    }
-  }
-  else {
-    set_position(current_pos); // hold
-    Serial.print("Set Pos:  ");
-    Serial.println(current_pos);
-    Serial.print("Curr Pos: ");
-    Serial.println(enc.read());
-  }
-
+  Serial.print("Set Pos:  ");
+  Serial.println(current_pos);
+  Serial.print("Curr Pos: ");
+  Serial.println(enc.read());
   delay(1);
+
+/*----------------------------------------------------------------------------*/
+
+  // Velocity based non blocking homing
+  // if (home_flag == true){
+  //
+  //   set_velocity(-150);
+  //
+  //   Serial.println("Homing");
+  //
+  //   Serial.print("Current: ");
+  //   Serial.println(analogRead(HARDWARE::MOTOR_CURRENT_SENSE));
+  //
+  //   if ((analogRead(HARDWARE::MOTOR_CURRENT_SENSE) > trip_threshold) && (millis() > 500)){
+  //     Serial.println("Tripped current sensor!");
+  //     set_motor_output(BRAKE, 0); //stop moving
+  //     home_flag = false; // no more homing
+  //     //set_motor_output(COAST, 0); //stop moving
+  //     enc.write(0); // reset encoder
+  //   }
+  // }
+  // else {
+  //   set_position(current_pos); // hold
+  //   Serial.print("Set Pos:  ");
+  //   Serial.println(current_pos);
+  //   Serial.print("Curr Pos: ");
+  //   Serial.println(enc.read());
+  // }
+  //
+  // delay(1);
 
 }
 
