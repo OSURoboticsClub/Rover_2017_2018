@@ -1,5 +1,6 @@
 ////////// Includes //////////
 #include "HX711.h"
+#include <ModbusRtu.h>
 
 ////////// Hardware / Data Enumerations //////////
 enum HARDWARE {
@@ -53,14 +54,16 @@ enum MODBUS_REGISTERS {
 ////////// Global Variables //////////
 int set_position_lift = 0;
 int set_position_tilt = 0;
+int current_position_lift = 0;
+int current_position_tilt = 0;
 int tolerance = 20; //tolerance for position
 
 float calibration_factor = -120000; //for the scale
 
 // modbus stuff
 const uint8_t node_id = 2;
-const uint8_t mobus_serial_port_number = 3;
-uint16_t modbus_data[] = {0, 0, 0, 0, 0, 0, 0};
+const uint8_t mobus_serial_port_number = 2;
+uint16_t modbus_data[] = {1023, 350, 0, 0, 0, 0, 0};
 uint8_t num_modbus_registers = 0;
 int8_t poll_state = 0;
 bool communication_good = false;
@@ -73,6 +76,7 @@ uint8_t message_count = 0;
 #define BRAKEGND  3
 
 ////////// Class Instantiations //////////
+HX711 scale(HARDWARE::SCALE_DOUT, HARDWARE::SCALE_CLK);
 Modbus slave(node_id, mobus_serial_port_number, HARDWARE::RS485_EN);
 
 void setup() {
@@ -81,7 +85,7 @@ void setup() {
   setup_hardware();
   num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
   slave.begin(115200); // baud-rate at 19200
-  slave.setTimeOut(150);
+  slave.setTimeOut(500);
 }
 
 void loop() {
@@ -129,11 +133,12 @@ void setup_hardware() {
   // set the current desired position to the current position
   set_position_lift = analogRead(HARDWARE::MOTOR_LIFT_FB);
   set_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
+  current_position_lift = analogRead(HARDWARE::MOTOR_LIFT_FB);
+  current_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
 
   // setup scale
-  scale.set_scale();
-  scale.tare();	//Reset the scale to 0
   scale.set_scale(calibration_factor);
+  scale.tare();	//Reset the scale to 0
 }
 
 void poll_modbus(){
@@ -165,6 +170,9 @@ void set_motors() {
   current_position_lift = analogRead(HARDWARE::MOTOR_LIFT_FB);
   current_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
 
+  modbus_data[MODBUS_REGISTERS::CURRENT_POSITION_LIFT] = current_position_lift;
+  modbus_data[MODBUS_REGISTERS::CURRENT_POSITION_TILT] = current_position_tilt;
+
   if (abs(current_position_lift - set_position_lift) > tolerance) {
     if (current_position_lift < set_position_lift) {
       set_motor_output(MOTORS::LIFT, CCW, 255);
@@ -191,11 +199,16 @@ void set_motors() {
 }
 
 void set_scale(){
-    scale.set_scale(modbus_data[MODBUS_REGISTERS::CALIBRATION_FACTOR]);
+    scale.set_scale(modbus_data[MODBUS_REGISTERS::CALIBRATION_FACTOR]*-1000);
+
+    if (modbus_data[MODBUS_REGISTERS::TARE] == 1){
+        scale.tare();
+        modbus_data[MODBUS_REGISTERS::TARE] = 0;
+    }
 }
 
 void poll_scale(){
-    modbus_data[MODBUS_REGISTERS::MEASURED_WEIGHT] = scale.get_units()*-1
+    modbus_data[MODBUS_REGISTERS::MEASURED_WEIGHT] = scale.get_units()*-1000;
 }
 
 //---Set Motor Output---//
