@@ -68,8 +68,8 @@ class RoverMapCoordinator(QtCore.QThread):
         self.map_pixmap = QtGui.QPixmap.fromImage(ImageQt(Image.open("Resources/Images/maps_loading.png").resize((1280, 720), Image.BICUBIC)))
         self.last_map_pixmap_cache_key = None
 
-        self.longitude = None
-        self.latitude = None
+        self.longitude = 0
+        self.latitude = 0
         self.last_heading = 0
 
         self.imu_data = None
@@ -168,7 +168,11 @@ class RoverMapCoordinator(QtCore.QThread):
         self.pixmap_ready_signal.emit()
 
     def _draw_coordinate_text(self, latitude, longitude):
-        location_text = "LAT: %+014.9f\nLON: %+014.9f" % (latitude, longitude)
+
+        if latitude == 0 and longitude == 0:
+            location_text = "LAT:    NO FIX\nLON:    NO FIX"
+        else:
+            location_text = "LAT: %+014.9f\nLON: %+014.9f" % (latitude, longitude)
 
         font = PIL.ImageFont.truetype("UbuntuMono-R", size=20)
 
@@ -204,29 +208,29 @@ class RoverMapCoordinator(QtCore.QThread):
         temp_list = []
         count = UI_element.rowCount()
         for row in range(0, count):
-            num = UI_element.item(row, 0).text()
+            name = UI_element.item(row, 0).text()
             lat = float(UI_element.item(row, 1).text())
             lng = float(UI_element.item(row, 2).text())
-            temp_tuple = (num, lat, lng)
+            color = UI_element.item(row, 3).background().color()
+            temp_tuple = (name, lat, lng, color)
             temp_list.append(temp_tuple)
         return temp_list
 
     def update_overlay(self):
-        if self.latitude and self.longitude:
-            if not numpy.isnan(self.latitude) and not numpy.isnan(self.longitude):
-                latitude = float(self.latitude)
-                longitude = float(self.longitude)
+        if not numpy.isnan(self.latitude) and not numpy.isnan(self.longitude):
+            latitude = float(self.latitude)
+            longitude = float(self.longitude)
 
-                navigation_list = self._get_table_elements(self.navigation_label)
-                landmark_list = self._get_table_elements(self.landmark_label)
-                self.overlay_image = self.overlay_image_object.update_new_location(
-                                                              latitude,
-                                                              longitude,
-                                                              self.last_heading,
-                                                              navigation_list,
-                                                              landmark_list)
-                # self.last_heading = (self.last_heading + 5) % 360
-                # self.overlay_image.save("something.png")
+            navigation_list = self._get_table_elements(self.navigation_label)
+            landmark_list = self._get_table_elements(self.landmark_label)
+            self.overlay_image = self.overlay_image_object.update_new_location(
+                                                          latitude,
+                                                          longitude,
+                                                          self.last_heading,
+                                                          navigation_list,
+                                                          landmark_list)
+            # self.last_heading = (self.last_heading + 5) % 360
+            # self.overlay_image.save("something.png")
 
     def gps_position_updated_callback(self, data):
         self.latitude = data.latitude

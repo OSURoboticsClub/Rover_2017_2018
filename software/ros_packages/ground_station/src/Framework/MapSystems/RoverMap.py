@@ -440,22 +440,21 @@ class OverlayImage(object):
 
         for element in navigation_list:
             x, y = self._get_cartesian(float(element[1]), float(element[2]))
-            draw.ellipse((x - size, y - size, x + size, y + size), fill="red")
+            draw.text((x + 10, y - 5), str(element[0]))
+            draw.ellipse((x - size, y - size, x + size, y + size), fill=(element[3].red(), element[3].green(), element[3].blue()))
 
         for element in landmark_list:
             x, y = self._get_cartesian(element[1], element[2])
-            draw.ellipse((x - size, y - size, x + size, y + size), fill="blue")
+            draw.text((x + 10, y - 5), str(element[0]))
+            draw.ellipse((x - size, y - size, x + size, y + size), fill=(element[3].red(), element[3].green(), element[3].blue()))
 
         self._draw_rover(latitude, longitude, compass)
-        # self._draw_coordinate_text(latitude, longitude)
         self.update(latitude, longitude)
 
         return self.display_image
 
     def load_rover_icon(self):
         self.indicator = PIL.Image.open("Resources/Images/rover.png").resize((40, 40))
-
-
 
     def _draw_rover(self, lat, lon, angle=0):
         x, y = self._get_cartesian(lat, lon)
