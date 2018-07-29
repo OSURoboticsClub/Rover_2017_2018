@@ -1396,6 +1396,11 @@ N/A</string>
          <attribute name="title">
           <string>SSH Console</string>
          </attribute>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QWidget" name="ssh_console_widget" native="true"/>
+          </item>
+         </layout>
         </widget>
         <widget class="QWidget" name="tab_2">
          <attribute name="title">
