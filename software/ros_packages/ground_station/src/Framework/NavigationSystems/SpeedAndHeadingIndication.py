@@ -66,7 +66,7 @@ class SpeedAndHeadingIndication(QtCore.QThread):
 
         self.shown_heading = (self.current_heading + (1.5 * ROTATION_SPEED_MODIFIER)) % 360
         self.current_heading_shown_rotation_angle = 0
-        self.last_current_heading_shown = 0
+        self.last_current_heading_shown = -1000
         self.rotation_direction = 1
 
         self.imu_data = None
