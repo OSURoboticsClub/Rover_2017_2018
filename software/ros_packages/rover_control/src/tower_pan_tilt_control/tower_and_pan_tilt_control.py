@@ -172,9 +172,9 @@ class TowerPanTiltControl(object):
 
     def send_startup_centering_and_lights_off_command(self):
         try:
-            registers = list(PAN_TILT_CONTROL_DEFAULT_MESSAGE)
-            registers[PAN_TILT_MODBUS_REGISTERS["CENTER_ALL"]] = 1
-            self.pan_tilt_node.write_registers(0, registers)
+            # registers = list(PAN_TILT_CONTROL_DEFAULT_MESSAGE)
+            # registers[PAN_TILT_MODBUS_REGISTERS["CENTER_ALL"]] = 1
+            # self.pan_tilt_node.write_registers(0, registers)
 
             self.tower_node.write_register(0, TOWER_LIGHT_STATES["LIGHT_OFF"])
         except:

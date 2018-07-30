@@ -23,6 +23,7 @@ import Framework.StatusSystems.StatusCore as StatusCore
 import Framework.StatusSystems.UbiquitiStatusCore as UbiquitiStatusCore
 import Framework.SettingsSystems.UbiquitiRadioSettings as UbiquitiRadioSettings
 import Framework.InputSystems.SpaceNavControlSender as SpaceNavControlSender
+import Framework.MiscSystems.MiningCore as MiningCore
 
 #####################################
 # Global Variables
@@ -101,6 +102,7 @@ class GroundStation(QtCore.QObject):
         rospy.init_node("ground_station")
 
         # ##### Instantiate Regular Classes ######
+        self.__add_non_thread("Mining System", MiningCore.Mining(self.shared_objects))
 
         # ##### Instantiate Threaded Classes ######
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
@@ -131,6 +133,9 @@ class GroundStation(QtCore.QObject):
         self.shared_objects["threaded_classes"][thread_name] = instance
         instance.setup_signals(self.start_threads_signal, self.connect_signals_and_slots_signal,
                                self.kill_threads_signal)
+
+    def __add_non_thread(self, name, instance):
+        self.shared_objects["regular_classes"][name] = instance
 
     def __connect_signals_to_slots(self):
         self.shared_objects["screens"]["left_screen"].exit_requested_signal.connect(self.on_exit_requested__slot)

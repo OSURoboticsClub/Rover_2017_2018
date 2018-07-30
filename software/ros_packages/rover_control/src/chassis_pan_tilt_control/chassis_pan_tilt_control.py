@@ -96,7 +96,7 @@ class ChassisPanTiltControl(object):
                                                                           delay_before_tx=TX_DELAY)
 
     def run(self):
-        self.send_startup_centering_command()
+        # self.send_startup_centering_command()
 
         while not rospy.is_shutdown():
             start_time = time()
