@@ -16,6 +16,7 @@ import Framework.LoggingSystems.Logger as Logger
 import Framework.VideoSystems.RoverVideoCoordinator as RoverVideoCoordinator
 import Framework.MapSystems.RoverMapCoordinator as RoverMapCoordinator
 import Framework.InputSystems.JoystickControlSender as JoystickControlSender
+import Framework.InputSystems.ControllerControlSender as ControllerControlSender
 import Framework.NavigationSystems.SpeedAndHeadingIndication as SpeedAndHeading
 import Framework.NavigationSystems.WaypointsCoordinator as WaypointsCoordinator
 import Framework.ArmSystems.ArmIndication as ArmIndication
@@ -108,6 +109,7 @@ class GroundStation(QtCore.QObject):
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
         self.__add_thread("Map Coordinator", RoverMapCoordinator.RoverMapCoordinator(self.shared_objects))
         self.__add_thread("Joystick Sender", JoystickControlSender.JoystickControlSender(self.shared_objects))
+        self.__add_thread("Controller Sender", ControllerControlSender.ControllerControlSender(self.shared_objects))
         self.__add_thread("Speed and Heading", SpeedAndHeading.SpeedAndHeadingIndication(self.shared_objects))
         self.__add_thread("Arm Indication", ArmIndication.ArmIndication(self.shared_objects))
         self.__add_thread("Rover Status", StatusCore.SensorCore(self.shared_objects))

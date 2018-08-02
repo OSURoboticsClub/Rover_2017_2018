@@ -33,6 +33,8 @@ class Mining(QtCore.QObject):
     lift_position_update_ready__signal = QtCore.pyqtSignal(int)
     tilt_position_update_ready__signal = QtCore.pyqtSignal(int)
 
+    weight_measurement_update_ready__signal = QtCore.pyqtSignal(int)
+
     def __init__(self, shared_objects):
         super(Mining, self).__init__()
 
@@ -80,6 +82,8 @@ class Mining(QtCore.QObject):
 
         self.tilt_position_update_ready__signal.connect(self.tilt_position_progress_bar.setValue)
         self.lift_position_update_ready__signal.connect(self.lift_position_progress_bar.setValue)
+
+        self.weight_measurement_update_ready__signal.connect(self.mining_qlcdnumber.display)
 
     def on_mining_set_cal_factor_clicked__slot(self):
         message = MiningControlMessage()
@@ -136,4 +140,4 @@ class Mining(QtCore.QObject):
         status = status  # type:MiningStatusMessage
         self.tilt_position_update_ready__signal.emit(status.tilt_position)
         self.lift_position_update_ready__signal.emit(status.lift_position)
-        self.mining_qlcdnumber.display(status.measured_weight)
+        self.weight_measurement_update_ready__signal.emit(status.measured_weight)

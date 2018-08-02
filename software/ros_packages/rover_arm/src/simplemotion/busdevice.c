@@ -63,7 +63,7 @@ smbusdevicehandle smBDOpen( const char *devicename )
 	//all handles in use
 	if(handle>=SM_MAX_BUSES) return -1;
 
-        if(strncmp(devicename,"COM",3) == 0 || strncmp(devicename,"/dev/tty",8) == 0) //use rs232 lib
+        if(strncmp(devicename,"COM",3) == 0 || strncmp(devicename,"/dev/tty",8) == 0 || strncmp(devicename,"/dev/rover/tty",8) == 0)
 	{
             BusDevice[handle].comPort=OpenComport( devicename, SM_BAUDRATE );
                 if( BusDevice[handle].comPort == -1 )

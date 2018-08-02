@@ -111,6 +111,7 @@ class SpaceNavControlSender(QtCore.QThread):
         self.current_control_mode = self.MINING_MODE
 
     def run(self):
+        self.logger.debug("Starting SpaceNav Mouse Thread")
         spnav.spnav_open()
 
         while self.run_thread_flag:
@@ -125,10 +126,13 @@ class SpaceNavControlSender(QtCore.QThread):
 
             # self.msleep(max(int((self.wait_time - time_diff) * 1000), 0))
 
+        self.logger.debug("Stopping SpaceNav Mouse Thread")
+
     def process_spnav_events(self):
         event = spnav.spnav_poll_event()
 
         if event:
+            # print event
             if event.ev_type == spnav.SPNAV_EVENT_MOTION:
                 self.spnav_states["linear_x"] = event.translation[0] / 350.0
                 self.spnav_states["linear_y"] = event.translation[2] / 350.0

@@ -193,6 +193,8 @@ class JoystickControlSender(QtCore.QThread):
         self.last_camera_toggle_time = time()
 
     def run(self):
+        self.logger.debug("Starting Joystick Thread")
+
         while self.run_thread_flag:
             start_time = time()
 
@@ -202,6 +204,8 @@ class JoystickControlSender(QtCore.QThread):
             time_diff = time() - start_time
 
             self.msleep(max(int(self.wait_time - time_diff), 0))
+
+        self.logger.debug("Stopping Joystick Thread")
 
     def connect_signals_and_slots(self):
         self.set_speed_limit__signal.connect(self.speed_limit_progress_bar.setValue)
