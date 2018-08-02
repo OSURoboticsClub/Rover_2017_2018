@@ -54,7 +54,9 @@ public:
     void run(){
         char dir = 0;
 
-        printf("OK?: %d", ros::ok());
+        smSetParameter(arm_bus_handle, device_address, SMP_ABSOLUTE_SETPOINT, 0);
+        smSetParameter(arm_bus_handle, 2, SMP_ABSOLUTE_SETPOINT, 0);
+        smSetParameter(arm_bus_handle, 3, SMP_ABSOLUTE_SETPOINT, 0);
 
         while(ros::ok()){
             smSetParameter(arm_bus_handle, device_address, SMP_FAULTS, 0);
@@ -86,17 +88,21 @@ public:
             dir = !dir;
 
             if(dir){
-                smSetParameter(arm_bus_handle, device_address, SMP_ABSOLUTE_SETPOINT, 0);
-                smSetParameter(arm_bus_handle, 2, SMP_ABSOLUTE_SETPOINT, 0);
-                smSetParameter(arm_bus_handle, 3, SMP_ABSOLUTE_SETPOINT, 0);
+                smSetParameter(arm_bus_handle, device_address, SMP_ABSOLUTE_SETPOINT, -50000);
+                smSetParameter(arm_bus_handle, 2, SMP_ABSOLUTE_SETPOINT, -50000);
+                smSetParameter(arm_bus_handle, 3, SMP_ABSOLUTE_SETPOINT, -50000);
             }else{
                 smSetParameter(arm_bus_handle, device_address, SMP_ABSOLUTE_SETPOINT, 50000);
-                smSetParameter(arm_bus_handle, 2, SMP_ABSOLUTE_SETPOINT, 300000);
-                smSetParameter(arm_bus_handle, 3, SMP_ABSOLUTE_SETPOINT, 250000);
+                smSetParameter(arm_bus_handle, 2, SMP_ABSOLUTE_SETPOINT, 50000);
+                smSetParameter(arm_bus_handle, 3, SMP_ABSOLUTE_SETPOINT, 50000);
             }
 
             ros::spinOnce();
         }
+
+        smSetParameter(arm_bus_handle, device_address, SMP_ABSOLUTE_SETPOINT, 0);
+        smSetParameter(arm_bus_handle, 2, SMP_ABSOLUTE_SETPOINT, 0);
+        smSetParameter(arm_bus_handle, 3, SMP_ABSOLUTE_SETPOINT, 0);
 
         ROS_ERROR("Shutting down.");
     }
