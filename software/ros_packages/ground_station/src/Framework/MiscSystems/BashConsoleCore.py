@@ -6,29 +6,26 @@
 from PyQt5 import QtCore, QtWidgets
 import logging
 from time import time
-import paramiko
+
 
 #####################################
 # Global Variables
 #####################################
-ACCESS_POINT_IP = "192.168.1.20"  # The channel only has to be set on the access point. The staion will adjust.
-ACCESS_POINT_USER = "ubnt"
-ACCESS_POINT_PASSWORD = "rover4lyfe^"  # We don't care about this password, don't freak out. Wifi is open anyways...
+THREAD_HERTZ = 5
 
 
 #####################################
 # UbiquitiRadioSettings Class Definition
 #####################################
-class SSHConsole(QtCore.QThread):
+class BashConsole(QtCore.QThread):
     def __init__(self, shared_objects):
-        super(SSHConsole, self).__init__()
+        super(BashConsole, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
         self.left_screen = self.shared_objects["screens"]["left_screen"]
 
-        self.ubiquiti_channel_spin_box = self.left_screen.ssh_console_widget  # type: QtWidgets.QSpinBox
-        self.ubiquiti_channel_apply_button = self.left_screen.ubiquiti_channel_apply_button  # type: QtWidgets.QPushButton
+        self.ssh_widget = self.left_screen.ssh_console_widget  # type: QtWidgets.QSpinBox
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -40,8 +37,23 @@ class SSHConsole(QtCore.QThread):
         self.run_thread_flag = True
 
         # ########## Class Variables ##########
+        self.wait_time = 1.0 / THREAD_HERTZ
 
-        self.connect_signals_and_slots()
+    def run(self):
+        while self.run_thread_flag:
+            start_time = time()
+
+            time_diff = time() - start_time
+
+            self.msleep(max(int(self.wait_time - time_diff), 0))
 
     def connect_signals_and_slots(self):
         pass
+
+    def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
+        start_signal.connect(self.start)
+        signals_and_slots_signal.connect(self.connect_signals_and_slots)
+        kill_signal.connect(self.on_kill_threads_requested__slot)
+
+    def on_kill_threads_requested__slot(self):
+        self.run_thread_flag = False

@@ -35,51 +35,59 @@ class XBOXController(QtCore.QThread):
         self.gamepad = None  # type: GamePad
 
         self.controller_states = {
-            "x_axis": 512,
-            "y_axis": 512,
-            "z_axis": 128,
-            "throttle_axis": 128,
+            "left_x_axis": 0,
+            "left_y_axis": 0,
+            "left_stick_button": 0,
+
+            "right_x_axis": 0,
+            "right_y_axis": 0,
+            "right_stick_button": 0,
+
+            "left_trigger": 0,
+            "left_bumper": 0,
+
+            "right_trigger": 0,
+            "right_bumper": 0,
 
             "hat_x_axis": 0,
             "hat_y_axis": 0,
 
-            "trigger_pressed": 0,
-            "thumb_pressed": 0,
-            "three_pressed": 0,
-            "four_pressed": 0,
-            "five_pressed": 0,
-            "six_pressed": 0,
+            "back_button": 0,
+            "start_button": 0,
+            "xbox_button": 0,
 
-            "seven_pressed": 0,
-            "eight_pressed": 0,
-            "nine_pressed": 0,
-            "ten_pressed": 0,
-            "eleven_pressed": 0,
-            "twelve_pressed": 0,
+            "x_button": 0,
+            "a_button": 0,
+            "b_button": 0,
+            "y_button": 0
         }
 
         self.raw_mapping_to_class_mapping = {
-            "ABS_X": "x_axis",
-            "ABS_Y": "y_axis",
-            "ABS_RZ": "z_axis",
-            "ABS_THROTTLE": "throttle_axis",
+            "ABS_X": "left_x_axis",
+            "ABS_Y": "left_y_axis",
+            "BTN_THUMBL": "left_stick_button",
+
+            "ABS_RX": "right_x_axis",
+            "ABS_RY": "right_y_axis",
+            "BTN_THUMBR": "right_stick_button",
+
+            "ABS_Z": "left_trigger",
+            "BTN_TL": "left_bumper",
+
+            "ABS_RZ": "right_trigger",
+            "BTN_TR": "right_bumper",
 
             "ABS_HAT0X": "hat_x_axis",
             "ABS_HAT0Y": "hat_y_axis",
 
-            "BTN_TRIGGER": "trigger_pressed",
-            "BTN_THUMB": "thumb_pressed",
-            "BTN_THUMB2": "three_pressed",
-            "BTN_TOP": "four_pressed",
-            "BTN_TOP2": "five_pressed",
-            "BTN_PINKIE": "six_pressed",
+            "BTN_SELECT": "back_button",
+            "BTN_START": "start_button",
+            "BTN_MODE": "xbox_button",
 
-            "BTN_BASE": "seven_pressed",
-            "BTN_BASE2": "eight_pressed",
-            "BTN_BASE3": "nine_pressed",
-            "BTN_BASE4": "ten_pressed",
-            "BTN_BASE5": "eleven_pressed",
-            "BTN_BASE6": "twelve_pressed"
+            "BTN_NORTH": "x_button",
+            "BTN_SOUTH": "a_button",
+            "BTN_EAST": "b_button",
+            "BTN_WEST": "y_button"
         }
 
         self.ready = False
@@ -109,8 +117,12 @@ class XBOXController(QtCore.QThread):
             events = self.gamepad.read()
 
             for event in events:
-                print event.code
+                # For seeing codes you haven't added yet...
+                # if event.code not in self.raw_mapping_to_class_mapping and event.code != "SYN_REPORT":
+                #     print event.code, ":", event.state
+
                 if event.code in self.raw_mapping_to_class_mapping:
+                    # print event.code, ":", event.state
                     self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
 
             self.ready = True
@@ -136,7 +148,7 @@ class ControllerControlSender(QtCore.QThread):
         self.logger = logging.getLogger("groundstation")
 
         # ########## Thread Flags ##########
-        self.run_thread_flag = False
+        self.run_thread_flag = True
 
         self.controller = XBOXController()
 
@@ -149,6 +161,8 @@ class ControllerControlSender(QtCore.QThread):
 
         while self.run_thread_flag:
             start_time = time()
+
+            # print self.controller.controller_states
 
             time_diff = time() - start_time
 
