@@ -7,3 +7,4 @@ float64 wrist_roll
 
 bool clear_faults
 bool reset_controllers
+bool calibrate
