@@ -155,7 +155,17 @@
                 {name: "/rover_status/battery_status", compress: false, rate: 1.0},
                 {name: "/rover_control/tower/status/co2", compress: false, rate: 1.0},
                 {name: "/rover_odometry/imu/data", compress: false, rate: 10.0},
-                {name: "/rover_control/mining/status", compress: false, rate: 5.0},
+                {name: "/rover_control/mining/status", compress: false, rate: 5.0}
+                ]
+            </rosparam>
+        </node>
+
+        <node name="arm_status_udp_sender" pkg="nimbro_topic_transport" type="udp_sender">
+            <param name="destination_addr" value="$(arg target)" />
+            <param name="destination_port" value="17020" />
+            <rosparam param="topics">
+                [
+                {name: "/rover_arm/status", compress: false, rate: 5.0}
                 ]
             </rosparam>
         </node>

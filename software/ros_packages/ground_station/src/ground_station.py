@@ -26,6 +26,7 @@ import Framework.SettingsSystems.UbiquitiRadioSettings as UbiquitiRadioSettings
 import Framework.InputSystems.SpaceNavControlSender as SpaceNavControlSender
 import Framework.MiscSystems.MiningCore as MiningCore
 import Framework.MiscSystems.BashConsoleCore as BashConsoleCore
+import Framework.MiscSystems.MiscArmCore as MiscArmCore
 
 #####################################
 # Global Variables
@@ -105,6 +106,7 @@ class GroundStation(QtCore.QObject):
 
         # ##### Instantiate Regular Classes ######
         self.__add_non_thread("Mining System", MiningCore.Mining(self.shared_objects))
+        self.__add_non_thread("Arm Indication", ArmIndication.ArmIndication(self.shared_objects))
 
         # ##### Instantiate Threaded Classes ######
         self.__add_thread("Video Coordinator", RoverVideoCoordinator.RoverVideoCoordinator(self.shared_objects))
@@ -112,13 +114,13 @@ class GroundStation(QtCore.QObject):
         self.__add_thread("Joystick Sender", JoystickControlSender.JoystickControlSender(self.shared_objects))
         self.__add_thread("Controller Sender", ControllerControlSender.ControllerControlSender(self.shared_objects))
         self.__add_thread("Speed and Heading", SpeedAndHeading.SpeedAndHeadingIndication(self.shared_objects))
-        self.__add_thread("Arm Indication", ArmIndication.ArmIndication(self.shared_objects))
         self.__add_thread("Rover Status", StatusCore.SensorCore(self.shared_objects))
         self.__add_thread("Ubiquiti Status", UbiquitiStatusCore.UbiquitiStatus(self.shared_objects))
         self.__add_thread("Ubiquiti Radio Settings", UbiquitiRadioSettings.UbiquitiRadioSettings(self.shared_objects))
         self.__add_thread("Waypoints Coordinator", WaypointsCoordinator.WaypointsCoordinator(self.shared_objects))
         self.__add_thread("Spacenav Sender", SpaceNavControlSender.SpaceNavControlSender(self.shared_objects))
         self.__add_thread("Bash Console", BashConsoleCore.BashConsole(self.shared_objects))
+        self.__add_thread("Misc Arm", MiscArmCore.MiscArm(self.shared_objects))
 
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()

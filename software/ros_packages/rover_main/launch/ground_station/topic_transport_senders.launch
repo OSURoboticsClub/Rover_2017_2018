@@ -9,7 +9,8 @@
                 [{name: "/rover_control/command_control/ground_station_drive", compress: true, rate: 15.0},
                 {name: "/rover_control/tower/pan_tilt/control", compress: true, rate: 30.0},
                 {name: "/rover_control/chassis/pan_tilt/control", compress: true, rate: 30.0},
-                {name: "/rover_control/mining/control", compress: true, rate: 15.0}]
+                {name: "/rover_control/mining/control", compress: true, rate: 15.0},
+                {name: "/rover_arm/control/relative", compress: true, rate: 30.0}]
             </rosparam>
         </node>
 
@@ -21,7 +22,8 @@
                 {name: "/cameras/undercarriage/camera_control", compress: false, rate: 5.0},
                 {name: "/cameras/main_navigation/camera_control", compress: false, rate: 5.0},
                 {name: "/cameras/end_effector/camera_control", compress: false, rate: 5.0},
-                {name: "/rover_status/update_requested", compress: false, rate: 5.0},]
+                {name: "/rover_status/update_requested", compress: false, rate: 5.0},
+                {name: "/rover_arm/control/absolute", compress: true, rate: 5.0}]
             </rosparam>
         </node>
     </group>

@@ -21,7 +21,8 @@ int device_address = 1;
 
 ////////// ROS Variables and Defines /////
 // ROS Parameter Defaults
-const string default_port = "/dev/ttyUSB0";
+//const string default_port = "/dev/ttyUSB0";
+const string default_port = "/dev/rover/ttyARM";
 
 const string default_absolute_position_control_topic = "control/absolute";
 const string default_relative_position_control_topic = "control/relative";
@@ -31,8 +32,11 @@ const string default_arm_status_topic = "status";
 // Base
 const smuint8 base_address = 1;
 const smint32 base_counts_per_rev = 5725807;
-const double base_min = -0.5;
+const double base_min_rev = -0.5;
 const double base_max_rev = 0.5;
+
+smint32 base_min_rev_counts = 0;
+smint32 base_max_rev_counts = 0;
 
 // Shoulder
 const smuint8 shoulder_address = 2;
@@ -40,11 +44,17 @@ const smint32 shoulder_counts_per_rev = 2620130;
 const double shoulder_min_rev = -0.25;
 const double shoulder_max_rev = 0.25;
 
+smint32 shoulder_min_rev_counts = 0;
+smint32 shoulder_max_rev_counts = 0;
+
 //Elbow
 const smuint8 elbow_address = 3;
 const smint32 elbow_counts_per_rev = 4917661;
 const double elbow_min_rev = -0.5;
 const double elbow_max_rev = 0.5;
+
+smint32 elbow_min_rev_counts = 0;
+smint32 elbow_max_rev_counts = 0;
 
 //Roll
 const smuint8 roll_address = 4;
@@ -52,11 +62,17 @@ const smint32 roll_counts_per_rev = 1637581;
 const double roll_min_rev = -0.25;
 const double roll_max_rev = 0.25;
 
+smint32 roll_min_rev_counts = 0;
+smint32 roll_max_rev_counts = 0;
+
 //Wrist Pitch
 const smuint8 wrist_pitch_address = 5;
 const smint32 wrist_pitch_counts_per_rev = 3799492;
 const double wrist_pitch_min_rev = -0.25;
 const double wrist_pitch_max_rev = 0.25;
+
+smint32 wrist_pitch_min_rev_counts = 0;
+smint32 wrist_pitch_max_rev_counts = 0;
 
 //Wrist Roll
 const smuint8 wrist_roll_address = 6;
@@ -88,6 +104,21 @@ public:
 
         status_publisher = node_handle->advertise<rover_arm::ArmStatusMessage>(default_arm_status_topic, 1);
 
+        base_min_rev_counts = smint32(base_min_rev * base_counts_per_rev);
+        base_max_rev_counts = smint32(base_max_rev * base_counts_per_rev);
+
+        shoulder_min_rev_counts = smint32(shoulder_min_rev * shoulder_counts_per_rev);
+        shoulder_max_rev_counts = smint32(shoulder_max_rev * shoulder_counts_per_rev);
+
+        elbow_min_rev_counts = smint32(elbow_min_rev * elbow_counts_per_rev);
+        elbow_max_rev_counts = smint32(elbow_max_rev * elbow_counts_per_rev);
+
+        roll_min_rev_counts = smint32(roll_min_rev * roll_counts_per_rev);
+        roll_max_rev_counts = smint32(roll_max_rev * roll_counts_per_rev);
+
+        wrist_pitch_min_rev_counts = smint32(wrist_pitch_min_rev * wrist_pitch_counts_per_rev);
+        wrist_pitch_max_rev_counts = smint32(wrist_pitch_max_rev * wrist_pitch_counts_per_rev);
+
     }
 
     void run() {
@@ -104,7 +135,6 @@ public:
             reset_controllers();
 
             ros::spinOnce();
-//            sleep(1);
         }
 
 
@@ -114,8 +144,12 @@ public:
     void reset_controllers() {
         if (should_reset) {
             smSetParameter(arm_bus_handle, base_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
-            received_first_joint_position_update = false;
-            should_clear_faults = true;
+            smSetParameter(arm_bus_handle, shoulder_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
+            smSetParameter(arm_bus_handle, elbow_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
+            smSetParameter(arm_bus_handle, roll_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
+            smSetParameter(arm_bus_handle, wrist_pitch_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
+            smSetParameter(arm_bus_handle, wrist_roll_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
+//            arm_successfully_connected = false;
             should_reset = false;
         }
     }
@@ -153,7 +187,6 @@ public:
             smint32 base_position_to_offset;
             smRead2Parameters(arm_bus_handle, base_address, SMP_SERIAL_ENC_OFFSET, &base_current_offset,
                               SMP_ACTUAL_POSITION_FB, &base_position_to_offset);
-
             smSetParameter(arm_bus_handle, base_address, SMP_SERIAL_ENC_OFFSET, base_current_offset - base_position_to_offset);
 
             // Shoulder
@@ -161,23 +194,46 @@ public:
             smint32 shoulder_position_to_offset;
             smRead2Parameters(arm_bus_handle, shoulder_address, SMP_SERIAL_ENC_OFFSET, &shoulder_current_offset,
                               SMP_ACTUAL_POSITION_FB, &shoulder_position_to_offset);
-
             smSetParameter(arm_bus_handle, shoulder_address, SMP_SERIAL_ENC_OFFSET, shoulder_current_offset - shoulder_position_to_offset);
 
 
             // Elbow
+            smint32 elbow_current_offset;
+            smint32 elbow_position_to_offset;
+            smRead2Parameters(arm_bus_handle, elbow_address, SMP_SERIAL_ENC_OFFSET, &elbow_current_offset,
+                              SMP_ACTUAL_POSITION_FB, &elbow_position_to_offset);
+            smSetParameter(arm_bus_handle, elbow_address, SMP_SERIAL_ENC_OFFSET, elbow_current_offset - elbow_position_to_offset);
 
             // Roll
+            smint32 roll_current_offset;
+            smint32 roll_position_to_offset;
+            smRead2Parameters(arm_bus_handle, roll_address, SMP_SERIAL_ENC_OFFSET, &roll_current_offset,
+                              SMP_ACTUAL_POSITION_FB, &roll_position_to_offset);
+            smSetParameter(arm_bus_handle, roll_address, SMP_SERIAL_ENC_OFFSET, roll_current_offset - roll_position_to_offset);
 
             // Wrist Pitch
+            smint32 wrist_pitch_current_offset;
+            smint32 wrist_pitch_position_to_offset;
+            smRead2Parameters(arm_bus_handle, wrist_pitch_address, SMP_SERIAL_ENC_OFFSET, &wrist_pitch_current_offset,
+                              SMP_ACTUAL_POSITION_FB, &wrist_pitch_position_to_offset);
+            smSetParameter(arm_bus_handle, wrist_pitch_address, SMP_SERIAL_ENC_OFFSET, wrist_pitch_current_offset - wrist_pitch_position_to_offset);
 
             // Wrist Roll
+            smint32 wrist_roll_current_offset;
+            smint32 wrist_roll_position_to_offset;
+            smRead2Parameters(arm_bus_handle, wrist_roll_address, SMP_SERIAL_ENC_OFFSET, &wrist_roll_current_offset,
+                              SMP_ACTUAL_POSITION_FB, &wrist_roll_position_to_offset);
+            smSetParameter(arm_bus_handle, wrist_roll_address, SMP_SERIAL_ENC_OFFSET, wrist_roll_current_offset - wrist_roll_position_to_offset);
 
             // Save config through reboots
+            smSetParameter(arm_bus_handle, base_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_SAVECFG);
             smSetParameter(arm_bus_handle, shoulder_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_SAVECFG);
+            smSetParameter(arm_bus_handle, elbow_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_SAVECFG);
+            smSetParameter(arm_bus_handle, roll_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_SAVECFG);
+            smSetParameter(arm_bus_handle, wrist_pitch_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_SAVECFG);
+            smSetParameter(arm_bus_handle, wrist_roll_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_SAVECFG);
 
             should_reset = true;
-            should_clear_faults = true;
             should_calibrate = false;
         }
     }
@@ -292,6 +348,14 @@ public:
 
     }
 
+    void constrain_set_positions(){
+        base_set_position = min(max(base_set_position, base_min_rev_counts), base_max_rev_counts);
+        shoulder_set_position = min(max(shoulder_set_position, shoulder_min_rev_counts), shoulder_max_rev_counts);
+        elbow_set_position = min(max(elbow_set_position, elbow_min_rev_counts), elbow_max_rev_counts);
+        roll_set_position = min(max(roll_set_position, roll_min_rev_counts), roll_max_rev_counts);
+        wrist_pitch_set_position = min(max(wrist_pitch_set_position, wrist_pitch_min_rev_counts), wrist_pitch_max_rev_counts);
+    }
+
     void absolute_position_callback(const rover_arm::ArmControlMessage::ConstPtr &msg) {
         if (!received_first_joint_position_update) { return; }
 
@@ -305,10 +369,14 @@ public:
 
         wrist_pitch_set_position = msg->wrist_pitch * wrist_pitch_counts_per_rev;
 
-        smint32 roll_pitch_position_difference = (wrist_pitch_set_position - wrist_pitch_last_set_position) / 2;
-//        wrist_roll_set_position -= roll_pitch_position_difference;
+        smint32 roll_pitch_position_difference = wrist_pitch_set_position / 2;
+        wrist_roll_set_position -= roll_pitch_position_difference;
         wrist_pitch_last_set_position = wrist_pitch_set_position;
 
+        ROS_INFO("BASE: %ld\tSHOULDER: %ld\tELBOW: %ld\tROLL: %ld\tWRIST_PITCH: %ld\tWRIST_ROLL: %ld\t", base_set_position, shoulder_set_position, elbow_set_position, roll_set_position, wrist_pitch_set_position, wrist_roll_set_position);
+
+        constrain_set_positions();
+        ROS_INFO("BASE: %ld\tSHOULDER: %ld\tELBOW: %ld\tROLL: %ld\tWRIST_PITCH: %ld\tWRIST_ROLL: %ld\t", base_set_position, shoulder_set_position, elbow_set_position, roll_set_position, wrist_pitch_set_position, wrist_roll_set_position);
 
         should_clear_faults = (msg->clear_faults);
         should_reset = (msg->reset_controllers);
@@ -322,8 +390,6 @@ public:
     void relative_position_callback(const rover_arm::ArmControlMessage::ConstPtr &msg) {
         if (!received_first_joint_position_update) { return; }
 
-        ROS_INFO("Shoulder before: %ld", shoulder_set_position);
-
         base_set_position += msg->base * base_counts_per_rev;
         shoulder_set_position += msg->shoulder * shoulder_counts_per_rev;
         elbow_set_position += msg->elbow * elbow_counts_per_rev;
@@ -334,9 +400,10 @@ public:
         wrist_pitch_set_position += msg->wrist_pitch * wrist_pitch_counts_per_rev;
 
         smint32 roll_pitch_position_difference = (wrist_pitch_set_position - wrist_pitch_last_set_position) / 2;
-//        wrist_roll_set_position -= roll_pitch_position_difference;
+        wrist_roll_set_position -= roll_pitch_position_difference;
         wrist_pitch_last_set_position = wrist_pitch_set_position;
 
+        constrain_set_positions();
 
         should_clear_faults = (msg->clear_faults);
         should_reset = (msg->reset_controllers);
@@ -346,7 +413,6 @@ public:
             new_positions_received = true;
         }
 
-        ROS_INFO("Shoulder after: %ld", shoulder_set_position);
     }
 
 private:
