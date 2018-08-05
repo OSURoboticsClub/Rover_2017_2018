@@ -27,6 +27,7 @@ import Framework.InputSystems.SpaceNavControlSender as SpaceNavControlSender
 import Framework.MiscSystems.MiningCore as MiningCore
 import Framework.MiscSystems.BashConsoleCore as BashConsoleCore
 import Framework.MiscSystems.MiscArmCore as MiscArmCore
+import Framework.MiscSystems.RDFCore as RDFCore
 
 #####################################
 # Global Variables
@@ -121,6 +122,7 @@ class GroundStation(QtCore.QObject):
         self.__add_thread("Spacenav Sender", SpaceNavControlSender.SpaceNavControlSender(self.shared_objects))
         self.__add_thread("Bash Console", BashConsoleCore.BashConsole(self.shared_objects))
         self.__add_thread("Misc Arm", MiscArmCore.MiscArm(self.shared_objects))
+        self.__add_thread("RDF", RDFCore.RDF(self.shared_objects))
 
         self.connect_signals_and_slots_signal.emit()
         self.__connect_signals_to_slots()

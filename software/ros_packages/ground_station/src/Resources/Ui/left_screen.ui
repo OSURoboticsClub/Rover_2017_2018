@@ -1392,6 +1392,16 @@ N/A</string>
         <property name="currentIndex">
          <number>0</number>
         </property>
+        <widget class="QWidget" name="tab_5">
+         <attribute name="title">
+          <string>RDF</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="0" column="0">
+           <widget class="QLCDNumber" name="rssi_lcdnumber"/>
+          </item>
+         </layout>
+        </widget>
         <widget class="QWidget" name="tab_4">
          <attribute name="title">
           <string>Arm</string>
