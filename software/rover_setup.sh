@@ -15,10 +15,6 @@ folders_to_link=(
     nimbro_topic_transport
     rover_main
     rover_odometry
-    mr1718-arm-urdf_export
-    rover_arm_moveit_config
-    gazebo_ros_demos
-    ros_control_boilerplate
 )
 
 # Print heading

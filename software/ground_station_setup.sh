@@ -13,6 +13,7 @@ folders_to_link=(
     rover_main
     rover_camera
     rover_status
+    rover_arm
 )
 
 # Print heading
