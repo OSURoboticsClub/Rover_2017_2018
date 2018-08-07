@@ -176,6 +176,8 @@ long curr_millis = 0;
 
 // Local modbus variables
 bool global_home = false;
+bool global_home_started = false;
+bool pinch_home_started = false;
 uint16_t global_state = 0;
 uint16_t modbus_position = 0;
 bool modbus_light_state = false;
@@ -318,6 +320,7 @@ void poll_modbus(){
         global_state = modbus_data[MODBUS_REGISTERS::MODE];
         modbus_position = modbus_data[MODBUS_REGISTERS::FINGER_POSITION];
         global_home = modbus_data[MODBUS_REGISTERS::HOME];
+        global_home_started = global_home;
         modbus_light_state = modbus_data[MODBUS_REGISTERS::LIGHT_STATE];
 
         // when shit dies
@@ -405,13 +408,20 @@ void home_routine(){
     if (global_home){
         // need to home all axis
         // home 2 / 3 / 4 first
-        motor_groups[MG_INDEX::FOREFINGER].IS_HOMING = true;
-        motor_groups[MG_INDEX::THUMB].IS_HOMING = true;
-        motor_groups[MG_INDEX::MIDDLEFINGER].IS_HOMING = true;
+        if (global_home_started){
+            motor_groups[MG_INDEX::FOREFINGER].IS_HOMING = true;
+            motor_groups[MG_INDEX::THUMB].IS_HOMING = true;
+            motor_groups[MG_INDEX::MIDDLEFINGER].IS_HOMING = true;
+            global_home_started = false;
+            pinch_home_started = true;
+        }
         // wait till done
         if (!motor_groups[MG_INDEX::FOREFINGER].IS_HOMING && !motor_groups[MG_INDEX::THUMB].IS_HOMING && !motor_groups[MG_INDEX::MIDDLEFINGER].IS_HOMING){
             // home 1
-            motor_groups[MG_INDEX::PINCH].IS_HOMING = true;
+            if (pinch_home_started){
+                motor_groups[MG_INDEX::PINCH].IS_HOMING = true;
+                pinch_home_started = false;
+            }
         }
         // reset
         if (!motor_groups[MG_INDEX::FOREFINGER].IS_HOMING && !motor_groups[MG_INDEX::THUMB].IS_HOMING && !motor_groups[MG_INDEX::MIDDLEFINGER].IS_HOMING && !motor_groups[MG_INDEX::PINCH].IS_HOMING){
