@@ -172,7 +172,7 @@ class EffectorsControl(object):
             #     pass
 
             try:
-                print self.gripper_node.read_register(0)
+                print self.gripper_node.read_registers(0, 15)
             except Exception, error:
                 print error
 
