@@ -160,20 +160,7 @@ class SpaceNavControlSender(QtCore.QThread):
         elif self.current_control_mode == self.ARM_MODE:
             pass
 
-    def send_mining_commands(self):
-        linear_z = self.spnav_states["linear_z"]
-        angular_y = self.spnav_states["angular_y"]
 
-        message = MiningControlMessage()
-
-        message.lift_set_absolute = 1024
-        message.tilt_set_absolute = 1024
-
-        message.lift_set_relative = linear_z * MINING_LIFT_SCALAR if abs(linear_z) > Z_LINEAR_DEADBAND else 0
-        message.tilt_set_relative = angular_y * MINING_TILT_SCALAR if abs(angular_y) > Y_ANGULAR_DEADBAND else 0
-        message.cal_factor = -1
-
-        self.mining_control_publisher.publish(message)
         # print self.spnav_states["linear_z"], self.spnav_states["angular_y"]
 
     def connect_signals_and_slots(self):

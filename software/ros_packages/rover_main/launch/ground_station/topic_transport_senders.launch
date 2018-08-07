@@ -9,7 +9,7 @@
                 [{name: "/rover_control/command_control/ground_station_drive", compress: true, rate: 15.0},
                 {name: "/rover_control/tower/pan_tilt/control", compress: true, rate: 30.0},
                 {name: "/rover_control/chassis/pan_tilt/control", compress: true, rate: 30.0},
-                {name: "/rover_control/mining/control", compress: true, rate: 15.0},
+                {name: "/rover_control/mining/control", compress: true, rate: 30.0},
                 {name: "/rover_arm/control/relative", compress: true, rate: 30.0}]
             </rosparam>
         </node>

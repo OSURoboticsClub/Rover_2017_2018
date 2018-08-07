@@ -9,6 +9,7 @@ from time import time
 
 import rospy
 from rover_arm.msg import ArmControlMessage
+from rover_control.msg import MiningControlMessage
 
 #####################################
 # Global Variables
@@ -18,6 +19,7 @@ GAME_CONTROLLER_NAME = "Afterglow Gamepad for Xbox 360"
 DRIVE_COMMAND_HERTZ = 20
 
 RELATIVE_ARM_CONTROL_TOPIC = "/rover_arm/control/relative"
+MINING_CONTROL_TOPIC = "/rover_control/mining/control"
 
 BASE_SCALAR = 0.003
 SHOULDER_SCALAR = 0.002
@@ -31,6 +33,15 @@ LEFT_Y_AXIS_DEADZONE = 1500
 
 RIGHT_X_AXIS_DEADZONE = 1500
 RIGHT_Y_AXIS_DEADZONE = 1500
+
+THUMB_STICK_MAX = 32768.0
+
+MINING_LIFT_SCALAR = 5
+MINING_TILT_SCALAR = 5
+
+
+COLOR_GREEN = "background-color:darkgreen; border: 1px solid black;"
+COLOR_NONE = "border: 1px solid black;"
 
 
 #####################################
@@ -120,7 +131,7 @@ class XBOXController(QtCore.QThread):
 
     def __setup_controller(self):
         for device in devices.gamepads:
-            print device
+            # print device
             if device.name == GAME_CONTROLLER_NAME:
                 self.gamepad = device
 
@@ -146,15 +157,23 @@ class XBOXController(QtCore.QThread):
 #####################################
 # Controller Class Definition
 #####################################
-class ControllerControlSender(QtCore.QThread):
+class XBOXControllerControlSender(QtCore.QThread):
+    STATES = [
+        "ARM",
+        "MINING"
+    ]
+
+    xbox_control_arm_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+    xbox_control_mining_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
 
     def __init__(self, shared_objects):
-        super(ControllerControlSender, self).__init__()
+        super(XBOXControllerControlSender, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
-        self.video_coordinator = self.shared_objects["threaded_classes"]["Video Coordinator"]
-        self.right_screen = self.shared_objects["screens"]["right_screen"]
+        self.left_screen = self.shared_objects["screens"]["left_screen"]
+        self.xbox_mode_arm_label = self.left_screen.xbox_mode_arm_label  # type: QtWidgets.QLabel
+        self.xbox_mode_mining_label = self.left_screen.xbox_mode_mining_label  # type: QtWidgets.QLabel
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -173,6 +192,12 @@ class ControllerControlSender(QtCore.QThread):
 
         self.relative_arm_control_publisher = rospy.Publisher(RELATIVE_ARM_CONTROL_TOPIC, ArmControlMessage,
                                                               queue_size=1)
+        self.mining_control_publisher = rospy.Publisher(MINING_CONTROL_TOPIC, MiningControlMessage, queue_size=1)
+
+        self.current_state = self.STATES.index("ARM")
+        self.state_just_changed = False
+
+        self.last_xbox_button_state = 0
 
     def run(self):
         self.logger.debug("Starting Joystick Thread")
@@ -180,7 +205,12 @@ class ControllerControlSender(QtCore.QThread):
         while self.run_thread_flag:
             start_time = time()
 
-            self.process_and_send_arm_control()
+            self.change_control_state_if_needed()
+
+            if self.current_state == self.STATES.index("ARM"):
+                self.process_and_send_arm_control()
+            elif self.current_state == self.STATES.index("MINING"):
+                self.send_mining_commands()
 
             time_diff = time() - start_time
 
@@ -189,9 +219,32 @@ class ControllerControlSender(QtCore.QThread):
         self.logger.debug("Stopping Joystick Thread")
 
     def connect_signals_and_slots(self):
-        pass
+        self.xbox_control_arm_stylesheet_update_ready__signal.connect(self.xbox_mode_arm_label.setStyleSheet)
+        self.xbox_control_mining_stylesheet_update_ready__signal.connect(self.xbox_mode_mining_label.setStyleSheet)
+
+    def change_control_state_if_needed(self):
+        if self.state_just_changed:
+            self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_NONE)
+            self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_GREEN)
+            self.state_just_changed = False
+
+        xbox_state = self.controller.controller_states["xbox_button"]
+
+        if self.last_xbox_button_state == 0 and xbox_state == 1:
+            self.current_state += 1
+            self.current_state = self.current_state % len(self.STATES)
+            self.state_just_changed = True
+            self.last_xbox_button_state = 1
+
+        elif self.last_xbox_button_state == 1 and xbox_state == 0:
+            self.last_xbox_button_state = 0
 
     def process_and_send_arm_control(self):
+        if self.state_just_changed:
+            self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_GREEN)
+            self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_NONE)
+            self.state_just_changed = False
+
         message = ArmControlMessage()
 
         should_publish = False
@@ -200,13 +253,13 @@ class ControllerControlSender(QtCore.QThread):
         right_trigger = self.controller.controller_states["right_trigger"]
 
         left_x_axis = self.controller.controller_states["left_x_axis"] if abs(self.controller.controller_states[
-                                                                              "left_x_axis"]) > LEFT_X_AXIS_DEADZONE else 0
+                                                                                  "left_x_axis"]) > LEFT_X_AXIS_DEADZONE else 0
         left_y_axis = self.controller.controller_states["left_y_axis"] if abs(self.controller.controller_states[
-                                                                              "left_y_axis"]) > LEFT_Y_AXIS_DEADZONE else 0
+                                                                                  "left_y_axis"]) > LEFT_Y_AXIS_DEADZONE else 0
         right_y_axis = self.controller.controller_states["right_y_axis"] if abs(self.controller.controller_states[
-                                                                              "right_y_axis"]) > RIGHT_Y_AXIS_DEADZONE else 0
+                                                                                    "right_y_axis"]) > RIGHT_Y_AXIS_DEADZONE else 0
         right_x_axis = self.controller.controller_states["right_x_axis"] if abs(self.controller.controller_states[
-                                                                              "right_x_axis"]) > RIGHT_X_AXIS_DEADZONE else 0
+                                                                                    "right_x_axis"]) > RIGHT_X_AXIS_DEADZONE else 0
 
         # print left_x_axis, ":", left_y_axis, ":", right_x_axis, ":", right_y_axis
 
@@ -215,18 +268,37 @@ class ControllerControlSender(QtCore.QThread):
 
         if left_trigger > 25:
             should_publish = True
-            message.base = ((left_x_axis / 32768.0) * BASE_SCALAR) * left_trigger_ratio
-            message.shoulder = (-(left_y_axis / 32768.0) * SHOULDER_SCALAR) * left_trigger_ratio
-            message.elbow = ((right_y_axis / 32768.0) * ELBOW_SCALAR) * left_trigger_ratio
-            message.roll = (-(right_x_axis / 32768.0) * ROLL_SCALAR) * left_trigger_ratio
+            message.base = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * left_trigger_ratio
+            message.shoulder = ((left_y_axis / THUMB_STICK_MAX) * SHOULDER_SCALAR) * left_trigger_ratio
+            message.elbow = (-(right_y_axis / THUMB_STICK_MAX) * ELBOW_SCALAR) * left_trigger_ratio
+            message.roll = (-(right_x_axis / THUMB_STICK_MAX) * ROLL_SCALAR) * left_trigger_ratio
 
         elif right_trigger > 25:
             should_publish = True
-            message.wrist_roll = ((right_x_axis / 32768.0) * WRIST_ROLL_SCALAR) * right_trigger_ratio
-            message.wrist_pitch = ((left_y_axis / 32768.0) * WRIST_PITCH_SCALAR) * right_trigger_ratio
+            message.wrist_roll = ((right_x_axis / THUMB_STICK_MAX) * WRIST_ROLL_SCALAR) * right_trigger_ratio
+            message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * right_trigger_ratio
 
         if should_publish:
             self.relative_arm_control_publisher.publish(message)
+
+    def send_mining_commands(self):
+
+        left_y_axis = self.controller.controller_states["left_y_axis"] if abs(self.controller.controller_states["left_y_axis"]) > LEFT_Y_AXIS_DEADZONE else 0
+        right_y_axis = self.controller.controller_states["right_y_axis"] if abs(self.controller.controller_states[
+                                                        "right_y_axis"]) > RIGHT_Y_AXIS_DEADZONE else 0
+
+        if left_y_axis or right_y_axis:
+
+            message = MiningControlMessage()
+
+            message.lift_set_absolute = 1024
+            message.tilt_set_absolute = 1024
+
+            message.lift_set_relative = (-(left_y_axis / THUMB_STICK_MAX) * MINING_LIFT_SCALAR)
+            message.tilt_set_relative = ((right_y_axis / THUMB_STICK_MAX) * MINING_TILT_SCALAR)
+            message.cal_factor = -1
+
+            self.mining_control_publisher.publish(message)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)
