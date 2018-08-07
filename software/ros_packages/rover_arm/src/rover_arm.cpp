@@ -149,7 +149,7 @@ public:
             smSetParameter(arm_bus_handle, roll_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
             smSetParameter(arm_bus_handle, wrist_pitch_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
             smSetParameter(arm_bus_handle, wrist_roll_address, SMP_SYSTEM_CONTROL, SMP_SYSTEM_CONTROL_RESTART);
-//            arm_successfully_connected = false;
+            arm_successfully_connected = false;
             should_reset = false;
         }
     }
