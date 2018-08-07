@@ -1,5 +1,5 @@
 '''
-Mapping.py: Objected Orientated Google Maps for Python
+MappingSettings.py: Objected Orientated Google Maps for Python
 ReWritten by Chris Pham
 
 Copyright OSURC, orginal code from GooMPy by Alec Singer and Simon D. Levy

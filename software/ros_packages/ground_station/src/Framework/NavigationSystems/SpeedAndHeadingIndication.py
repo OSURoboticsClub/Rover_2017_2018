@@ -14,7 +14,7 @@ from tf import transformations
 from scipy.interpolate import interp1d
 import math
 from sensor_msgs.msg import Imu
-from Resources.Settings import Mapping as MappingSettings
+from Resources.Settings import MappingSettings as MappingSettings
 
 #####################################
 # Global Variables

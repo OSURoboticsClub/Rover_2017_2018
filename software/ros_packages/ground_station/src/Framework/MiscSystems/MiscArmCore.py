@@ -213,7 +213,6 @@ class MiscArm(QtCore.QThread):
         message.wrist_pitch = movement[4]
         message.wrist_roll = movement[5]
 
-        print message
         self.arm_absolute_control_publisher.publish(message)
 
         self.wait_for_targets_reached(movement)
@@ -227,27 +226,27 @@ class MiscArm(QtCore.QThread):
         wrist_roll_set = movement[5] - (wrist_pitch_set / 2.0)
 
         while abs(self.base_position - base_set) > POSITIONAL_TOLERANCE:
-            self.logger.debug("Waiting for base| %f\t%f" % (self.base_position, base_set))
+            # self.logger.debug("Waiting for base| %f\t%f" % (self.base_position, base_set))
             self.msleep(10)
 
         while abs(self.shoulder_position - shoulder_set) > POSITIONAL_TOLERANCE:
-            self.logger.debug("Waiting for shoulder| %f\t%f" % (self.shoulder_position, shoulder_set))
+            # self.logger.debug("Waiting for shoulder| %f\t%f" % (self.shoulder_position, shoulder_set))
             self.msleep(10)
 
         while abs(self.elbow_position - elbow_set) > POSITIONAL_TOLERANCE:
-            self.logger.debug("Waiting for elbow| %f\t%f" % (self.elbow_position, elbow_set))
+            # self.logger.debug("Waiting for elbow| %f\t%f" % (self.elbow_position, elbow_set))
             self.msleep(10)
 
         while abs(self.roll_position - roll_set) > POSITIONAL_TOLERANCE:
-            self.logger.debug("Waiting for roll| %f\t%f" % (self.roll_position, roll_set))
+            # self.logger.debug("Waiting for roll| %f\t%f" % (self.roll_position, roll_set))
             self.msleep(10)
 
         while abs(self.wrist_pitch_position - wrist_pitch_set) > POSITIONAL_TOLERANCE:
-            self.logger.debug("Waiting for wrist_pitch| %f\t%f" % (self.wrist_pitch_position, wrist_pitch_set))
+            # self.logger.debug("Waiting for wrist_pitch| %f\t%f" % (self.wrist_pitch_position, wrist_pitch_set))
             self.msleep(10)
 
         while abs(self.wrist_roll_position - wrist_roll_set) > POSITIONAL_TOLERANCE:
-            self.logger.debug("Waiting for wrist_roll| %f\t%f" % (self.wrist_roll_position, wrist_roll_set))
+            # self.logger.debug("Waiting for wrist_roll| %f\t%f" % (self.wrist_roll_position, wrist_roll_set))
             self.msleep(10)
 
     def connect_signals_and_slots(self):

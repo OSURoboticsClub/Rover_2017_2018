@@ -201,6 +201,8 @@ class LogitechControllerControlSender(QtCore.QThread):
         self.last_camera_change_time = time()
         self.last_camera_toggle_time = time()
 
+        self.speed_limit = 0.5
+
     def run(self):
         self.logger.debug("Starting Joystick Thread")
 

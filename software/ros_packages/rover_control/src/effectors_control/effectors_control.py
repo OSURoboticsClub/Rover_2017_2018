@@ -20,14 +20,15 @@ from rover_control.msg import MiningControlMessage, MiningStatusMessage
 NODE_NAME = "effectors_control"
 
 # ##### Communication Defines #####
-DEFAULT_PORT = "/dev/rover/ttyEffectors"
+# DEFAULT_PORT = "/dev/rover/ttyEffectors"
+DEFAULT_PORT = "/dev/ttyUSB0"
 DEFAULT_BAUD = 115200
 
 GRIPPER_NODE_ID = 1
 MINING_NODE_ID = 2
 SCIENCE_NODE_ID = 3
 
-GRIPPER_TIMEOUT = 0.15
+GRIPPER_TIMEOUT = 0.5
 MINING_TIMEOUT = 0.3
 SCIENCE_TIMEOUT = 0.15
 
@@ -150,25 +151,30 @@ class EffectorsControl(object):
         # self.initialize_mining_system()
 
         while not rospy.is_shutdown():
-            try:
-                self.process_mining_control_message()
-            except IOError, e:
-                print e
-                if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
-                    print "Lost connection to mining system. Exiting for reconnect."
-                    return
-            except Exception, e:
-                print e
+            # try:
+            #     self.process_mining_control_message()
+            # except IOError, e:
+            #     # print e
+            #     if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
+            #         print "Lost connection to mining system. Exiting for reconnect."
+            #         return
+            # except Exception, e:
+            #     pass
+            #
+            # try:
+            #     self.send_mining_status_message()
+            # except IOError, e:
+            #     print e
+            #     if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
+            #         print "Lost connection to mining system. Exiting for reconnect."
+            #         return
+            # except Exception, e:
+            #     pass
 
             try:
-                self.send_mining_status_message()
-            except IOError, e:
-                print e
-                if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
-                    print "Lost connection to mining system. Exiting for reconnect."
-                    return
-            except Exception, e:
-                print e
+                print self.gripper_node.read_register(0)
+            except Exception, error:
+                print error
 
     def connect_to_nodes(self):
         self.gripper_node = minimalmodbus.Instrument(self.port, int(self.gripper_node_id))
@@ -195,30 +201,6 @@ class EffectorsControl(object):
             self.science_node_present = True
         except:
             self.science_node_present = False
-
-    def initialize_mining_system(self):
-        if self.mining_node_present:
-            self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_SET"]] = 1023
-            self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET"]] = 350
-
-            self.mining_registers[MINING_MODBUS_REGISTERS["CAL_FACTOR"]] = 114
-
-            while abs(self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_POSITION"]] - self.mining_registers[
-                MINING_MODBUS_REGISTERS["LIFT_SET"]]) > MINING_POSITIONAL_THRESHOLD or \
-                    abs(self.mining_registers[MINING_MODBUS_REGISTERS["TILT_POSITION"]] - self.mining_registers[
-                        MINING_MODBUS_REGISTERS["TILT_SET"]]) > MINING_POSITIONAL_THRESHOLD:
-                try:
-                    self.mining_node.write_registers(0, self.mining_registers)
-                    self.mining_registers = self.mining_node.read_registers(0, 7)
-                except Exception, e:
-                    print "Had trouble communicating:", e
-
-            try:
-                self.mining_registers[MINING_MODBUS_REGISTERS["TARE"]] = 1
-                self.mining_node.write_registers(0, self.mining_registers)
-                self.mining_registers[MINING_MODBUS_REGISTERS["TARE"]] = 0
-            except:
-                print "Had trouble communicating: no tare: ", e
 
     def process_mining_control_message(self):
 

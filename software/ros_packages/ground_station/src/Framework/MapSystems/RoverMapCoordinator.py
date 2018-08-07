@@ -20,7 +20,7 @@ from sensor_msgs.msg import Imu
 
 # Custom Imports
 import RoverMap
-from Resources.Settings import Mapping as MappingSettings
+from Resources.Settings import MappingSettings
 from sensor_msgs.msg import NavSatFix
 
 #####################################
@@ -31,7 +31,6 @@ from sensor_msgs.msg import NavSatFix
 GPS_POSITION_TOPIC = "/rover_odometry/fix"
 IMU_DATA_TOPIC = "/rover_odometry/imu/data"
 
-
 MAP_WIDGET_WIDTH = float(1280)
 MAP_WIDGET_HEIGHT = float(720)
 MAP_WIDGET_RATIO = MAP_WIDGET_WIDTH / MAP_WIDGET_HEIGHT
@@ -41,6 +40,8 @@ class RoverMapCoordinator(QtCore.QThread):
     pixmap_ready_signal = QtCore.pyqtSignal()
     change_waypoint_signal = QtCore.pyqtSignal()
 
+    zoom_level_enabled_state_update__signal = QtCore.pyqtSignal(int)
+
     def __init__(self, shared_objects):
         super(RoverMapCoordinator, self).__init__()
 
@@ -49,12 +50,15 @@ class RoverMapCoordinator(QtCore.QThread):
         self.mapping_label = self.left_screen.mapping_label  # type:QtWidgets.QLabel
         self.navigation_label = self.left_screen.navigation_waypoints_table_widget
         self.landmark_label = self.left_screen.landmark_waypoints_table_widget
+        self.map_selection_combo_box = self.left_screen.map_selection_combo_box  # type: QtWidgets.QComboBox
+        self.map_zoom_level_combo_box = self.left_screen.map_zoom_level_combo_box  # type: QtWidgets.QComboBox
 
         self.setings = QtCore.QSettings()
 
         self.logger = logging.getLogger("groundstation")
 
-        self.gps_position_subscriber = rospy.Subscriber(GPS_POSITION_TOPIC, NavSatFix, self.gps_position_updated_callback)
+        self.gps_position_subscriber = rospy.Subscriber(GPS_POSITION_TOPIC, NavSatFix,
+                                                        self.gps_position_updated_callback)
 
         self.run_thread_flag = True
         self.setup_map_flag = True
@@ -65,7 +69,10 @@ class RoverMapCoordinator(QtCore.QThread):
         self.overlay_image = None
         self.overlay_image_object = None
 
-        self.map_pixmap = QtGui.QPixmap.fromImage(ImageQt(Image.open("Resources/Images/maps_loading.png").resize((1280, 720), Image.BICUBIC)))
+        self.loading_image_pixmap = QtGui.QPixmap.fromImage(
+            ImageQt(Image.open("Resources/Images/maps_loading.png").resize((1280, 720), Image.BICUBIC)))
+
+        self.map_pixmap = self.loading_image_pixmap
         self.last_map_pixmap_cache_key = None
 
         self.longitude = 0
@@ -97,9 +104,19 @@ class RoverMapCoordinator(QtCore.QThread):
         self.x_drag_end = -1
         self.y_drag_end = -1
 
+        self.map_selection_name = ""
+        self.map_selection_latitude = 0
+        self.map_selection_longitude = 0
+        self.map_selection_zoom = 0
+
+        self.setup_mapping_locations()
+
     def run(self):
         self.logger.debug("Starting Map Coordinator Thread")
         self.pixmap_ready_signal.emit()  # This gets us the loading map
+
+        # self.precache_all_maps()
+
         while self.run_thread_flag:
             if self.setup_map_flag:
                 self._map_setup()
@@ -114,16 +131,67 @@ class RoverMapCoordinator(QtCore.QThread):
 
         self.logger.debug("Stopping Map Coordinator Thread")
 
+    def setup_mapping_locations(self):
+        locations = [location for location in MappingSettings.MAPPING_LOCATIONS]
+
+        self.map_selection_combo_box.addItems(locations)
+
+        self.update_settings_from_selection()
+        self.map_selection_combo_box.setCurrentText(self.map_selection_name)
+
+        self.update_zoom_combo_box_items(
+            MappingSettings.MAPPING_LOCATIONS[MappingSettings.LAST_SELECTION]["valid_zoom_options"],
+            MappingSettings.LAST_ZOOM_LEVEL)
+
+    def update_settings_from_selection(self):
+        self.map_selection_latitude = MappingSettings.MAPPING_LOCATIONS[MappingSettings.LAST_SELECTION]["latitude"]
+        self.map_selection_longitude = MappingSettings.MAPPING_LOCATIONS[MappingSettings.LAST_SELECTION]["longitude"]
+        self.map_selection_zoom = MappingSettings.LAST_ZOOM_LEVEL
+
+        self.map_selection_name = MappingSettings.LAST_SELECTION
+
+    def precache_all_maps(self):
+        print "Caching all map options!!!"
+        for map in MappingSettings.MAPPING_LOCATIONS:
+            lat = MappingSettings.MAPPING_LOCATIONS[map]["latitude"]
+            lon = MappingSettings.MAPPING_LOCATIONS[map]["longitude"]
+            for zoom in MappingSettings.MAPPING_LOCATIONS[map]["valid_zoom_options"]:
+                print "Caching map: %s at zoom %d" % (map, zoom)
+
+                try:
+                    RoverMap.GMapsStitcher(1280,
+                                           720,
+                                           lat,
+                                           lon,
+                                           zoom,
+                                           'satellite',
+                                           None, 20)
+                except:
+                    print "Could not cache map: %s at zoom %d" % (map, zoom)
+                print "Finished caching map: %s at zoom %d" % (map, zoom)
+
+        print "Map cache complete!"
+
     def _map_setup(self):
+        self.update_zoom_combo_box_items(
+            MappingSettings.MAPPING_LOCATIONS[MappingSettings.LAST_SELECTION]["valid_zoom_options"],
+            MappingSettings.LAST_ZOOM_LEVEL)
+
+        self.map_image = None
+        self.map_pixmap = self.loading_image_pixmap
+        self.pixmap_ready__slot()
+
+        self.google_maps_object = None
         self.google_maps_object = RoverMap.GMapsStitcher(1280,
                                                          720,
-                                                         44.5675721667,
-                                                         -123.2750535,
-                                                         18,  # FIXME: Used to be 18
+                                                         self.map_selection_latitude,
+                                                         self.map_selection_longitude,
+                                                         self.map_selection_zoom,
                                                          'satellite',
                                                          None, 20)
+        self.overlay_image_object = None
         self.overlay_image_object = (
-            RoverMap.OverlayImage(44.5675721667, -123.2750535,
+            RoverMap.OverlayImage(self.map_selection_latitude, self.map_selection_longitude,
                                   self.google_maps_object.northwest,
                                   self.google_maps_object.southeast,
                                   self.google_maps_object.big_image.size[0],
@@ -150,7 +218,8 @@ class RoverMapCoordinator(QtCore.QThread):
 
             crop_x_start = ((self.zoom_subtraction * MAP_WIDGET_RATIO) / 2) - self.x_drag - self.x_drag_end
             crop_y_start = (self.zoom_subtraction / 2) - self.y_drag - self.y_drag_end
-            crop_x_end = (MAP_WIDGET_WIDTH - ((self.zoom_subtraction * MAP_WIDGET_RATIO) / 2)) - self.x_drag - self.x_drag_end
+            crop_x_end = (MAP_WIDGET_WIDTH - (
+                    (self.zoom_subtraction * MAP_WIDGET_RATIO) / 2)) - self.x_drag - self.x_drag_end
             crop_y_end = (MAP_WIDGET_HEIGHT - (self.zoom_subtraction / 2)) - self.y_drag - self.y_drag_end
             crop_box = (int(crop_x_start), int(crop_y_start), int(crop_x_end), int(crop_y_end))
 
@@ -192,6 +261,9 @@ class RoverMapCoordinator(QtCore.QThread):
         self.mapping_label.wheelEvent = self.__mouse_wheel_event
         self.mapping_label.mouseMoveEvent = self.__mouse_move_event
 
+        self.map_selection_combo_box.currentTextChanged.connect(self.map_selection_changed__slot)
+        self.map_zoom_level_combo_box.currentTextChanged.connect(self.zoom_selection_changed__slot)
+
     def on_kill_threads_requested_slot(self):
         self.run_thread_flag = False
 
@@ -224,13 +296,11 @@ class RoverMapCoordinator(QtCore.QThread):
             navigation_list = self._get_table_elements(self.navigation_label)
             landmark_list = self._get_table_elements(self.landmark_label)
             self.overlay_image = self.overlay_image_object.update_new_location(
-                                                          latitude,
-                                                          longitude,
-                                                          self.last_heading,
-                                                          navigation_list,
-                                                          landmark_list)
-            # self.last_heading = (self.last_heading + 5) % 360
-            # self.overlay_image.save("something.png")
+                latitude,
+                longitude,
+                self.last_heading,
+                navigation_list,
+                landmark_list)
 
     def gps_position_updated_callback(self, data):
         self.latitude = data.latitude
@@ -260,9 +330,7 @@ class RoverMapCoordinator(QtCore.QThread):
         self.x_drag = 0
         self.x_drag = 0
 
-
     def __mouse_wheel_event(self, event):
-        # print "wheel:", event.angleDelta()
         self.zoom_subtraction += event.angleDelta().y() / 12
 
     def __mouse_move_event(self, event):
@@ -280,6 +348,27 @@ class RoverMapCoordinator(QtCore.QThread):
         else:
             self.x_drag_start = event.pos().x()
             self.y_drag_start = event.pos().y()
+
+    def update_zoom_combo_box_items(self, zooms, selection):
+        self.map_zoom_level_combo_box.clear()
+        self.map_zoom_level_combo_box.addItems([str(item) for item in zooms])
+        self.map_zoom_level_combo_box.setCurrentText(str(selection))
+
+    def zoom_selection_changed__slot(self, zoom):
+
+        if zoom:
+            MappingSettings.LAST_ZOOM_LEVEL = int(zoom)
+            self.map_selection_zoom = int(zoom)
+            self.setup_map_flag = True
+
+    def map_selection_changed__slot(self, selection):
+        MappingSettings.LAST_SELECTION = selection
+        MappingSettings.LAST_ZOOM_LEVEL = MappingSettings.MAPPING_LOCATIONS[selection]["default_zoom"]
+
+        self.update_settings_from_selection()
+        self.setup_map_flag = True
+
+        self.map_selection_name = selection
 
     @staticmethod
     def constrain(val, min_val, max_val):
