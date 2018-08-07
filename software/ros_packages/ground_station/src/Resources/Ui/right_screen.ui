@@ -151,7 +151,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Base Rotation</string>
+                  <string>Base</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -167,10 +167,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>0</number>
+                  <number>-500</number>
                  </property>
                  <property name="maximum">
-                  <number>360</number>
+                  <number>500</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -218,7 +218,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Shoulder Pitch</string>
+                  <string>Shoulder</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -234,10 +234,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>0</number>
+                  <number>-250</number>
                  </property>
                  <property name="maximum">
-                  <number>360</number>
+                  <number>250</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -267,7 +267,7 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -289,7 +289,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Elbow Pitch</string>
+                  <string>Elbow</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -305,10 +305,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>0</number>
+                  <number>-500</number>
                  </property>
                  <property name="maximum">
-                  <number>360</number>
+                  <number>500</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -338,7 +338,7 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -358,7 +358,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Elbow Roll</string>
+                    <string>Roll</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -374,10 +374,10 @@
                     </size>
                    </property>
                    <property name="minimum">
-                    <number>0</number>
+                    <number>-250</number>
                    </property>
                    <property name="maximum">
-                    <number>360</number>
+                    <number>250</number>
                    </property>
                    <property name="pageStep">
                     <number>10</number>
@@ -407,7 +407,7 @@
                     <double>90.000000000000000</double>
                    </property>
                    <property name="notchesVisible">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -431,7 +431,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>End Effector Pitch</string>
+                  <string>Wrist Pitch</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -447,10 +447,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>0</number>
+                  <number>-250</number>
                  </property>
                  <property name="maximum">
-                  <number>360</number>
+                  <number>250</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -480,7 +480,7 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -498,7 +498,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>End Effector Rotation</string>
+                  <string>Wrist Roll</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -514,10 +514,10 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>0</number>
+                  <number>-1000</number>
                  </property>
                  <property name="maximum">
-                  <number>360</number>
+                  <number>1000</number>
                  </property>
                  <property name="pageStep">
                   <number>10</number>
@@ -547,7 +547,7 @@
                   <double>90.000000000000000</double>
                  </property>
                  <property name="notchesVisible">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>

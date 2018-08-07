@@ -13,7 +13,7 @@ from rover_control.msg import DriveCommandMessage, TowerPanTiltControlMessage
 #####################################
 # Global Variables
 #####################################
-GAME_CONTROLLER_NAME = "Logitech Logitech Extreme 3D Pro"
+GAME_CONTROLLER_NAME = "Logitech Logitech Dual Action"
 
 DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
 DEFAULT_TOWER_PAN_TILT_COMMAND_TOPIC = "/rover_control/tower/pan_tilt/control"
@@ -21,8 +21,10 @@ DEFAULT_CHASSIS_PAN_TILT_COMMAND_TOPIC = "/rover_control/chassis/pan_tilt/contro
 
 DRIVE_COMMAND_HERTZ = 20
 
-Y_AXIS_DEADBAND = 0.05
-X_AXIS_DEADBAND = 0.05
+STICK_DEADBAND = 8
+
+STICK_MAX = 128.0
+STICK_OFFSET = 127
 
 THROTTLE_MIN = 0.05
 
@@ -56,51 +58,57 @@ class LogitechJoystick(QtCore.QThread):
         self.gamepad = None  # type: GamePad
 
         self.controller_states = {
-            "x_axis": 512,
-            "y_axis": 512,
-            "z_axis": 128,
-            "throttle_axis": 128,
+            "left_x_axis": 127,
+            "left_y_axis": 127,
+            "right_x_axis": 127,
+            "right_y_axis": 127,
 
-            "hat_x_axis": 0,
-            "hat_y_axis": 0,
+            "left_trigger": 0,
+            "right_trigger": 0,
 
-            "trigger_pressed": 0,
-            "thumb_pressed": 0,
-            "three_pressed": 0,
-            "four_pressed": 0,
-            "five_pressed": 0,
-            "six_pressed": 0,
+            "left_stick": 0,
+            "right_right": 0,
 
-            "seven_pressed": 0,
-            "eight_pressed": 0,
-            "nine_pressed": 0,
-            "ten_pressed": 0,
-            "eleven_pressed": 0,
-            "twelve_pressed": 0,
+            "left_bumper": 0,
+            "right_bumper": 0,
+
+            "d_pad_x": 0,
+            "d_pad_y": 0,
+
+            "back": 0,
+            "start": 0,
+
+            "a": 0,
+            "x": 0,
+            "y": 0,
+            "b": 0,
         }
 
         self.raw_mapping_to_class_mapping = {
-            "ABS_X": "x_axis",
-            "ABS_Y": "y_axis",
-            "ABS_RZ": "z_axis",
-            "ABS_THROTTLE": "throttle_axis",
+            "ABS_X": "left_x_axis",
+            "ABS_Y": "left_y_axis",
+            "ABS_Z": "right_x_axis",
+            "ABS_RZ": "right_y_axis",
 
-            "ABS_HAT0X": "hat_x_axis",
-            "ABS_HAT0Y": "hat_y_axis",
+            "BTN_BASE": "left_trigger",
+            "BTN_BASE2": "right_trigger",
 
-            "BTN_TRIGGER": "trigger_pressed",
-            "BTN_THUMB": "thumb_pressed",
-            "BTN_THUMB2": "three_pressed",
-            "BTN_TOP": "four_pressed",
-            "BTN_TOP2": "five_pressed",
-            "BTN_PINKIE": "six_pressed",
+            "BTN_BASE5": "left_stick",
+            "BTN_BASE6": "right_right",
 
-            "BTN_BASE": "seven_pressed",
-            "BTN_BASE2": "eight_pressed",
-            "BTN_BASE3": "nine_pressed",
-            "BTN_BASE4": "ten_pressed",
-            "BTN_BASE5": "eleven_pressed",
-            "BTN_BASE6": "twelve_pressed"
+            "BTN_TOP2": "left_bumper",
+            "BTN_PINKIE": "right_bumper",
+
+            "ABS_HAT0X": "d_pad_x",
+            "ABS_HAT0Y": "d_pad_y",
+
+            "BTN_BASE3": "back",
+            "BTN_BASE4": "start",
+
+            "BTN_THUMB": "a",
+            "BTN_TRIGGER": "x",
+            "BTN_TOP": "y",
+            "BTN_THUMB2": "b",
         }
 
         self.ready = False
@@ -118,6 +126,7 @@ class LogitechJoystick(QtCore.QThread):
 
     def __setup_controller(self):
         for device in devices.gamepads:
+            # print device
             if device.name == GAME_CONTROLLER_NAME:
                 self.gamepad = device
 
@@ -129,7 +138,7 @@ class LogitechJoystick(QtCore.QThread):
             events = self.gamepad.read()
 
             for event in events:
-                # print event.code
+                print event.code, event.state
                 if event.code in self.raw_mapping_to_class_mapping:
                     self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
 
@@ -139,7 +148,7 @@ class LogitechJoystick(QtCore.QThread):
 #####################################
 # Controller Class Definition
 #####################################
-class JoystickControlSender(QtCore.QThread):
+class LogitechControllerControlSender(QtCore.QThread):
     set_speed_limit__signal = QtCore.pyqtSignal(int)
     set_left_drive_output__signal = QtCore.pyqtSignal(int)
     set_right_drive_output__signal = QtCore.pyqtSignal(int)
@@ -149,7 +158,7 @@ class JoystickControlSender(QtCore.QThread):
     toggle_selected_gui_camera__signal = QtCore.pyqtSignal()
 
     def __init__(self, shared_objects):
-        super(JoystickControlSender, self).__init__()
+        super(LogitechControllerControlSender, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
@@ -193,6 +202,8 @@ class JoystickControlSender(QtCore.QThread):
         self.last_camera_toggle_time = time()
 
     def run(self):
+        self.logger.debug("Starting Joystick Thread")
+
         while self.run_thread_flag:
             start_time = time()
 
@@ -203,6 +214,8 @@ class JoystickControlSender(QtCore.QThread):
 
             self.msleep(max(int(self.wait_time - time_diff), 0))
 
+        self.logger.debug("Stopping Joystick Thread")
+
     def connect_signals_and_slots(self):
         self.set_speed_limit__signal.connect(self.speed_limit_progress_bar.setValue)
         self.set_left_drive_output__signal.connect(self.left_drive_progress_bar.setValue)
@@ -211,7 +224,7 @@ class JoystickControlSender(QtCore.QThread):
         self.video_coordinator.pan_tilt_selection_changed__signal.connect(self.on_pan_tilt_selection_changed__slot)
 
     def check_and_set_pause_state(self):
-        thumb_pressed = self.joystick.controller_states["thumb_pressed"]
+        thumb_pressed = self.joystick.controller_states["start"]
         if thumb_pressed and (time() - self.last_pause_state_time) > PAUSE_STATE_CHANGE_TIME:
             self.drive_paused = not self.drive_paused
             self.show_changed_pause_state()
@@ -223,7 +236,8 @@ class JoystickControlSender(QtCore.QThread):
         self.publish_pan_tilt_control_commands()
 
     def publish_drive_command(self):
-        throttle_axis = max((255 - self.joystick.controller_states["throttle_axis"]) / 255.0, THROTTLE_MIN)
+        throttle_axis = 1
+        # throttle_axis = max((255 - self.joystick.controller_states["throttle_axis"]) / 255.0, THROTTLE_MIN)
 
         if self.drive_paused:
             drive_message = DriveCommandMessage()
@@ -240,11 +254,11 @@ class JoystickControlSender(QtCore.QThread):
         self.drive_command_publisher.publish(drive_message)
 
     def publish_camera_control_commands(self):
-        trigger_pressed = self.joystick.controller_states["trigger_pressed"]
-        three_pressed = self.joystick.controller_states["three_pressed"]
-        four_pressed = self.joystick.controller_states["four_pressed"]
-        five_pressed = self.joystick.controller_states["five_pressed"]
-        six_pressed = self.joystick.controller_states["six_pressed"]
+        trigger_pressed = self.joystick.controller_states["y"]
+        three_pressed = self.joystick.controller_states["left_bumper"]
+        four_pressed = self.joystick.controller_states["right_bumper"]
+        five_pressed = self.joystick.controller_states["left_trigger"]
+        six_pressed = self.joystick.controller_states["right_trigger"]
 
         if (five_pressed or six_pressed) and (time() - self.last_camera_change_time) > CAMERA_CHANGE_TIME:
             change = -1 if five_pressed else 1
@@ -261,9 +275,9 @@ class JoystickControlSender(QtCore.QThread):
             self.last_camera_toggle_time = time()
 
     def publish_pan_tilt_control_commands(self):
-        button_eight = self.joystick.controller_states["seven_pressed"]
-        hat_x = self.joystick.controller_states["hat_x_axis"]
-        hat_y = self.joystick.controller_states["hat_y_axis"]
+        button_eight = self.joystick.controller_states["a"]
+        hat_x = self.joystick.controller_states["d_pad_x"]
+        hat_y = self.joystick.controller_states["d_pad_y"]
 
         if (hat_x == 0 and not self.last_hat_x_was_movement) and (
                 hat_y == 0 and not self.last_hat_y_was_movement) and not button_eight:
@@ -290,20 +304,14 @@ class JoystickControlSender(QtCore.QThread):
     def get_drive_message(self, throttle_axis):
         drive_message = DriveCommandMessage()
 
-        y_axis = throttle_axis * (-(self.joystick.controller_states["y_axis"] - 512) / 512.0)
-        z_axis = throttle_axis * (-(self.joystick.controller_states["z_axis"] - 128) / 128.0)
-        x_axis = throttle_axis * (-(self.joystick.controller_states["x_axis"] - 512) / 512.0)
+        left_y_axis = self.joystick.controller_states["left_y_axis"] if abs(self.joystick.controller_states["left_y_axis"]) > STICK_DEADBAND else 0
+        right_y_axis = self.joystick.controller_states["right_y_axis"] if abs(self.joystick.controller_states["right_y_axis"]) > STICK_DEADBAND else 0
 
-        if abs(y_axis) < Y_AXIS_DEADBAND:
-            y_axis = 0
+        left_y_axis = throttle_axis * (-(left_y_axis - STICK_OFFSET) / STICK_MAX)
+        right_y_axis = throttle_axis * (-(right_y_axis - STICK_OFFSET) / STICK_MAX)
 
-        if abs(x_axis) < X_AXIS_DEADBAND and y_axis == 0:
-            twist = z_axis
-        else:
-            twist = x_axis if y_axis >= 0 else -x_axis
-
-        drive_message.drive_twist.linear.x = y_axis
-        drive_message.drive_twist.angular.z = twist
+        drive_message.drive_twist.linear.x = (left_y_axis + right_y_axis) / 2.0
+        drive_message.drive_twist.angular.z = (right_y_axis - left_y_axis) / 2.0
 
         return drive_message
 

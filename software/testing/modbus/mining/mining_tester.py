@@ -19,7 +19,7 @@ import minimalmodbus
 #####################################
 NODE_NAME = "chassis_pan_tilt_control"
 
-DEFAULT_PORT = "/dev/rover/ttyChassisPanTilt"
+DEFAULT_PORT = "/dev/rover/ttyEffectors"
 DEFAULT_BAUD = 115200
 
 DEFAULT_INVERT = False
@@ -57,7 +57,7 @@ NODE_LAST_SEEN_TIMEOUT = 2  # seconds
 #####################################
 class MiningControl(object):
     def __init__(self):
-        self.port = "/dev/ttyUSB0"
+        self.port = DEFAULT_PORT
         self.baud = 115200
 
         self.mining_node = None
@@ -93,8 +93,8 @@ class MiningControl(object):
         while True:
             try:
                 print self.mining_node.read_registers(0, 7)
-                # self.mining_registers[MINING_MODBUS_REGISTERS["CAL_FACTOR"]] = int(input("Enter new cal value:"))
-                # self.mining_node.write_registers(0, self.mining_registers)
+                self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET"]] = int(input("Enter new tilt value:"))
+                self.mining_node.write_registers(0, self.mining_registers)
 
             except Exception, e:
                 print e
@@ -106,12 +106,11 @@ class MiningControl(object):
     def initialize_mining_system(self):
         self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_SET"]] = 1023
         self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET"]] = 350
+
         self.mining_registers[MINING_MODBUS_REGISTERS["CAL_FACTOR"]] = 114
 
-        lift_current = 0
-        tilt_current = 0
-
-        while abs(self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_POSITION"]] - self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_SET"]]) > POSITIONAL_THRESHOLD or abs(self.mining_registers[MINING_MODBUS_REGISTERS["TILT_POSITION"]] - self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET"]]) > POSITIONAL_THRESHOLD:
+        while abs(self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_POSITION"]] - self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_SET"]]) > POSITIONAL_THRESHOLD or \
+                        abs(self.mining_registers[MINING_MODBUS_REGISTERS["TILT_POSITION"]] - self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET"]]) > POSITIONAL_THRESHOLD:
             try:
                 self.mining_node.write_registers(0, self.mining_registers)
                 self.mining_registers = self.mining_node.read_registers(0, 7)

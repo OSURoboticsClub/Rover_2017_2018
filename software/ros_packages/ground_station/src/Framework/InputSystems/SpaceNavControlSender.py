@@ -9,10 +9,20 @@ import spnav
 
 import rospy
 
+from rover_control.msg import MiningControlMessage
+
 #####################################
 # Global Variables
 #####################################
-THREAD_HERTZ = 15
+THREAD_HERTZ = 100
+
+MINING_CONTROL_TOPIC = "/rover_control/mining/control"
+
+Y_ANGULAR_DEADBAND = 0.05
+Z_LINEAR_DEADBAND = 0.15
+
+MINING_LIFT_SCALAR = 5
+MINING_TILT_SCALAR = 5
 
 
 #####################################
@@ -21,7 +31,7 @@ THREAD_HERTZ = 15
 class SpaceNavControlSender(QtCore.QThread):
     spacenav_state_update__signal = QtCore.pyqtSignal(object)
 
-    GUI_MODE = 0
+    MINING_MODE = 0
     ARM_MODE = 1
 
     def __init__(self, shared_objects):
@@ -95,9 +105,13 @@ class SpaceNavControlSender(QtCore.QThread):
             5: "f_pressed"
         }
 
-        self.current_control_mode = self.GUI_MODE
+        # ##### Mining Control #####
+        self.mining_control_publisher = rospy.Publisher(MINING_CONTROL_TOPIC, MiningControlMessage, queue_size=1)
+
+        self.current_control_mode = self.MINING_MODE
 
     def run(self):
+        self.logger.debug("Starting SpaceNav Mouse Thread")
         spnav.spnav_open()
 
         while self.run_thread_flag:
@@ -110,12 +124,15 @@ class SpaceNavControlSender(QtCore.QThread):
 
             time_diff = time() - start_time
 
-            self.msleep(max(int((self.wait_time - time_diff) * 1000), 0))
+            # self.msleep(max(int((self.wait_time - time_diff) * 1000), 0))
+
+        self.logger.debug("Stopping SpaceNav Mouse Thread")
 
     def process_spnav_events(self):
         event = spnav.spnav_poll_event()
 
         if event:
+            # print event
             if event.ev_type == spnav.SPNAV_EVENT_MOTION:
                 self.spnav_states["linear_x"] = event.translation[0] / 350.0
                 self.spnav_states["linear_y"] = event.translation[2] / 350.0
@@ -132,15 +149,19 @@ class SpaceNavControlSender(QtCore.QThread):
 
     def check_control_mode_change(self):
         if self.spnav_states["1_pressed"]:
-            self.current_control_mode = self.GUI_MODE
+            self.current_control_mode = self.MINING_MODE
         elif self.spnav_states["2_pressed"]:
             self.current_control_mode = self.ARM_MODE
 
     def broadcast_control_state(self):
-        if self.current_control_mode == self.GUI_MODE:
-            self.spacenav_state_update__signal.emit(self.spnav_states)
+        if self.current_control_mode == self.MINING_MODE:
+            self.send_mining_commands()
+            # self.spacenav_state_update__signal.emit(self.spnav_states)
         elif self.current_control_mode == self.ARM_MODE:
             pass
+
+
+        # print self.spnav_states["linear_z"], self.spnav_states["angular_y"]
 
     def connect_signals_and_slots(self):
         pass

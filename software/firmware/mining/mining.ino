@@ -40,30 +40,35 @@ enum MOTORS {
 
 enum MODBUS_REGISTERS {
     // Inputs
-    SET_POSITION_LIFT = 0,
-    SET_POSITION_TILT = 1,
-    TARE = 2,
-    CALIBRATION_FACTOR = 3,
+    SET_POSITION_LIFT_POSITIVE = 0,
+    SET_POSITION_LIFT_NEGATIVE = 1,
+    SET_POSITION_TILT_POSITIVE = 2,
+    SET_POSITION_TILT_NEGATIVE = 3,
+    SET_POSITION_LIFT_ABSOLUTE = 4,
+    SET_POSITION_TILT_ABSOLUTE = 5,
+    MEASURE = 6,
+    TARE = 7,
+    CALIBRATION_FACTOR = 8,
 
     // Outputs
-    CURRENT_POSITION_LIFT = 4,
-    CURRENT_POSITION_TILT = 5,
-    MEASURED_WEIGHT = 6,
+    CURRENT_POSITION_LIFT = 9,
+    CURRENT_POSITION_TILT = 10,
+    MEASURED_WEIGHT = 11
 };
 
 ////////// Global Variables //////////
-int set_position_lift = 0;
-int set_position_tilt = 0;
+int set_position_lift = 1023;
+int set_position_tilt = 350;
 int current_position_lift = 0;
 int current_position_tilt = 0;
 int tolerance = 20; //tolerance for position
 
-float calibration_factor = -120000; //for the scale
+float last_calibration_factor = -120000; //for the scale
 
 // modbus stuff
 const uint8_t node_id = 2;
 const uint8_t mobus_serial_port_number = 2;
-uint16_t modbus_data[] = {1023, 350, 0, 0, 0, 0, 0};
+uint16_t modbus_data[] = {0, 0, 0, 0, 9999, 9999, 0, 0, 972, 0, 0, 0};
 uint8_t num_modbus_registers = 0;
 int8_t poll_state = 0;
 bool communication_good = false;
@@ -81,11 +86,12 @@ Modbus slave(node_id, mobus_serial_port_number, HARDWARE::RS485_EN);
 
 void setup() {
   Serial.begin(9600); // debug
+  // while(!Serial);
 
   setup_hardware();
   num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
   slave.begin(115200); // baud-rate at 19200
-  slave.setTimeOut(500);
+  slave.setTimeOut(200);
 }
 
 void loop() {
@@ -131,13 +137,13 @@ void setup_hardware() {
   analogWriteFrequency(HARDWARE::MOTOR_TILT_PWM, 25000);
 
   // set the current desired position to the current position
-  set_position_lift = analogRead(HARDWARE::MOTOR_LIFT_FB);
-  set_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
+  // set_position_lift = analogRead(HARDWARE::MOTOR_LIFT_FB);
+  // set_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
   current_position_lift = analogRead(HARDWARE::MOTOR_LIFT_FB);
   current_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
 
   // setup scale
-  scale.set_scale(calibration_factor);
+  scale.set_scale(last_calibration_factor);
   scale.tare();	//Reset the scale to 0
 }
 
@@ -164,8 +170,27 @@ void set_leds(){
 }
 
 void set_motors() {
-  set_position_lift = modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT];
-  set_position_tilt = modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT];
+    if (modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT_ABSOLUTE] < 1024 ){
+        set_position_lift = modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT_ABSOLUTE];
+        modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT_ABSOLUTE] = 1024;
+    }else{
+        set_position_lift += modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT_POSITIVE] - modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT_NEGATIVE];
+        set_position_lift = constrain(set_position_lift, 0, 1023);
+
+        modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT_POSITIVE] = 0;
+        modbus_data[MODBUS_REGISTERS::SET_POSITION_LIFT_NEGATIVE] = 0;
+    }
+
+    if(modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT_ABSOLUTE] < 1024){
+        set_position_tilt = modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT_ABSOLUTE];
+        modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT_ABSOLUTE] = 1024;
+    }else{
+        set_position_tilt += modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT_POSITIVE] - modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT_NEGATIVE] ;
+        set_position_tilt = constrain(set_position_tilt, 0, 1023);
+
+        modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT_POSITIVE] = 0;
+        modbus_data[MODBUS_REGISTERS::SET_POSITION_TILT_NEGATIVE] = 0;
+    }
 
   current_position_lift = analogRead(HARDWARE::MOTOR_LIFT_FB);
   current_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
@@ -199,7 +224,11 @@ void set_motors() {
 }
 
 void set_scale(){
-    scale.set_scale(modbus_data[MODBUS_REGISTERS::CALIBRATION_FACTOR]*-1000);
+    float cal_factor = modbus_data[MODBUS_REGISTERS::CALIBRATION_FACTOR] * -100;
+    if(cal_factor != last_calibration_factor){
+        scale.set_scale(cal_factor);
+        last_calibration_factor = cal_factor;
+    }
 
     if (modbus_data[MODBUS_REGISTERS::TARE] == 1){
         scale.tare();
@@ -208,7 +237,11 @@ void set_scale(){
 }
 
 void poll_scale(){
-    modbus_data[MODBUS_REGISTERS::MEASURED_WEIGHT] = scale.get_units()*-1000;
+    if(modbus_data[MODBUS_REGISTERS::MEASURE] == 1){
+        // Serial.println(scale.get_units()*-1000);
+        modbus_data[MODBUS_REGISTERS::MEASURED_WEIGHT] = scale.get_units()*-1000;
+        modbus_data[MODBUS_REGISTERS::MEASURE] = 0;
+    }
 }
 
 //---Set Motor Output---//
