@@ -12,7 +12,7 @@ import minimalmodbus
 # from std_msgs.msg import UInt8, UInt16
 
 # Custom Imports
-from rover_control.msg import MiningControlMessage, MiningStatusMessage
+from rover_control.msg import MiningControlMessage, MiningStatusMessage, GripperControlMessage, GripperStatusMessage
 
 #####################################
 # Global Variables
@@ -21,7 +21,7 @@ NODE_NAME = "effectors_control"
 
 # ##### Communication Defines #####
 # DEFAULT_PORT = "/dev/rover/ttyEffectors"
-DEFAULT_PORT = "/dev/ttyUSB0"
+DEFAULT_PORT = "/dev/ttyUSB1"
 DEFAULT_BAUD = 115200
 
 GRIPPER_NODE_ID = 1
@@ -38,13 +38,47 @@ TX_DELAY = 0.01
 DEFAULT_HERTZ = 40
 
 GRIPPER_CONTROL_SUBSCRIBER_TOPIC = "gripper/control"
+GRIPPER_STATUS_PUBLISHER_TOPIC = "gripper/status"
 
 MINING_CONTROL_SUBSCRIBER_TOPIC = "mining/control"
 MINING_STATUS_PUBLISHER_TOPIC = "mining/status"
 
 SCIENCE_CONTROL_SUBSCRIBER_TOPIC = "science/control"
 
-# ##### Arm Defines #####
+# ##### Gripper Defines #####
+GRIPPER_MODBUS_REGISTERS = {
+    "MODE": 0,
+    "FINGER_POSITION": 1,
+    "HOME": 2,
+    "LIGHT_STATE": 3,
+
+    "CURRENT_PINCH": 4,
+    "CURRENT_FOREFINGER": 5,
+    "CURRENT_THUMB": 6,
+    "CURRENT_MIDDLEFINGER": 7,
+    "POSITION_PINCH": 8,
+    "POSITION_FOREFINGER": 9,
+    "POSITION_THUMB": 10,
+    "POSITION_MIDDLEFINGER": 11,
+    "LIGHT_STATE_OUPUT": 12,
+    "MODE_OUTPUT": 13,
+    "FINGER_POSITION_OUTPUT": 14
+}
+
+GRIPPER_MODES = {
+    "NO_CHANGE": 0,
+    "NORMAL": 1,
+    "TWO_FINGER_PINCH": 2,
+    "WIDE ": 3,
+    "SCISSOR": 4
+}
+
+DEFAULT_GRIPPER_REGISTERS = [
+    0,  # No change
+    0,  # No positional update
+    0,  # Do not home
+    0,  # Light off
+]
 
 # ##### Mining Defines #####
 MINING_MODBUS_REGISTERS = {
@@ -89,6 +123,8 @@ class EffectorsControl(object):
 
         self.gripper_control_subscriber_topic = rospy.get_param("~gripper_control_subscriber_topic",
                                                                 GRIPPER_CONTROL_SUBSCRIBER_TOPIC)
+        self.gripper_status_publisher_topic = rospy.get_param("~gripper_status_publisher_topic",
+                                                              GRIPPER_STATUS_PUBLISHER_TOPIC)
 
         self.mining_control_subscriber_topic = rospy.get_param("~mining_control_subscriber_topic",
                                                                MINING_CONTROL_SUBSCRIBER_TOPIC)
@@ -113,21 +149,29 @@ class EffectorsControl(object):
         # self.check_which_nodes_present()
 
         # ##### Subscribers #####
+        self.gripper_control_subscriber = rospy.Subscriber(self.gripper_control_subscriber_topic, GripperControlMessage, self.gripper_control_message_received__callback)
 
-        self.mining_control_subscriber = rospy.Subscriber(self.mining_control_subscriber_topic, MiningControlMessage,
+        self.mining_control_subscriber = rospy.Subscriber(self.mining_control_subscriber_topic, MiningStatusMessage,
                                                           self.mining_control_message_received__callback)
 
         # ##### Publishers #####
-        self.mining_status_publisher = rospy.Publisher(self.mining_status_publisher_topic, MiningStatusMessage, queue_size=1)
+        self.gripper_status_publisher = rospy.Publisher(self.gripper_status_publisher_topic, GripperStatusMessage, queue_size=1)
+
+        self.mining_status_publisher = rospy.Publisher(self.mining_status_publisher_topic, MiningStatusMessage,
+                                                       queue_size=1)
 
         # ##### Misc #####
         self.modbus_nodes_seen_time = time()
 
         # ##### Mining Variables #####
         self.mining_registers = [0 for _ in MINING_MODBUS_REGISTERS]
+        self.gripper_registers = [0 for _ in GRIPPER_MODBUS_REGISTERS]
 
         self.mining_control_message = None  # type:MiningControlMessage
         self.new_mining_control_message = False
+
+        self.gripper_control_message = None
+        self.new_gripper_control_message = False
 
         self.run()
 
@@ -149,6 +193,11 @@ class EffectorsControl(object):
 
     def run(self):
         # self.initialize_mining_system()
+
+        try:
+            self.gripper_registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
+        except:
+            pass
 
         while not rospy.is_shutdown():
             # try:
@@ -172,7 +221,8 @@ class EffectorsControl(object):
             #     pass
 
             try:
-                print self.gripper_node.read_registers(0, 15)
+                self.process_gripper_control_message()
+                self.send_gripper_status_message()
             except Exception, error:
                 print error
 
@@ -252,6 +302,52 @@ class EffectorsControl(object):
             self.mining_status_publisher.publish(message)
 
             self.modbus_nodes_seen_time = time()
+
+    def process_gripper_control_message(self):
+        if self.new_gripper_control_message:
+
+            if self.gripper_control_message.toggle_light:
+                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]] = not self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]]
+
+            self.gripper_registers[GRIPPER_MODBUS_REGISTERS["HOME"]] = self.gripper_control_message.should_home
+            self.gripper_registers[GRIPPER_MODBUS_REGISTERS["MODE"]] = self.gripper_control_message.gripper_mode
+
+            gripper_absolute = self.gripper_control_message.gripper_position_absolute
+            gripper_relative = self.gripper_control_message.gripper_position_relative
+
+            if -1 < gripper_absolute < UINT16_MAX:
+                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = gripper_absolute
+            else:
+                new_position = self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] + gripper_relative
+                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(new_position, 0), 10000)
+
+            self.gripper_node.write_registers(0, self.gripper_registers)
+
+            self.gripper_node.write_registers(0, DEFAULT_GRIPPER_REGISTERS)
+
+            self.new_gripper_control_message = False
+
+    def send_gripper_status_message(self):
+        registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
+
+        message = GripperStatusMessage()
+        message.pinch_position_raw = registers[GRIPPER_MODBUS_REGISTERS["POSITION_PINCH"]]
+        message.forefinger_position_raw = registers[GRIPPER_MODBUS_REGISTERS["POSITION_FOREFINGER"]]
+        message.thumb_position_raw = registers[GRIPPER_MODBUS_REGISTERS["POSITION_THUMB"]]
+        message.middlefinger_position_raw = registers[GRIPPER_MODBUS_REGISTERS["POSITION_MIDDLEFINGER"]]
+        message.pinch_current = registers[GRIPPER_MODBUS_REGISTERS["CURRENT_PINCH"]]
+        message.forefinger_current = registers[GRIPPER_MODBUS_REGISTERS["CURRENT_FOREFINGER"]]
+        message.thumb_current = registers[GRIPPER_MODBUS_REGISTERS["CURRENT_THUMB"]]
+        message.middlefinger_current = registers[GRIPPER_MODBUS_REGISTERS["CURRENT_MIDDLEFINGER"]]
+        message.light_on = registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE_OUPUT"]]
+        message.current_mode = registers[GRIPPER_MODBUS_REGISTERS["MODE_OUTPUT"]]
+        message.current_finger_position = registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION_OUTPUT"]]
+
+        self.gripper_status_publisher.publish(message)
+
+    def gripper_control_message_received__callback(self, control_message):
+        self.gripper_control_message = control_message
+        self.new_gripper_control_message = True
 
     def mining_control_message_received__callback(self, control_message):
         self.mining_control_message = control_message

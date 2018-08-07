@@ -57,6 +57,8 @@ find_package(catkin REQUIRED COMPONENTS
    TowerPanTiltControlMessage.msg
    MiningControlMessage.msg
    MiningStatusMessage.msg
+   GripperControlMessage.msg
+   GripperStatusMessage.msg
  )
 
 ## Generate services in the 'srv' folder

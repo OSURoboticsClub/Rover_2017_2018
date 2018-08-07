@@ -20,8 +20,8 @@ from std_msgs.msg import Float64MultiArray
 #####################################
 NODE_NAME = "science_node"
 
-DEFAULT_PORT = "/dev/rover/ttyIRIS_2_0"
-DEFAULT_BAUD = 115200
+DEFAULT_PORT = "/dev/rover/ttyRDF_SoilProbe"
+DEFAULT_BAUD = 9600
 
 DEFAULT_INVERT = False
 
@@ -29,12 +29,14 @@ DEFAULT_RDF_PUBLISHER_TOPIC = "rdf/data"
 
 PAN_TILT_NODE_ID = 1
 
-COMMUNICATIONS_TIMEOUT = 0.005  # Seconds
+COMMUNICATIONS_TIMEOUT = 0.1  # Seconds
 
 RX_DELAY = 0.01
 TX_DELAY = 0.01
 
 DEFAULT_HERTZ = 20
+
+SOIL_PROBE_ADDRESS = "mar"
 
 PAN_TILT_MODBUS_REGISTERS = {
     "CENTER_ALL": 0,
@@ -43,6 +45,16 @@ PAN_TILT_MODBUS_REGISTERS = {
     "PAN_ADJUST_NEGATIVE": 2,
     "TILT_ADJUST_POSITIVE": 3,
     "TILT_ADJUST_NEGATIVE": 4
+}
+
+SOIL_PROBE_COMMANDS = {
+    "GET_ADDRESS": "AD=",
+    "DESCRIPTION": "DS=",
+    "PROBE_ENABLED": "PE=",
+    "TAKE_READING": "TR",
+    "TRANSMIT_READING": "T0",
+
+    "QUERY": "?"
 }
 
 NODE_LAST_SEEN_TIMEOUT = 2  # seconds
@@ -84,27 +96,57 @@ class RoverScience(object):
         self.run()
 
     def __setup_minimalmodbus_for_485(self):
-        self.pan_tilt_node.serial = serial.rs485.RS485(self.port, baudrate=self.baud, timeout=COMMUNICATIONS_TIMEOUT)
+        self.pan_tilt_node.serial = serial.rs485.RS485(self.port, baudrate=self.baud, timeout=COMMUNICATIONS_TIMEOUT)  # type: serial.Serial
         self.pan_tilt_node.serial.rs485_mode = serial.rs485.RS485Settings(rts_level_for_rx=1, rts_level_for_tx=0,
                                                                           delay_before_rx=RX_DELAY,
                                                                           delay_before_tx=TX_DELAY)
 
     def run(self):
         # self.send_startup_centering_command()
+        # self.pan_tilt_node.serial.timeout(500)
+
+        out = "%s%s\r\n" % (SOIL_PROBE_ADDRESS, SOIL_PROBE_COMMANDS["PROBE_ENABLED"] + "1")
+        self.pan_tilt_node.serial.write(out)
+        sleep(0.1)
+
         while not rospy.is_shutdown():
+
+            out = "%s%s\r\n" % (SOIL_PROBE_ADDRESS, SOIL_PROBE_COMMANDS["TAKE_READING"])
+            self.pan_tilt_node.serial.write(out)
+            sleep(0.1)
+
+            out = "%s%s\r\n" % (SOIL_PROBE_ADDRESS, SOIL_PROBE_COMMANDS["TRANSMIT_READING"])
+            self.pan_tilt_node.serial.write(out)
+
             start_time = time()
-            try:
-                registers = self.pan_tilt_node.read_registers(0, 1)
-                self.rdf_publisher.publish(Float64MultiArray(data=[registers[0], time()]))
-                self.modbus_nodes_seen_time = time()
-            except Exception, Error:
-                print Error
+            char = ""
+            response = ""
+            while char != '\n' and (time() - start_time) < 2:
+                # print time() - start_time, (time() - start_time) > 2
+                if self.pan_tilt_node.serial.inWaiting():
+                    char = self.pan_tilt_node.serial.read()
+                    response += char
+                    # print char
 
-            if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
-                print "Science not seen for", NODE_LAST_SEEN_TIMEOUT, "seconds. Exiting."
-                return  # Exit so respawn can take over
+            if response:
+                print response
+            else:
+                print "timeout"
+                # print "No response"
 
-            time_diff = time() - start_time
+            # start_time = time()
+            # try:
+            #     registers = self.pan_tilt_node.read_registers(0, 1)
+            #     self.rdf_publisher.publish(Float64MultiArray(data=[registers[0], time()]))
+            #     self.modbus_nodes_seen_time = time()
+            # except Exception, Error:
+            #     print Error
+            #
+            # if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
+            #     print "Science not seen for", NODE_LAST_SEEN_TIMEOUT, "seconds. Exiting."
+            #     return  # Exit so respawn can take over
+
+            # time_diff = time() - start_time
 
     # def run(self):
     #     # self.send_startup_centering_command()

@@ -9,7 +9,7 @@ from time import time
 
 import rospy
 from rover_arm.msg import ArmControlMessage
-from rover_control.msg import MiningControlMessage
+from rover_control.msg import MiningControlMessage, GripperControlMessage
 
 #####################################
 # Global Variables
@@ -18,6 +18,7 @@ GAME_CONTROLLER_NAME = "Afterglow Gamepad for Xbox 360"
 
 DRIVE_COMMAND_HERTZ = 20
 
+GRIPPER_CONTROL_TOPIC = "/rover_control/gripper/control"
 RELATIVE_ARM_CONTROL_TOPIC = "/rover_arm/control/relative"
 MINING_CONTROL_TOPIC = "/rover_control/mining/control"
 
@@ -27,6 +28,8 @@ ELBOW_SCALAR = 0.002
 ROLL_SCALAR = 0.003
 WRIST_PITCH_SCALAR = 0.003
 WRIST_ROLL_SCALAR = 0.006
+
+GRIPPER_MOVEMENT_SCALAR = 300
 
 LEFT_X_AXIS_DEADZONE = 1500
 LEFT_Y_AXIS_DEADZONE = 1500
@@ -38,7 +41,6 @@ THUMB_STICK_MAX = 32768.0
 
 MINING_LIFT_SCALAR = 5
 MINING_TILT_SCALAR = 5
-
 
 COLOR_GREEN = "background-color:darkgreen; border: 1px solid black;"
 COLOR_NONE = "border: 1px solid black;"
@@ -158,10 +160,17 @@ class XBOXController(QtCore.QThread):
 # Controller Class Definition
 #####################################
 class XBOXControllerControlSender(QtCore.QThread):
-    STATES = [
+    XBOX_CONTROL_STATES = [
         "ARM",
         "MINING"
     ]
+
+    GRIPPER_CONTROL_MODES = {
+        "NORMAL": 1,
+        "TWO_FINGER_PINCH": 2,
+        "WIDE": 3,
+        "SCISSOR": 4
+    }
 
     xbox_control_arm_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
     xbox_control_mining_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
@@ -190,14 +199,20 @@ class XBOXControllerControlSender(QtCore.QThread):
 
         self.wait_time = 1.0 / DRIVE_COMMAND_HERTZ
 
+        self.gripper_control_publisher = rospy.Publisher(GRIPPER_CONTROL_TOPIC, GripperControlMessage, queue_size=1)
+
         self.relative_arm_control_publisher = rospy.Publisher(RELATIVE_ARM_CONTROL_TOPIC, ArmControlMessage,
                                                               queue_size=1)
         self.mining_control_publisher = rospy.Publisher(MINING_CONTROL_TOPIC, MiningControlMessage, queue_size=1)
 
-        self.current_state = self.STATES.index("ARM")
-        self.state_just_changed = False
+        self.current_state = self.XBOX_CONTROL_STATES.index("ARM")
+        self.xbox_control_state_just_changed = False
 
         self.last_xbox_button_state = 0
+        self.last_left_bumper_state = 0
+        self.last_right_bumper_state = 0
+
+        self.gripper_control_mode = self.GRIPPER_CONTROL_MODES["NORMAL"]
 
     def run(self):
         self.logger.debug("Starting Joystick Thread")
@@ -207,9 +222,9 @@ class XBOXControllerControlSender(QtCore.QThread):
 
             self.change_control_state_if_needed()
 
-            if self.current_state == self.STATES.index("ARM"):
+            if self.current_state == self.XBOX_CONTROL_STATES.index("ARM"):
                 self.process_and_send_arm_control()
-            elif self.current_state == self.STATES.index("MINING"):
+            elif self.current_state == self.XBOX_CONTROL_STATES.index("MINING"):
                 self.send_mining_commands()
 
             time_diff = time() - start_time
@@ -223,31 +238,51 @@ class XBOXControllerControlSender(QtCore.QThread):
         self.xbox_control_mining_stylesheet_update_ready__signal.connect(self.xbox_mode_mining_label.setStyleSheet)
 
     def change_control_state_if_needed(self):
-        if self.state_just_changed:
-            self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_NONE)
-            self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_GREEN)
-            self.state_just_changed = False
-
         xbox_state = self.controller.controller_states["xbox_button"]
+        left_bumper_state = self.controller.controller_states["left_bumper"]
+        right_bumper_state = self.controller.controller_states["right_bumper"]
 
         if self.last_xbox_button_state == 0 and xbox_state == 1:
             self.current_state += 1
-            self.current_state = self.current_state % len(self.STATES)
-            self.state_just_changed = True
+            self.current_state = self.current_state % len(self.XBOX_CONTROL_STATES)
+            self.xbox_control_state_just_changed = True
             self.last_xbox_button_state = 1
-
         elif self.last_xbox_button_state == 1 and xbox_state == 0:
             self.last_xbox_button_state = 0
 
+        if self.last_left_bumper_state == 0 and left_bumper_state == 1:
+            self.gripper_control_mode = ((self.gripper_control_mode - 1) % len(self.GRIPPER_CONTROL_MODES))
+            # self.gripper_control_mode += 1
+            self.last_left_bumper_state = 1
+        elif self.last_left_bumper_state == 1 and left_bumper_state == 0:
+            self.last_left_bumper_state = 0
+
+        if self.last_right_bumper_state == 0 and right_bumper_state == 1:
+            self.gripper_control_mode = ((self.gripper_control_mode + 1) % len(self.GRIPPER_CONTROL_MODES))
+            # self.gripper_control_mode += 1
+            self.last_right_bumper_state = 1
+        elif self.last_right_bumper_state == 1 and right_bumper_state == 0:
+            self.last_right_bumper_state = 0
+
+        if self.xbox_control_state_just_changed:
+            self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_NONE)
+            self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_GREEN)
+            self.xbox_control_state_just_changed = False
+
     def process_and_send_arm_control(self):
-        if self.state_just_changed:
+        if self.xbox_control_state_just_changed:
             self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_GREEN)
             self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_NONE)
-            self.state_just_changed = False
+            self.xbox_control_state_just_changed = False
 
-        message = ArmControlMessage()
+        arm_control_message = ArmControlMessage()
 
-        should_publish = False
+        gripper_control_message = GripperControlMessage()
+        gripper_control_message.gripper_position_absolute = -1
+        gripper_control_message.gripper_mode = self.gripper_control_mode + 1
+
+        should_publish_arm = False
+        should_publish_gripper = False
 
         left_trigger = self.controller.controller_states["left_trigger"]
         right_trigger = self.controller.controller_states["right_trigger"]
@@ -266,29 +301,36 @@ class XBOXControllerControlSender(QtCore.QThread):
         left_trigger_ratio = left_trigger / 255.0
         right_trigger_ratio = right_trigger / 255.0
 
-        if left_trigger > 25:
-            should_publish = True
-            message.base = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * left_trigger_ratio
-            message.shoulder = ((left_y_axis / THUMB_STICK_MAX) * SHOULDER_SCALAR) * left_trigger_ratio
-            message.elbow = (-(right_y_axis / THUMB_STICK_MAX) * ELBOW_SCALAR) * left_trigger_ratio
-            message.roll = (-(right_x_axis / THUMB_STICK_MAX) * ROLL_SCALAR) * left_trigger_ratio
+        if left_trigger > 0:
+            should_publish_arm = True
+            arm_control_message.base = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * left_trigger_ratio
+            arm_control_message.shoulder = ((left_y_axis / THUMB_STICK_MAX) * SHOULDER_SCALAR) * left_trigger_ratio
+            arm_control_message.elbow = (-(right_y_axis / THUMB_STICK_MAX) * ELBOW_SCALAR) * left_trigger_ratio
+            arm_control_message.roll = (-(right_x_axis / THUMB_STICK_MAX) * ROLL_SCALAR) * left_trigger_ratio
 
-        elif right_trigger > 25:
-            should_publish = True
-            message.wrist_roll = ((right_x_axis / THUMB_STICK_MAX) * WRIST_ROLL_SCALAR) * right_trigger_ratio
-            message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * right_trigger_ratio
+        elif right_trigger > 0:
+            should_publish_arm = True
+            should_publish_gripper = True
 
-        if should_publish:
-            self.relative_arm_control_publisher.publish(message)
+            arm_control_message.wrist_roll = ((right_x_axis / THUMB_STICK_MAX) * WRIST_ROLL_SCALAR) * right_trigger_ratio
+            arm_control_message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * right_trigger_ratio
+
+            gripper_control_message.gripper_position_relative = (-(right_y_axis / THUMB_STICK_MAX) * GRIPPER_MOVEMENT_SCALAR) * right_trigger_ratio
+
+        if should_publish_arm:
+            self.relative_arm_control_publisher.publish(arm_control_message)
+
+        if should_publish_gripper:
+            self.gripper_control_publisher.publish(gripper_control_message)
 
     def send_mining_commands(self):
 
-        left_y_axis = self.controller.controller_states["left_y_axis"] if abs(self.controller.controller_states["left_y_axis"]) > LEFT_Y_AXIS_DEADZONE else 0
+        left_y_axis = self.controller.controller_states["left_y_axis"] if abs(
+            self.controller.controller_states["left_y_axis"]) > LEFT_Y_AXIS_DEADZONE else 0
         right_y_axis = self.controller.controller_states["right_y_axis"] if abs(self.controller.controller_states[
-                                                        "right_y_axis"]) > RIGHT_Y_AXIS_DEADZONE else 0
+                                                                                    "right_y_axis"]) > RIGHT_Y_AXIS_DEADZONE else 0
 
         if left_y_axis or right_y_axis:
-
             message = MiningControlMessage()
 
             message.lift_set_absolute = 1024
