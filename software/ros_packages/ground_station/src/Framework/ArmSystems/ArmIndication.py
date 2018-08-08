@@ -106,6 +106,8 @@ class ArmIndication(QtCore.QObject):
     thumb_current_updated__signal = QtCore.pyqtSignal(int)
     middlefinger_current_updated__signal = QtCore.pyqtSignal(int)
 
+    gripper_reported_setpoint_updated__signal = QtCore.pyqtSignal(int)
+
     def __init__(self, shared_objects):
         super(ArmIndication, self).__init__()
 
@@ -152,6 +154,8 @@ class ArmIndication(QtCore.QObject):
         self.arm_controls_wrist_roll_comms_label = self.right_screen.arm_controls_wrist_roll_comms_label  # type:QtWidgets.QLabel
         self.arm_controls_wrist_roll_status_label = self.right_screen.arm_controls_wrist_roll_status_label  # type:QtWidgets.QLabel
         self.arm_controls_wrist_roll_faults_label = self.right_screen.arm_controls_wrist_roll_faults_label  # type:QtWidgets.QLabel
+
+        self.gripper_reported_setpoint_lcd_number = self.right_screen.gripper_reported_setpoint_lcd_number  # type: QtWidgets.QLCDNumber
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -205,6 +209,8 @@ class ArmIndication(QtCore.QObject):
         self.thumb_current_updated__signal.connect(self.thumb_current_lcd_number.display)
         self.middlefinger_current_updated__signal.connect(self.middlefinger_current_lcd_number.display)
 
+        self.gripper_reported_setpoint_updated__signal.connect(self.gripper_reported_setpoint_lcd_number.display)
+
     def on_arm_status_update_received__callback(self, data):
         self.base_comms_state_update_ready__signal.emit(self.process_comms_to_string(data.base_comm_status))
         self.shoulder_comms_state_update_ready__signal.emit(self.process_comms_to_string(data.shoulder_comm_status))
@@ -247,6 +253,8 @@ class ArmIndication(QtCore.QObject):
         self.forefinger_current_updated__signal.emit(data.forefinger_current)
         self.thumb_current_updated__signal.emit(data.thumb_current)
         self.middlefinger_current_updated__signal.emit(data.middlefinger_current)
+
+        self.gripper_reported_setpoint_updated__signal.emit(data.current_finger_position)
 
     @staticmethod
     def process_faults_to_string(faults):

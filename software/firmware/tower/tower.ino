@@ -131,6 +131,7 @@ void loop() {
   poll_modbus();
   set_leds();
   send_imu_stream_line(root);
+  add_cal_status(root);
   process_gps_and_send_if_ready(root);
   process_white_led_command();
   get_co2_data();
@@ -221,31 +222,17 @@ void setup_imu(){
     // }
 }
 
-void display_cal_status(void)
+void add_cal_status(JsonObject &root)
 {
-  /* Get the four calibration values (0..3) */
-  /* Any sensor data reporting 0 should be ignored, */
-  /* 3 means 'fully calibrated" */
-  uint8_t system, gyro, accel, mag;
-  system = gyro = accel = mag = 0;
-  bno.getCalibration(&system, &gyro, &accel, &mag);
+    JsonObject& imu_cal_object = root.createNestedObject("imu_cal");
+    uint8_t system, gyro, accel, mag;
+    system = gyro = accel = mag = 0;
 
-  /* The data should be ignored until the system calibration is > 0 */
-  Serial.print("\t");
-  if (!system)
-  {
-    Serial.print("! ");
-  }
+    bno.getCalibration(&system, &gyro, &accel, &mag);
 
-  /* Display the individual values */
-  Serial.print("Sys:");
-  Serial.print(system, DEC);
-  Serial.print(" G:");
-  Serial.print(gyro, DEC);
-  Serial.print(" A:");
-  Serial.print(accel, DEC);
-  Serial.print(" M:");
-  Serial.println(mag, DEC);
+    imu_cal_object["gyro"] = gyro;
+    imu_cal_object["accel"] = accel;
+    imu_cal_object["mag"] = mag;
 }
 
 void process_gps_and_send_if_ready(JsonObject &root) {

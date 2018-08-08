@@ -11,7 +11,6 @@ folders_to_link=(
     rover_control
     rover_arm
     rover_status
-    zed_wrapper
     nimbro_topic_transport
     rover_main
     rover_odometry

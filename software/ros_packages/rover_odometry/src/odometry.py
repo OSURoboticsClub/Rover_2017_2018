@@ -83,6 +83,7 @@ class Odometry(object):
 
             gps = temp.get('gps', None)
             imu = temp.get('imu', None)
+            imu_cal = temp.get('imu_cal', None)
 
             if gps:
                 # ###### THIS IS HERE TO DEAL WITH UBLOX GPS #####
@@ -97,6 +98,9 @@ class Odometry(object):
             if imu:
                 # print imu
                 self.broadcast_imu(imu)
+
+            # if imu_cal:
+            #     print imu_cal
 
     @staticmethod
     def chksum_nmea(sentence):
@@ -147,6 +151,7 @@ class Odometry(object):
         message.linear_acceleration.z = imu["laz"]
 
         self.imu_data_publisher.publish(message)
+
 
 if __name__ == "__main__":
     Odometry()

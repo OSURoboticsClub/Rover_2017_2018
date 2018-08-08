@@ -157,7 +157,8 @@
                 {name: "/rover_odometry/imu/data", compress: false, rate: 10.0},
                 {name: "/rover_control/mining/status", compress: false, rate: 5.0},
                 {name: "/rover_control/gripper/status", compress: false, rate: 5.0},
-                {name: "/rdf/data", compress: false, rate: 50.0}
+                {name: "/rover_science/rdf/data", compress: false, rate: 50.0},
+                {name: "/rover_science/soil_probe/data", compress: false, rate: 50.0}
                 ]
             </rosparam>
         </node>

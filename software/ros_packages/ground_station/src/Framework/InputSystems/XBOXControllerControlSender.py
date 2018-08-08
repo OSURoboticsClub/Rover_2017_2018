@@ -29,7 +29,7 @@ ROLL_SCALAR = 0.003
 WRIST_PITCH_SCALAR = 0.003
 WRIST_ROLL_SCALAR = 0.006
 
-GRIPPER_MOVEMENT_SCALAR = 300
+GRIPPER_MOVEMENT_SCALAR = 1500
 
 LEFT_X_AXIS_DEADZONE = 1500
 LEFT_Y_AXIS_DEADZONE = 1500
@@ -180,6 +180,8 @@ class XBOXControllerControlSender(QtCore.QThread):
         "SCISSOR": 4
     }
 
+    PINCH_MODE_ABSOLUTE_SET_POSITION = 57740
+
     def __init__(self, shared_objects):
         super(XBOXControllerControlSender, self).__init__()
 
@@ -222,6 +224,7 @@ class XBOXControllerControlSender(QtCore.QThread):
         self.last_xbox_button_state = 0
         self.last_left_bumper_state = 0
         self.last_right_bumper_state = 0
+        self.last_back_button_state = 0
 
         self.gripper_control_mode = 0
         self.gripper_control_mode_just_changed = False
@@ -253,7 +256,8 @@ class XBOXControllerControlSender(QtCore.QThread):
                 "SET": [self.gripper_mode_scissor_stylesheet_update_ready__signal],
                 "UNSET": [self.gripper_mode_pinch_stylesheet_update_ready__signal,
                           self.gripper_mode_wide_stylesheet_update_ready__signal,
-                          self.gripper_mode_normal_stylesheet_update_ready__signal]
+                          self.gripper_mode_normal_stylesheet_update_ready__signal],
+                "ABS_MOVE": self.PINCH_MODE_ABSOLUTE_SET_POSITION
             }
         }
 
@@ -266,6 +270,7 @@ class XBOXControllerControlSender(QtCore.QThread):
             self.change_control_state_if_needed()
 
             if self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("ARM"):
+                self.send_gripper_home_on_back_press()
                 self.process_and_send_arm_control()
             elif self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("MINING"):
                 self.send_mining_commands()
@@ -331,7 +336,13 @@ class XBOXControllerControlSender(QtCore.QThread):
             for signal in signal_map["UNSET"]:
                 signal.emit(COLOR_NONE)
 
-            self.send_new_gripper_mode = True
+            if "ABS_MOVE" in signal_map:
+                gripper_control_message = GripperControlMessage()
+                gripper_control_message.gripper_mode = self.GRIPPER_CONTROL_MODES["SCISSOR"]
+                gripper_control_message.gripper_position_absolute = signal_map["ABS_MOVE"]
+                self.gripper_control_publisher.publish(gripper_control_message)
+            else:
+                self.send_new_gripper_mode = True
 
             self.gripper_control_mode_just_changed = False
 
@@ -340,11 +351,16 @@ class XBOXControllerControlSender(QtCore.QThread):
         arm_control_message = ArmControlMessage()
 
         gripper_control_message = GripperControlMessage()
-        gripper_control_message.gripper_position_absolute = -1
-        gripper_control_message.gripper_mode = self.gripper_control_mode + 1
 
         should_publish_arm = False
         should_publish_gripper = True if self.send_new_gripper_mode else False
+
+        if self.send_new_gripper_mode:
+            gripper_control_message.gripper_position_absolute = 0
+        else:
+            gripper_control_message.gripper_position_absolute = -1
+
+        gripper_control_message.gripper_mode = self.gripper_control_mode + 1
 
         left_trigger = self.controller.controller_states["left_trigger"]
         right_trigger = self.controller.controller_states["right_trigger"]
@@ -385,6 +401,18 @@ class XBOXControllerControlSender(QtCore.QThread):
         if should_publish_gripper:
             self.gripper_control_publisher.publish(gripper_control_message)
             self.send_new_gripper_mode = False
+
+    def send_gripper_home_on_back_press(self):
+        gripper_control_message = GripperControlMessage()
+        back_state = self.controller.controller_states["back_button"]
+
+        if self.last_back_button_state == 0 and back_state == 1:
+            gripper_control_message.should_home = True
+            gripper_control_message.gripper_mode = 1
+            self.gripper_control_publisher.publish(gripper_control_message)
+            self.last_back_button_state = 1
+        elif self.last_back_button_state == 1 and back_state == 0:
+            self.last_back_button_state = 0
 
     def send_mining_commands(self):
 

@@ -20,8 +20,8 @@ from rover_control.msg import MiningControlMessage, MiningStatusMessage, Gripper
 NODE_NAME = "effectors_control"
 
 # ##### Communication Defines #####
-# DEFAULT_PORT = "/dev/rover/ttyEffectors"
-DEFAULT_PORT = "/dev/ttyUSB1"
+DEFAULT_PORT = "/dev/rover/ttyEffectors"
+# DEFAULT_PORT = "/dev/ttyUSB0"
 DEFAULT_BAUD = 115200
 
 GRIPPER_NODE_ID = 1
@@ -227,7 +227,7 @@ class EffectorsControl(object):
                 self.process_gripper_control_message()
                 self.send_gripper_status_message()
             except Exception, error:
-                print error
+                pass  #print ""error
 
     def connect_to_nodes(self):
         self.gripper_node = minimalmodbus.Instrument(self.port, int(self.gripper_node_id))
@@ -309,29 +309,45 @@ class EffectorsControl(object):
     def process_gripper_control_message(self):
         if self.new_gripper_control_message:
 
-            if self.gripper_control_message.toggle_light:
-                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]] = not self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]]
-
-            self.gripper_registers[GRIPPER_MODBUS_REGISTERS["HOME"]] = self.gripper_control_message.should_home
             self.gripper_registers[GRIPPER_MODBUS_REGISTERS["MODE"]] = self.gripper_control_message.gripper_mode
 
-            gripper_absolute = self.gripper_control_message.gripper_position_absolute
-            gripper_relative = self.gripper_control_message.gripper_position_relative
+            if self.gripper_control_message.should_home:
+                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["HOME"]] = 1
+                self.gripper_node.write_registers(0, self.gripper_registers)
+                self.gripper_node.write_registers(0, DEFAULT_GRIPPER_REGISTERS)
 
-            if -1 < gripper_absolute < UINT16_MAX:
-                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(gripper_absolute, 0), GRIPPER_UNIVERSAL_POSITION_MAX)
+                homing_complete = False
+
+                while not homing_complete:
+                    registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
+                    # print registers
+
+                    if registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION_OUTPUT"]] == 0:
+                        homing_complete = True
+                        self.gripper_registers = registers
+
             else:
-                new_position = self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] + gripper_relative
-                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(new_position, 0), GRIPPER_UNIVERSAL_POSITION_MAX)
+                if self.gripper_control_message.toggle_light:
+                    self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]] = not self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]]
 
-            self.gripper_node.write_registers(0, self.gripper_registers)
+                gripper_absolute = self.gripper_control_message.gripper_position_absolute
+                gripper_relative = self.gripper_control_message.gripper_position_relative
 
-            self.gripper_node.write_registers(0, DEFAULT_GRIPPER_REGISTERS)
+                if -1 < gripper_absolute < UINT16_MAX:
+                    self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(gripper_absolute, 0), UINT16_MAX)
+                else:
+                    new_position = self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] + gripper_relative
+                    self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(new_position, 0), UINT16_MAX)
+
+                self.gripper_node.write_registers(0, self.gripper_registers)
+
+                self.gripper_node.write_registers(0, DEFAULT_GRIPPER_REGISTERS)
 
             self.new_gripper_control_message = False
 
     def send_gripper_status_message(self):
         registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
+        # print registers
 
         message = GripperStatusMessage()
         message.pinch_position_raw = registers[GRIPPER_MODBUS_REGISTERS["POSITION_PINCH"]]

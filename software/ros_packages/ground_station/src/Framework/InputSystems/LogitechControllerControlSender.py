@@ -138,7 +138,7 @@ class LogitechJoystick(QtCore.QThread):
             events = self.gamepad.read()
 
             for event in events:
-                print event.code, event.state
+                # print event.code, event.state
                 if event.code in self.raw_mapping_to_class_mapping:
                     self.controller_states[self.raw_mapping_to_class_mapping[event.code]] = event.state
 
@@ -164,7 +164,7 @@ class LogitechControllerControlSender(QtCore.QThread):
         self.shared_objects = shared_objects
         self.video_coordinator = self.shared_objects["threaded_classes"]["Video Coordinator"]
         self.right_screen = self.shared_objects["screens"]["right_screen"]
-        self.speed_limit_progress_bar = self.right_screen.speed_limit_progress_bar  # type: QtWidgets.QProgressBar
+        self.rover_speed_limit_slider = self.right_screen.rover_speed_limit_slider  # type: QtWidgets.QSlider
         self.left_drive_progress_bar = self.right_screen.left_drive_progress_bar  # type: QtWidgets.QProgressBar
         self.right_drive_progress_bar = self.right_screen.right_drive_progress_bar  # type: QtWidgets.QProgressBar
 
@@ -219,11 +219,11 @@ class LogitechControllerControlSender(QtCore.QThread):
         self.logger.debug("Stopping Joystick Thread")
 
     def connect_signals_and_slots(self):
-        self.set_speed_limit__signal.connect(self.speed_limit_progress_bar.setValue)
         self.set_left_drive_output__signal.connect(self.left_drive_progress_bar.setValue)
         self.set_right_drive_output__signal.connect(self.right_drive_progress_bar.setValue)
 
         self.video_coordinator.pan_tilt_selection_changed__signal.connect(self.on_pan_tilt_selection_changed__slot)
+        self.rover_speed_limit_slider.valueChanged.connect(self.on_speed_limit_slider_value_changed__slot)
 
     def check_and_set_pause_state(self):
         thumb_pressed = self.joystick.controller_states["start"]
@@ -238,18 +238,15 @@ class LogitechControllerControlSender(QtCore.QThread):
         self.publish_pan_tilt_control_commands()
 
     def publish_drive_command(self):
-        throttle_axis = 1
-        # throttle_axis = max((255 - self.joystick.controller_states["throttle_axis"]) / 255.0, THROTTLE_MIN)
-
         if self.drive_paused:
             drive_message = DriveCommandMessage()
         else:
-            drive_message = self.get_drive_message(throttle_axis)
+            drive_message = self.get_drive_message(self.speed_limit)
 
         left_output = abs(drive_message.drive_twist.linear.x - drive_message.drive_twist.angular.z)
         right_output = abs(drive_message.drive_twist.linear.x + drive_message.drive_twist.angular.z)
 
-        self.set_speed_limit__signal.emit(throttle_axis * 100)
+        self.set_speed_limit__signal.emit(self.speed_limit * 100)
         self.set_left_drive_output__signal.emit(left_output * 100)
         self.set_right_drive_output__signal.emit(right_output * 100)
 
@@ -303,14 +300,14 @@ class LogitechControllerControlSender(QtCore.QThread):
             pan_tilt_message.relative_tilt_adjustment = -(hat_y * CHASSIS_PAN_TILT_Y_AXIS_SCALAR)
             self.chassis_pan_tilt_command_publisher.publish(pan_tilt_message)
 
-    def get_drive_message(self, throttle_axis):
+    def get_drive_message(self, speed_limit):
         drive_message = DriveCommandMessage()
 
         left_y_axis = self.joystick.controller_states["left_y_axis"] if abs(self.joystick.controller_states["left_y_axis"]) > STICK_DEADBAND else 0
         right_y_axis = self.joystick.controller_states["right_y_axis"] if abs(self.joystick.controller_states["right_y_axis"]) > STICK_DEADBAND else 0
 
-        left_y_axis = throttle_axis * (-(left_y_axis - STICK_OFFSET) / STICK_MAX)
-        right_y_axis = throttle_axis * (-(right_y_axis - STICK_OFFSET) / STICK_MAX)
+        left_y_axis = speed_limit * (-(left_y_axis - STICK_OFFSET) / STICK_MAX)
+        right_y_axis = speed_limit * (-(right_y_axis - STICK_OFFSET) / STICK_MAX)
 
         drive_message.drive_twist.linear.x = (left_y_axis + right_y_axis) / 2.0
         drive_message.drive_twist.angular.z = (right_y_axis - left_y_axis) / 2.0
@@ -319,6 +316,9 @@ class LogitechControllerControlSender(QtCore.QThread):
 
     def on_pan_tilt_selection_changed__slot(self, selection):
         self.current_pan_tilt_selection = selection
+
+    def on_speed_limit_slider_value_changed__slot(self, value):
+        self.speed_limit = value / 100.0
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)

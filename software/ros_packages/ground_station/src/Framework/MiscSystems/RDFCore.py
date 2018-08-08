@@ -13,7 +13,7 @@ from std_msgs.msg import Float64MultiArray
 #####################################
 # Global Variables
 #####################################
-RDF_DATA_TOPIC = "/rdf/data"
+RDF_DATA_TOPIC = "/rover_science/rdf/data"
 
 THREAD_HERTZ = 5
 

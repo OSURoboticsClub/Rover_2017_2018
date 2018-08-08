@@ -8,12 +8,15 @@ import logging
 import rospy
 
 from rover_control.msg import MiningStatusMessage, MiningControlMessage
+from rover_science.msg import SoilSensorStatusMessage
 
 #####################################
 # Global Variables
 #####################################
 MINING_STATUS_TOPIC = "/rover_control/mining/status"
 MINING_CONTROL_TOPIC = "/rover_control/mining/control"
+
+SOIL_PROBE_TOPIC = "/rover_science/soil_probe/data"
 
 TRAVEL_POSITION_LIFT = 110
 TRAVEL_POSITION_TILT = 1023
@@ -35,6 +38,13 @@ class Mining(QtCore.QObject):
 
     weight_measurement_update_ready__signal = QtCore.pyqtSignal(int)
 
+    temp_update_ready__signal = QtCore.pyqtSignal(float)
+    moisture_update_ready__signal = QtCore.pyqtSignal(float)
+    loss_tangent_update_ready__signal = QtCore.pyqtSignal(float)
+    electrical_conductivity_update_ready__signal = QtCore.pyqtSignal(float)
+    real_dielectric_update_ready__signal = QtCore.pyqtSignal(float)
+    imaginary_dielectric_update_ready__signal = QtCore.pyqtSignal(float)
+
     def __init__(self, shared_objects):
         super(Mining, self).__init__()
 
@@ -54,6 +64,13 @@ class Mining(QtCore.QObject):
         self.mining_transport_move_button = self.left_screen.mining_transport_move_button  # type:QtWidgets.QPushButton
         self.mining_scoop_move_button = self.left_screen.mining_scoop_move_button  # type:QtWidgets.QPushButton
 
+        self.science_temp_lcd_number = self.left_screen.science_temp_lcd_number  # type:QtWidgets.QLCDNumber
+        self.science_moisture_lcd_number = self.left_screen.science_moisture_lcd_number  # type:QtWidgets.QLCDNumber
+        self.science_loss_tangent_lcd_number = self.left_screen.science_loss_tangent_lcd_number  # type:QtWidgets.QLCDNumber
+        self.science_electrical_conductivity_lcd_number = self.left_screen.science_electrical_conductivity_lcd_number  # type:QtWidgets.QLCDNumber
+        self.science_real_dielectric_lcd_number = self.left_screen.science_real_dielectric_lcd_number  # type:QtWidgets.QLCDNumber
+        self.science_imaginary_dielectric_lcd_number = self.left_screen.science_imaginary_dielectric_lcd_number  # type:QtWidgets.QLCDNumber
+
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
 
@@ -66,6 +83,8 @@ class Mining(QtCore.QObject):
         # ########## Class Variables ##########
         self.mining_status_subscriber = rospy.Subscriber(MINING_STATUS_TOPIC, MiningStatusMessage,
                                                          self.mining_status_message_received__callback)
+
+        self.soil_probe_subscriber = rospy.Subscriber(SOIL_PROBE_TOPIC, SoilSensorStatusMessage, self.on_soil_probe_message_received__callback)
 
         self.mining_control_publisher = rospy.Publisher(MINING_CONTROL_TOPIC, MiningControlMessage, queue_size=1)
 
@@ -84,6 +103,13 @@ class Mining(QtCore.QObject):
         self.lift_position_update_ready__signal.connect(self.lift_position_progress_bar.setValue)
 
         self.weight_measurement_update_ready__signal.connect(self.mining_qlcdnumber.display)
+
+        self.temp_update_ready__signal.connect(self.science_temp_lcd_number.display)
+        self.moisture_update_ready__signal.connect(self.science_moisture_lcd_number.display)
+        self.loss_tangent_update_ready__signal.connect(self.science_loss_tangent_lcd_number.display)
+        self.electrical_conductivity_update_ready__signal.connect(self.science_electrical_conductivity_lcd_number.display)
+        self.real_dielectric_update_ready__signal.connect(self.science_real_dielectric_lcd_number.display)
+        self.imaginary_dielectric_update_ready__signal.connect(self.science_imaginary_dielectric_lcd_number.display)
 
     def on_mining_set_cal_factor_clicked__slot(self):
         message = MiningControlMessage()
@@ -141,3 +167,11 @@ class Mining(QtCore.QObject):
         self.tilt_position_update_ready__signal.emit(status.tilt_position)
         self.lift_position_update_ready__signal.emit(status.lift_position)
         self.weight_measurement_update_ready__signal.emit(status.measured_weight)
+
+    def on_soil_probe_message_received__callback(self, data):
+        self.temp_update_ready__signal.emit(data.temp_c)
+        self.moisture_update_ready__signal.emit(data.moisture)
+        self.loss_tangent_update_ready__signal.emit(data.loss_tangent)
+        self.electrical_conductivity_update_ready__signal.emit(data.soil_electrical_conductivity)
+        self.real_dielectric_update_ready__signal.emit(data.real_dielectric_permittivity)
+        self.imaginary_dielectric_update_ready__signal.emit(data.imaginary_dielectric_permittivity)
