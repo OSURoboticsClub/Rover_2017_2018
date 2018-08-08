@@ -103,7 +103,6 @@ class RoverScience(object):
         self.modbus_nodes_seen_time = time()
 
         self.failed_rdf_modbus_count = 0
-
         self.soil_probe_timeout_cumulative = 0
 
         self.which_instrument = self.INSTRUMENTS.index("RDF")

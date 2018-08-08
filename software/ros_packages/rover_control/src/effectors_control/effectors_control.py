@@ -30,7 +30,9 @@ SCIENCE_NODE_ID = 3
 
 GRIPPER_TIMEOUT = 0.5
 MINING_TIMEOUT = 0.3
-SCIENCE_TIMEOUT = 0.15
+
+FAILED_GRIPPER_MODBUS_LIMIT = 20
+FAILED_MINING_MODBUS_LIMIMT = 20
 
 RX_DELAY = 0.01
 TX_DELAY = 0.01
@@ -42,8 +44,6 @@ GRIPPER_STATUS_PUBLISHER_TOPIC = "gripper/status"
 
 MINING_CONTROL_SUBSCRIBER_TOPIC = "mining/control"
 MINING_STATUS_PUBLISHER_TOPIC = "mining/status"
-
-SCIENCE_CONTROL_SUBSCRIBER_TOPIC = "science/control"
 
 # ##### Gripper Defines #####
 GRIPPER_MODBUS_REGISTERS = {
@@ -114,6 +114,11 @@ UINT16_MAX = 65535
 # DriveControl Class Definition
 #####################################
 class EffectorsControl(object):
+    EFFECTORS = [
+        "GRIPPER",
+        "MINING"
+    ]
+
     def __init__(self):
         rospy.init_node(NODE_NAME)
 
@@ -122,7 +127,6 @@ class EffectorsControl(object):
 
         self.gripper_node_id = rospy.get_param("~gripper_node_id", GRIPPER_NODE_ID)
         self.mining_node_id = rospy.get_param("~mining_node_id", MINING_NODE_ID)
-        self.science_node_id = rospy.get_param("~science_node_id", SCIENCE_NODE_ID)
 
         self.gripper_control_subscriber_topic = rospy.get_param("~gripper_control_subscriber_topic",
                                                                 GRIPPER_CONTROL_SUBSCRIBER_TOPIC)
@@ -135,18 +139,13 @@ class EffectorsControl(object):
         self.mining_status_publisher_topic = rospy.get_param("~mining_status_publisher_topic",
                                                              MINING_STATUS_PUBLISHER_TOPIC)
 
-        self.science_control_subscriber_topic = rospy.get_param("~science_control_subscriber_topic",
-                                                                SCIENCE_CONTROL_SUBSCRIBER_TOPIC)
-
         self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
 
         self.gripper_node = None  # type:minimalmodbus.Instrument
         self.mining_node = None  # type:minimalmodbus.Instrument
-        self.science_node = None  # type:minimalmodbus.Instrument
 
         self.gripper_node_present = False
         self.mining_node_present = True
-        self.science_node_present = False
 
         self.connect_to_nodes()
         # self.check_which_nodes_present()
@@ -154,7 +153,7 @@ class EffectorsControl(object):
         # ##### Subscribers #####
         self.gripper_control_subscriber = rospy.Subscriber(self.gripper_control_subscriber_topic, GripperControlMessage, self.gripper_control_message_received__callback)
 
-        self.mining_control_subscriber = rospy.Subscriber(self.mining_control_subscriber_topic, MiningStatusMessage,
+        self.mining_control_subscriber = rospy.Subscriber(self.mining_control_subscriber_topic, MiningControlMessage,
                                                           self.mining_control_message_received__callback)
 
         # ##### Publishers #####
@@ -168,13 +167,18 @@ class EffectorsControl(object):
 
         # ##### Mining Variables #####
         self.mining_registers = [0 for _ in MINING_MODBUS_REGISTERS]
-        self.gripper_registers = [0 for _ in GRIPPER_MODBUS_REGISTERS]
+        self.gripper_registers = None
 
         self.mining_control_message = None  # type:MiningControlMessage
         self.new_mining_control_message = False
 
         self.gripper_control_message = None
         self.new_gripper_control_message = False
+
+        self.failed_gripper_modbus_count = 0
+        self.failed_mining_modbus_count = 0
+
+        self.which_effector = self.EFFECTORS.index("GRIPPER")
 
         self.run()
 
@@ -189,74 +193,45 @@ class EffectorsControl(object):
                                                                         delay_before_rx=RX_DELAY,
                                                                         delay_before_tx=TX_DELAY)
 
-        self.science_node.serial = serial.rs485.RS485(self.port, baudrate=self.baud, timeout=SCIENCE_TIMEOUT)
-        self.science_node.serial.rs485_mode = serial.rs485.RS485Settings(rts_level_for_rx=1, rts_level_for_tx=0,
-                                                                         delay_before_rx=RX_DELAY,
-                                                                         delay_before_tx=TX_DELAY)
-
     def run(self):
-        # self.initialize_mining_system()
-
-        try:
-            self.gripper_registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
-        except:
-            pass
-
         while not rospy.is_shutdown():
-            # try:
-            #     self.process_mining_control_message()
-            # except IOError, e:
-            #     # print e
-            #     if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
-            #         print "Lost connection to mining system. Exiting for reconnect."
-            #         return
-            # except Exception, e:
-            #     pass
-            #
-            # try:
-            #     self.send_mining_status_message()
-            # except IOError, e:
-            #     print e
-            #     if (time() - self.modbus_nodes_seen_time) > NODE_LAST_SEEN_TIMEOUT:
-            #         print "Lost connection to mining system. Exiting for reconnect."
-            #         return
-            # except Exception, e:
-            #     pass
+            if self.which_effector == self.EFFECTORS.index("GRIPPER"):
+                try:
+                    self.run_arm()
+                    self.failed_gripper_modbus_count = 0
+                except:
+                    self.failed_gripper_modbus_count += 1
 
-            try:
-                self.process_gripper_control_message()
-                self.send_gripper_status_message()
-            except Exception, error:
-                pass  #print ""error
+                if self.failed_gripper_modbus_count == FAILED_GRIPPER_MODBUS_LIMIT:
+                    print "Gripper not present. Trying mining."
+                    self.which_effector = self.EFFECTORS.index("MINING")
+
+            elif self.which_effector == self.EFFECTORS.index("MINING"):
+                try:
+                    self.run_mining()
+                    self.failed_mining_modbus_count = 0
+                except:
+                    self.failed_mining_modbus_count += 1
+
+                if self.failed_mining_modbus_count == FAILED_MINING_MODBUS_LIMIMT:
+                    print "No effectors present. Exiting...."
+                    return
+
+    def run_arm(self):
+        self.process_gripper_control_message()
+        self.send_gripper_status_message()
+
+    def run_mining(self):
+        self.process_mining_control_message()
+        self.send_mining_status_message()
 
     def connect_to_nodes(self):
         self.gripper_node = minimalmodbus.Instrument(self.port, int(self.gripper_node_id))
         self.mining_node = minimalmodbus.Instrument(self.port, int(self.mining_node_id))
-        self.science_node = minimalmodbus.Instrument(self.port, int(self.science_node_id))
 
         self.__setup_minimalmodbus_for_485()
 
-    def check_which_nodes_present(self):
-        try:
-            self.gripper_node.read_register(0)
-            self.gripper_node_present = True
-        except:
-            self.gripper_node_present = False
-
-        try:
-            self.mining_node.read_register(0)
-            self.mining_node_present = True
-        except:
-            self.mining_node_present = False
-
-        try:
-            self.science_node.read_register(0)
-            self.science_node_present = True
-        except:
-            self.science_node_present = False
-
     def process_mining_control_message(self):
-
         if self.new_mining_control_message and self.mining_node_present:
             lift_set_relative = self.mining_control_message.lift_set_relative
             tilt_set_relative = self.mining_control_message.tilt_set_relative
@@ -307,8 +282,10 @@ class EffectorsControl(object):
             self.modbus_nodes_seen_time = time()
 
     def process_gripper_control_message(self):
-        if self.new_gripper_control_message:
+        if not self.gripper_registers:
+            self.gripper_registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
 
+        if self.new_gripper_control_message:
             self.gripper_registers[GRIPPER_MODBUS_REGISTERS["MODE"]] = self.gripper_control_message.gripper_mode
 
             if self.gripper_control_message.should_home:
@@ -324,7 +301,7 @@ class EffectorsControl(object):
 
                     if registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION_OUTPUT"]] == 0:
                         homing_complete = True
-                        self.gripper_registers = registers
+                        self.gripper_registers = None
 
             else:
                 if self.gripper_control_message.toggle_light:
@@ -347,7 +324,6 @@ class EffectorsControl(object):
 
     def send_gripper_status_message(self):
         registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
-        # print registers
 
         message = GripperStatusMessage()
         message.pinch_position_raw = registers[GRIPPER_MODBUS_REGISTERS["POSITION_PINCH"]]
