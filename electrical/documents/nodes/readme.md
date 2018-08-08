@@ -8,7 +8,7 @@ The project contains the following nodes:
 - [Motor](#motor-node)
 - [Tower](#tower-node)
 - [Tower Alt](#tower-alt)
-- Pan-Tilt
+- [Pan-Tilt](#pan-tilt)
 - [Grasping](#grasp-node)
 - Science
 - Arm Breakout 1 / 2
@@ -45,6 +45,14 @@ This board acts as an alternate for Rover's Tower Node when both of the boards w
 
 [Find more documentation here.](tower-alt.md)
 
+### Pan-tilt
+
+<img src="files/pan_tilt_render.png" width="300">
+
+This board controls servos that allow Rover operators to pan and tilt cameras.
+
+[Find more documentation here.](pan-tilt.md)
+
 ### Grasp Node
 
 <img src="files/grasp.JPG" width="300">
@@ -58,5 +66,5 @@ Controls 4 DC motors with quadrature encoder and current feedback. Has four anal
 <img src="files/Science.PNG" width="300">
 
 Powers, and comunicates with the Soil Probe via RS-485. Uses simple logic to power a drill motor (24V,5A, full forward, full back, stop). Outputs 5V to power a digital camera. Sends a signal to the didgital camera to control shoot and zoom.
- 
+
 [Find more documentation here.](science.md)
