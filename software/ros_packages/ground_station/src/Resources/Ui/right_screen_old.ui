@@ -164,9 +164,6 @@
                        <property name="smallDecimalPoint">
                         <bool>true</bool>
                        </property>
-                       <property name="digitCount">
-                        <number>8</number>
-                       </property>
                        <property name="mode">
                         <enum>QLCDNumber::Dec</enum>
                        </property>
@@ -212,9 +209,6 @@
                        </property>
                        <property name="smallDecimalPoint">
                         <bool>true</bool>
-                       </property>
-                       <property name="digitCount">
-                        <number>8</number>
                        </property>
                        <property name="mode">
                         <enum>QLCDNumber::Dec</enum>
@@ -262,9 +256,6 @@
                        <property name="smallDecimalPoint">
                         <bool>true</bool>
                        </property>
-                       <property name="digitCount">
-                        <number>8</number>
-                       </property>
                        <property name="mode">
                         <enum>QLCDNumber::Dec</enum>
                        </property>
@@ -311,9 +302,6 @@
                        <property name="smallDecimalPoint">
                         <bool>true</bool>
                        </property>
-                       <property name="digitCount">
-                        <number>8</number>
-                       </property>
                        <property name="mode">
                         <enum>QLCDNumber::Dec</enum>
                        </property>
@@ -359,9 +347,6 @@
                        </property>
                        <property name="smallDecimalPoint">
                         <bool>true</bool>
-                       </property>
-                       <property name="digitCount">
-                        <number>8</number>
                        </property>
                        <property name="mode">
                         <enum>QLCDNumber::Dec</enum>
@@ -421,9 +406,6 @@
                        </property>
                        <property name="smallDecimalPoint">
                         <bool>true</bool>
-                       </property>
-                       <property name="digitCount">
-                        <number>8</number>
                        </property>
                        <property name="mode">
                         <enum>QLCDNumber::Dec</enum>
@@ -898,20 +880,13 @@ Position</string>
                         <layout class="QFormLayout" name="formLayout_8">
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_75">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Comms:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="0" column="1">
-                          <widget class="QLabel" name="arm_controls_base_comms_label">
+                          <widget class="QLabel" name="arm_controls_base_comms_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -926,13 +901,6 @@ Position</string>
                          </item>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_76">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Status:</string>
                            </property>
@@ -940,20 +908,13 @@ Position</string>
                          </item>
                          <item row="2" column="0">
                           <widget class="QLabel" name="label_77">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Faults:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="1" column="1">
-                          <widget class="QLabel" name="arm_controls_base_status_label">
+                          <widget class="QLabel" name="arm_controls_base_status_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -967,7 +928,7 @@ Position</string>
                           </widget>
                          </item>
                          <item row="2" column="1">
-                          <widget class="QLabel" name="arm_controls_base_faults_label">
+                          <widget class="QLabel" name="arm_controls_base_faults_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1006,20 +967,13 @@ Position</string>
                         <layout class="QFormLayout" name="formLayout_9">
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_79">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Comms:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="0" column="1">
-                          <widget class="QLabel" name="arm_controls_shoulder_comms_label">
+                          <widget class="QLabel" name="arm_controls_shoulder_comms_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1034,13 +988,6 @@ Position</string>
                          </item>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_80">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Status:</string>
                            </property>
@@ -1048,20 +995,13 @@ Position</string>
                          </item>
                          <item row="2" column="0">
                           <widget class="QLabel" name="label_81">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Faults:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="1" column="1">
-                          <widget class="QLabel" name="arm_controls_shoulder_status_label">
+                          <widget class="QLabel" name="arm_controls_shoulder_status_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1075,7 +1015,7 @@ Position</string>
                           </widget>
                          </item>
                          <item row="2" column="1">
-                          <widget class="QLabel" name="arm_controls_shoulder_faults_label">
+                          <widget class="QLabel" name="arm_controls_shoulder_faults_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1114,20 +1054,13 @@ Position</string>
                         <layout class="QFormLayout" name="formLayout_10">
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_83">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Comms:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="0" column="1">
-                          <widget class="QLabel" name="arm_controls_elbow_comms_label">
+                          <widget class="QLabel" name="arm_controls_elbow_comms_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1142,13 +1075,6 @@ Position</string>
                          </item>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_84">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Status:</string>
                            </property>
@@ -1156,20 +1082,13 @@ Position</string>
                          </item>
                          <item row="2" column="0">
                           <widget class="QLabel" name="label_85">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Faults:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="1" column="1">
-                          <widget class="QLabel" name="arm_controls_elbow_status_label">
+                          <widget class="QLabel" name="arm_controls_elbow_status_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1183,7 +1102,7 @@ Position</string>
                           </widget>
                          </item>
                          <item row="2" column="1">
-                          <widget class="QLabel" name="arm_controls_elbow_faults_label">
+                          <widget class="QLabel" name="arm_controls_elbow_faults_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1222,20 +1141,13 @@ Position</string>
                         <layout class="QFormLayout" name="formLayout_11">
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_87">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Comms:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="0" column="1">
-                          <widget class="QLabel" name="arm_controls_roll_comms_label">
+                          <widget class="QLabel" name="arm_controls_roll_comms_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1250,13 +1162,6 @@ Position</string>
                          </item>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_88">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Status:</string>
                            </property>
@@ -1264,20 +1169,13 @@ Position</string>
                          </item>
                          <item row="2" column="0">
                           <widget class="QLabel" name="label_89">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Faults:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="1" column="1">
-                          <widget class="QLabel" name="arm_controls_roll_status_label">
+                          <widget class="QLabel" name="arm_controls_roll_status_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1291,7 +1189,7 @@ Position</string>
                           </widget>
                          </item>
                          <item row="2" column="1">
-                          <widget class="QLabel" name="arm_controls_roll_faults_label">
+                          <widget class="QLabel" name="arm_controls_roll_faults_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1330,20 +1228,13 @@ Position</string>
                         <layout class="QFormLayout" name="formLayout_12">
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_91">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Comms:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="0" column="1">
-                          <widget class="QLabel" name="arm_controls_wrist_pitch_comms_label">
+                          <widget class="QLabel" name="arm_controls_wrist_pitch_comms_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1358,13 +1249,6 @@ Position</string>
                          </item>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_92">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Status:</string>
                            </property>
@@ -1372,20 +1256,13 @@ Position</string>
                          </item>
                          <item row="2" column="0">
                           <widget class="QLabel" name="label_93">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Faults:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="1" column="1">
-                          <widget class="QLabel" name="arm_controls_wrist_pitch_status_label">
+                          <widget class="QLabel" name="arm_controls_wrist_pitch_status_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1399,7 +1276,7 @@ Position</string>
                           </widget>
                          </item>
                          <item row="2" column="1">
-                          <widget class="QLabel" name="arm_controls_wrist_pitch_faults_label">
+                          <widget class="QLabel" name="arm_controls_wrist_pitch_faults_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1438,20 +1315,13 @@ Position</string>
                         <layout class="QFormLayout" name="formLayout_13">
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_95">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Comms:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="0" column="1">
-                          <widget class="QLabel" name="arm_controls_wrist_roll_comms_label">
+                          <widget class="QLabel" name="arm_controls_wrist_roll_comms_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1466,13 +1336,6 @@ Position</string>
                          </item>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_96">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Status:</string>
                            </property>
@@ -1480,20 +1343,13 @@ Position</string>
                          </item>
                          <item row="2" column="0">
                           <widget class="QLabel" name="label_97">
-                           <property name="font">
-                            <font>
-                             <pointsize>7</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
                            <property name="text">
                             <string>Faults:</string>
                            </property>
                           </widget>
                          </item>
                          <item row="1" column="1">
-                          <widget class="QLabel" name="arm_controls_wrist_roll_status_label">
+                          <widget class="QLabel" name="arm_controls_wrist_roll_status_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1507,7 +1363,7 @@ Position</string>
                           </widget>
                          </item>
                          <item row="2" column="1">
-                          <widget class="QLabel" name="arm_controls_wrist_roll_faults_label">
+                          <widget class="QLabel" name="arm_controls_wrist_roll_faults_label_2">
                            <property name="font">
                             <font>
                              <pointsize>6</pointsize>
@@ -1576,22 +1432,22 @@ Position</string>
                      <item>
                       <layout class="QHBoxLayout" name="horizontalLayout_13">
                        <item>
-                        <widget class="QLabel" name="gripper_mode_normal_label">
+                        <widget class="QLabel" name="xbox_mode_arm_label_3">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>8</pointsize>
+                           <pointsize>6</pointsize>
                           </font>
                          </property>
                          <property name="styleSheet">
@@ -1606,22 +1462,22 @@ Position</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLabel" name="gripper_mode_pinch_label">
+                        <widget class="QLabel" name="xbox_mode_mining_label_6">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>8</pointsize>
+                           <pointsize>6</pointsize>
                           </font>
                          </property>
                          <property name="styleSheet">
@@ -1636,22 +1492,22 @@ Position</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLabel" name="gripper_mode_wide_label">
+                        <widget class="QLabel" name="xbox_mode_mining_label_7">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>8</pointsize>
+                           <pointsize>6</pointsize>
                           </font>
                          </property>
                          <property name="styleSheet">
@@ -1666,22 +1522,22 @@ Position</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLabel" name="gripper_mode_scissor_label">
+                        <widget class="QLabel" name="xbox_mode_mining_label_8">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>8</pointsize>
+                           <pointsize>6</pointsize>
                           </font>
                          </property>
                          <property name="styleSheet">
@@ -1725,22 +1581,22 @@ Position</string>
                      <item>
                       <layout class="QHBoxLayout" name="horizontalLayout_14">
                        <item>
-                        <widget class="QLabel" name="xbox_mode_arm_label">
+                        <widget class="QLabel" name="xbox_mode_arm_label_4">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>8</pointsize>
+                           <pointsize>6</pointsize>
                           </font>
                          </property>
                          <property name="styleSheet">
@@ -1755,22 +1611,22 @@ Position</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLabel" name="xbox_mode_mining_label">
+                        <widget class="QLabel" name="xbox_mode_mining_label_2">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>35</width>
+                           <height>35</height>
                           </size>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>8</pointsize>
+                           <pointsize>6</pointsize>
                           </font>
                          </property>
                          <property name="styleSheet">
@@ -1996,18 +1852,6 @@ Position</string>
                </item>
                <item>
                 <spacer name="verticalSpacer_6">
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>

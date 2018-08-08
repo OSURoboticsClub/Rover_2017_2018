@@ -69,10 +69,6 @@ class RoverVideoReceiver(QtCore.QThread):
         # Subscription variables
         self.video_subscribers = []
 
-        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_1280x720/compressed", CompressedImage, self.__image_data_received_callback))
-        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_640x360/compressed", CompressedImage, self.__image_data_received_callback))
-        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_256x144/compressed", CompressedImage, self.__image_data_received_callback))
-
         # Publisher variables
         self.camera_control_publisher = rospy.Publisher(self.control_topic_path, CameraControlMessage, queue_size=1)
 
@@ -117,6 +113,11 @@ class RoverVideoReceiver(QtCore.QThread):
 
         # Initial class setup to make text images and get camera resolutions
         self.__create_camera_name_opencv_images()
+
+        # Attach subscribers now that everything is set up
+        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_1280x720/compressed", CompressedImage, self.__image_data_received_callback))
+        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_640x360/compressed", CompressedImage, self.__image_data_received_callback))
+        self.video_subscribers.append(rospy.Subscriber(self.topic_base_path + "/image_256x144/compressed", CompressedImage, self.__image_data_received_callback))
 
     def run(self):
         self.logger.debug("Starting \"%s\" Camera Thread" % self.camera_title_name)

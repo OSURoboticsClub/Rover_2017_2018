@@ -80,6 +80,8 @@ DEFAULT_GRIPPER_REGISTERS = [
     0,  # Light off
 ]
 
+GRIPPER_UNIVERSAL_POSITION_MAX = 10000
+
 # ##### Mining Defines #####
 MINING_MODBUS_REGISTERS = {
     "LIFT_SET_POSITIVE": 0,
@@ -96,6 +98,7 @@ MINING_MODBUS_REGISTERS = {
     "TILT_POSITION": 10,
     "MEASURED_WEIGHT": 11
 }
+
 
 MINING_POSITIONAL_THRESHOLD = 20
 
@@ -316,10 +319,10 @@ class EffectorsControl(object):
             gripper_relative = self.gripper_control_message.gripper_position_relative
 
             if -1 < gripper_absolute < UINT16_MAX:
-                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = gripper_absolute
+                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(gripper_absolute, 0), GRIPPER_UNIVERSAL_POSITION_MAX)
             else:
                 new_position = self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] + gripper_relative
-                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(new_position, 0), 10000)
+                self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION"]] = min(max(new_position, 0), GRIPPER_UNIVERSAL_POSITION_MAX)
 
             self.gripper_node.write_registers(0, self.gripper_registers)
 

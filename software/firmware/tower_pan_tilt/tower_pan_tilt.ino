@@ -39,7 +39,7 @@ uint8_t message_count = 0;
 
 // Pan/tilt hard limits
 const int pan_min = 1470;
-const int pan_center = 1600;
+const int pan_center = 1605;
 const int pan_max = 1725;
 
 const int tilt_min = 1020;
@@ -57,7 +57,7 @@ Servo pan_servo;
 Servo tilt_servo;
 
 void setup() {
-//  Serial.begin(9600);
+ Serial.begin(9600);
 //  while(!Serial);
   setup_hardware();
 
@@ -151,4 +151,3 @@ void set_pan_tilt_adjustments() {
     modbus_data[MODBUS_REGISTERS::TILT_ADJUST_NEGATIVE] = 0;
   }
 }
-

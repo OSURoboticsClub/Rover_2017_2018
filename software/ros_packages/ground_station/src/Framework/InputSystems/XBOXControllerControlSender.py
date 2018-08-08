@@ -160,6 +160,14 @@ class XBOXController(QtCore.QThread):
 # Controller Class Definition
 #####################################
 class XBOXControllerControlSender(QtCore.QThread):
+    xbox_control_arm_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+    xbox_control_mining_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+
+    gripper_mode_normal_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+    gripper_mode_pinch_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+    gripper_mode_wide_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+    gripper_mode_scissor_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+
     XBOX_CONTROL_STATES = [
         "ARM",
         "MINING"
@@ -172,17 +180,20 @@ class XBOXControllerControlSender(QtCore.QThread):
         "SCISSOR": 4
     }
 
-    xbox_control_arm_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
-    xbox_control_mining_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
-
     def __init__(self, shared_objects):
         super(XBOXControllerControlSender, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
         self.left_screen = self.shared_objects["screens"]["left_screen"]
-        self.xbox_mode_arm_label = self.left_screen.xbox_mode_arm_label  # type: QtWidgets.QLabel
-        self.xbox_mode_mining_label = self.left_screen.xbox_mode_mining_label  # type: QtWidgets.QLabel
+        self.right_screen = self.shared_objects["screens"]["right_screen"]
+        self.xbox_mode_arm_label = self.right_screen.xbox_mode_arm_label  # type: QtWidgets.QLabel
+        self.xbox_mode_mining_label = self.right_screen.xbox_mode_mining_label  # type: QtWidgets.QLabel
+
+        self.gripper_mode_normal_label = self.right_screen.gripper_mode_normal_label  # type: QtWidgets.QLabel
+        self.gripper_mode_pinch_label = self.right_screen.gripper_mode_pinch_label  # type: QtWidgets.QLabel
+        self.gripper_mode_wide_label = self.right_screen.gripper_mode_wide_label  # type: QtWidgets.QLabel
+        self.gripper_mode_scissor_label = self.right_screen.gripper_mode_scissor_label  # type: QtWidgets.QLabel
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -205,14 +216,46 @@ class XBOXControllerControlSender(QtCore.QThread):
                                                               queue_size=1)
         self.mining_control_publisher = rospy.Publisher(MINING_CONTROL_TOPIC, MiningControlMessage, queue_size=1)
 
-        self.current_state = self.XBOX_CONTROL_STATES.index("ARM")
+        self.xbox_current_control_state = self.XBOX_CONTROL_STATES.index("ARM")
         self.xbox_control_state_just_changed = False
 
         self.last_xbox_button_state = 0
         self.last_left_bumper_state = 0
         self.last_right_bumper_state = 0
 
-        self.gripper_control_mode = self.GRIPPER_CONTROL_MODES["NORMAL"]
+        self.gripper_control_mode = 0
+        self.gripper_control_mode_just_changed = False
+        self.send_new_gripper_mode = False
+
+        self.GRIPPER_DISPLAY_SIGNAL_MAPPING = {
+            self.GRIPPER_CONTROL_MODES["NORMAL"]: {
+                "SET": [self.gripper_mode_normal_stylesheet_update_ready__signal],
+                "UNSET": [self.gripper_mode_pinch_stylesheet_update_ready__signal,
+                          self.gripper_mode_wide_stylesheet_update_ready__signal,
+                          self.gripper_mode_scissor_stylesheet_update_ready__signal]
+            },
+
+            self.GRIPPER_CONTROL_MODES["TWO_FINGER_PINCH"]: {
+                "SET": [self.gripper_mode_pinch_stylesheet_update_ready__signal],
+                "UNSET": [self.gripper_mode_normal_stylesheet_update_ready__signal,
+                          self.gripper_mode_wide_stylesheet_update_ready__signal,
+                          self.gripper_mode_scissor_stylesheet_update_ready__signal]
+            },
+
+            self.GRIPPER_CONTROL_MODES["WIDE"]: {
+                "SET": [self.gripper_mode_wide_stylesheet_update_ready__signal],
+                "UNSET": [self.gripper_mode_pinch_stylesheet_update_ready__signal,
+                          self.gripper_mode_normal_stylesheet_update_ready__signal,
+                          self.gripper_mode_scissor_stylesheet_update_ready__signal]
+            },
+
+            self.GRIPPER_CONTROL_MODES["SCISSOR"]: {
+                "SET": [self.gripper_mode_scissor_stylesheet_update_ready__signal],
+                "UNSET": [self.gripper_mode_pinch_stylesheet_update_ready__signal,
+                          self.gripper_mode_wide_stylesheet_update_ready__signal,
+                          self.gripper_mode_normal_stylesheet_update_ready__signal]
+            }
+        }
 
     def run(self):
         self.logger.debug("Starting Joystick Thread")
@@ -222,9 +265,9 @@ class XBOXControllerControlSender(QtCore.QThread):
 
             self.change_control_state_if_needed()
 
-            if self.current_state == self.XBOX_CONTROL_STATES.index("ARM"):
+            if self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("ARM"):
                 self.process_and_send_arm_control()
-            elif self.current_state == self.XBOX_CONTROL_STATES.index("MINING"):
+            elif self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("MINING"):
                 self.send_mining_commands()
 
             time_diff = time() - start_time
@@ -237,43 +280,62 @@ class XBOXControllerControlSender(QtCore.QThread):
         self.xbox_control_arm_stylesheet_update_ready__signal.connect(self.xbox_mode_arm_label.setStyleSheet)
         self.xbox_control_mining_stylesheet_update_ready__signal.connect(self.xbox_mode_mining_label.setStyleSheet)
 
+        self.gripper_mode_normal_stylesheet_update_ready__signal.connect(self.gripper_mode_normal_label.setStyleSheet)
+        self.gripper_mode_pinch_stylesheet_update_ready__signal.connect(self.gripper_mode_pinch_label.setStyleSheet)
+        self.gripper_mode_wide_stylesheet_update_ready__signal.connect(self.gripper_mode_wide_label.setStyleSheet)
+        self.gripper_mode_scissor_stylesheet_update_ready__signal.connect(self.gripper_mode_scissor_label.setStyleSheet)
+
     def change_control_state_if_needed(self):
         xbox_state = self.controller.controller_states["xbox_button"]
         left_bumper_state = self.controller.controller_states["left_bumper"]
         right_bumper_state = self.controller.controller_states["right_bumper"]
 
         if self.last_xbox_button_state == 0 and xbox_state == 1:
-            self.current_state += 1
-            self.current_state = self.current_state % len(self.XBOX_CONTROL_STATES)
+            self.xbox_current_control_state += 1
+            self.xbox_current_control_state = self.xbox_current_control_state % len(self.XBOX_CONTROL_STATES)
             self.xbox_control_state_just_changed = True
             self.last_xbox_button_state = 1
         elif self.last_xbox_button_state == 1 and xbox_state == 0:
             self.last_xbox_button_state = 0
 
-        if self.last_left_bumper_state == 0 and left_bumper_state == 1:
-            self.gripper_control_mode = ((self.gripper_control_mode - 1) % len(self.GRIPPER_CONTROL_MODES))
-            # self.gripper_control_mode += 1
-            self.last_left_bumper_state = 1
-        elif self.last_left_bumper_state == 1 and left_bumper_state == 0:
-            self.last_left_bumper_state = 0
-
-        if self.last_right_bumper_state == 0 and right_bumper_state == 1:
-            self.gripper_control_mode = ((self.gripper_control_mode + 1) % len(self.GRIPPER_CONTROL_MODES))
-            # self.gripper_control_mode += 1
-            self.last_right_bumper_state = 1
-        elif self.last_right_bumper_state == 1 and right_bumper_state == 0:
-            self.last_right_bumper_state = 0
-
         if self.xbox_control_state_just_changed:
-            self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_NONE)
-            self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_GREEN)
+            if self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("ARM"):
+                self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_GREEN)
+                self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_NONE)
+            elif self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("MINING"):
+                self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_NONE)
+                self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_GREEN)
             self.xbox_control_state_just_changed = False
+
+        if self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("ARM"):
+            if self.last_left_bumper_state == 0 and left_bumper_state == 1:
+                self.gripper_control_mode = ((self.gripper_control_mode - 1) % len(self.GRIPPER_CONTROL_MODES))
+                self.gripper_control_mode_just_changed = True
+                self.last_left_bumper_state = 1
+            elif self.last_left_bumper_state == 1 and left_bumper_state == 0:
+                self.last_left_bumper_state = 0
+
+            if self.last_right_bumper_state == 0 and right_bumper_state == 1:
+                self.gripper_control_mode = ((self.gripper_control_mode + 1) % len(self.GRIPPER_CONTROL_MODES))
+                self.gripper_control_mode_just_changed = True
+                self.last_right_bumper_state = 1
+            elif self.last_right_bumper_state == 1 and right_bumper_state == 0:
+                self.last_right_bumper_state = 0
+
+        if self.gripper_control_mode_just_changed:
+            signal_map = self.GRIPPER_DISPLAY_SIGNAL_MAPPING[self.gripper_control_mode + 1]
+
+            for signal in signal_map["SET"]:
+                signal.emit(COLOR_GREEN)
+
+            for signal in signal_map["UNSET"]:
+                signal.emit(COLOR_NONE)
+
+            self.send_new_gripper_mode = True
+
+            self.gripper_control_mode_just_changed = False
 
     def process_and_send_arm_control(self):
-        if self.xbox_control_state_just_changed:
-            self.xbox_control_arm_stylesheet_update_ready__signal.emit(COLOR_GREEN)
-            self.xbox_control_mining_stylesheet_update_ready__signal.emit(COLOR_NONE)
-            self.xbox_control_state_just_changed = False
 
         arm_control_message = ArmControlMessage()
 
@@ -282,7 +344,7 @@ class XBOXControllerControlSender(QtCore.QThread):
         gripper_control_message.gripper_mode = self.gripper_control_mode + 1
 
         should_publish_arm = False
-        should_publish_gripper = False
+        should_publish_gripper = True if self.send_new_gripper_mode else False
 
         left_trigger = self.controller.controller_states["left_trigger"]
         right_trigger = self.controller.controller_states["right_trigger"]
@@ -322,6 +384,7 @@ class XBOXControllerControlSender(QtCore.QThread):
 
         if should_publish_gripper:
             self.gripper_control_publisher.publish(gripper_control_message)
+            self.send_new_gripper_mode = False
 
     def send_mining_commands(self):
 
