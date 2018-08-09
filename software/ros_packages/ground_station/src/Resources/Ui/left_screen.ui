@@ -1390,7 +1390,7 @@ N/A</string>
          </size>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="tab_5">
          <attribute name="title">
@@ -2194,7 +2194,118 @@ Permittivity</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
-           <widget class="QWidget" name="ssh_console_widget" native="true"/>
+           <widget class="QTextEdit" name="console_line_edit"/>
+          </item>
+          <item row="2" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_19">
+            <item>
+             <widget class="Line" name="line_10">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_23">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Preset Commands</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_18">
+              <item row="0" column="0">
+               <widget class="QPushButton" name="ssh_list_wifi_button">
+                <property name="text">
+                 <string>List Wifi</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="ssh_equipment_logout_button">
+                <property name="text">
+                 <string>Equipment Logout</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QPushButton" name="ssh_equipment_login_button">
+                <property name="text">
+                 <string>Equipment Login and Help</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="ssh_equipment_status_button">
+                <property name="text">
+                 <string>Equipment Status</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="ssh_equipment_start_button">
+                <property name="text">
+                 <string>Equipment Start</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="ssh_equipment_stop_button">
+                <property name="text">
+                 <string>Equipment Stop</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_17">
+            <item>
+             <widget class="QLabel" name="label_22">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Command</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="ssh_console_command_line_edit"/>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_18">
+            <item>
+             <widget class="QLineEdit" name="ssh_ssid_line_edit"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ssh_ssid_push_button">
+              <property name="text">
+               <string>Connect SSID</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ssh_disconnect_wifi_button">
+              <property name="text">
+               <string>Disconnect SSID</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
