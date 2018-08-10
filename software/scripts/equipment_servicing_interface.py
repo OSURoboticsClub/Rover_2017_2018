@@ -20,21 +20,3 @@ for command in commands:
 
         data, server = sock.recvfrom(4096)
         print data
-
-# while True:
-#     try:
-#         # Send data
-#         message = raw_input()
-#         # print type(message)
-#         if message not in messages:
-#             print "Invalid command. Please try again."
-#             continue
-#
-#         sent = sock.sendto(message, server_address)
-#
-#         # Receive response
-#         # print 'waiting to receive'
-#         data, server = sock.recvfrom(4096)
-#         print data
-#     except:
-#         pass
