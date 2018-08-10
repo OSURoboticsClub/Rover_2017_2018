@@ -22,10 +22,15 @@ PRIMARY_LABEL_MAX = (640, 360)
 SECONDARY_LABEL_MAX = (640, 360)
 TERTIARY_LABEL_MAX = (640, 360)
 
+LOW_RES = (256, 144)
+
 GUI_SELECTION_CHANGE_TIMEOUT = 3  # Seconds
 
 STYLESHEET_SELECTED = "border: 2px solid orange; background-color:black;"
 STYLESHEET_UNSELECTED = "background-color:black;"
+
+COLOR_GREEN = "background-color: darkgreen;"
+COLOR_RED = "background-color: darkred;"
 
 
 #####################################
@@ -38,6 +43,9 @@ class RoverVideoCoordinator(QtCore.QThread):
 
     pan_tilt_selection_changed__signal = QtCore.pyqtSignal(str)
 
+    low_res_button_text_update_ready__signal = QtCore.pyqtSignal(str)
+    low_res_button_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
+
     def __init__(self, shared_objects):
         super(RoverVideoCoordinator, self).__init__()
 
@@ -47,6 +55,8 @@ class RoverVideoCoordinator(QtCore.QThread):
         self.primary_video_display_label = self.right_screen.primary_video_label  # type:QtWidgets.QLabel
         self.secondary_video_display_label = self.right_screen.secondary_video_label  # type:QtWidgets.QLabel
         self.tertiary_video_display_label = self.right_screen.tertiary_video_label  # type:QtWidgets.QLabel
+
+        self.low_res_mode_button = self.right_screen.low_res_mode_button  # type: QtWidgets.QLabel
 
         self.index_to_label_element = {
             0: self.primary_video_display_label,
@@ -107,6 +117,8 @@ class RoverVideoCoordinator(QtCore.QThread):
 
         self.first_image_received = False
 
+        self.in_low_res_mode = False
+
     def run(self):
         self.logger.debug("Starting Video Coordinator Thread")
 
@@ -140,13 +152,17 @@ class RoverVideoCoordinator(QtCore.QThread):
 
     def __set_max_resolutions(self):
         if self.set_max_resolutions_flag:
-            self.camera_threads[self.valid_cameras[self.primary_label_current_setting]].set_hard_max_resolution(PRIMARY_LABEL_MAX)
+            if self.in_low_res_mode:
+                for camera in self.camera_threads:
+                    self.camera_threads[camera].set_hard_max_resolution(LOW_RES)
+            else:
+                self.camera_threads[self.valid_cameras[self.primary_label_current_setting]].set_hard_max_resolution(PRIMARY_LABEL_MAX)
 
-            if self.secondary_label_current_setting != self.primary_label_current_setting:
-                self.camera_threads[self.valid_cameras[self.secondary_label_current_setting]].set_hard_max_resolution(SECONDARY_LABEL_MAX)
+                if self.secondary_label_current_setting != self.primary_label_current_setting:
+                    self.camera_threads[self.valid_cameras[self.secondary_label_current_setting]].set_hard_max_resolution(SECONDARY_LABEL_MAX)
 
-            if self.tertiary_label_current_setting != self.primary_label_current_setting and self.tertiary_label_current_setting != self.secondary_label_current_setting:
-                self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].set_hard_max_resolution(SECONDARY_LABEL_MAX)
+                if self.tertiary_label_current_setting != self.primary_label_current_setting and self.tertiary_label_current_setting != self.secondary_label_current_setting:
+                    self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].set_hard_max_resolution(SECONDARY_LABEL_MAX)
 
             self.set_max_resolutions_flag = False
 
@@ -241,6 +257,10 @@ class RoverVideoCoordinator(QtCore.QThread):
             self.on_camera_selection_for_current_gui_element_changed)
         self.shared_objects["threaded_classes"]["Joystick Sender"].toggle_selected_gui_camera__signal.connect(
             self.on_gui_selected_camera_toggled)
+
+        self.low_res_mode_button.clicked.connect(self.on_low_res_button_clicked__slot)
+        self.low_res_button_text_update_ready__signal.connect(self.low_res_mode_button.setText)
+        self.low_res_button_stylesheet_update_ready__signal.connect(self.low_res_mode_button.setStyleSheet)
 
         self.update_element_stylesheet__signal.connect(self.__on_gui_element_stylesheet_update__slot)
 
@@ -352,6 +372,20 @@ class RoverVideoCoordinator(QtCore.QThread):
             self.camera_threads[self.valid_cameras[self.tertiary_label_current_setting]].toggle_video_display()
 
         self.update_element_stylesheet__signal.emit()
+
+    def on_low_res_button_clicked__slot(self):
+        if self.low_res_mode_button.text() == "ENABLED":
+            self.in_low_res_mode = False
+            self.set_max_resolutions_flag = True
+
+            self.low_res_button_text_update_ready__signal.emit("DISABLED")
+            self.low_res_button_stylesheet_update_ready__signal.emit(COLOR_GREEN)
+        else:
+            self.in_low_res_mode = False
+            self.set_max_resolutions_flag = True
+
+            self.low_res_button_text_update_ready__signal.emit("ENABLED")
+            self.low_res_button_stylesheet_update_ready__signal.emit(COLOR_RED)
 
     def on_kill_threads_requested__slot(self):
         self.run_thread_flag = False

@@ -22,6 +22,9 @@ enum HARDWARE {
   MOTOR_TILT_EN = 33,
   MOTOR_TILT_FB = A11,
 
+  CAMERA_CONTROL = 0,
+  CAMERA_VIDEO_EN = 1,
+
   LED_13 = 13,
 
   LED_RED = 20,
@@ -119,6 +122,10 @@ void setup_hardware() {
   pinMode(HARDWARE::MOTOR_TILT_CS, INPUT);
   pinMode(HARDWARE::MOTOR_TILT_FB, INPUT);
 
+
+  pinMode(HARDWARE::CAMERA_CONTROL, OUTPUT);
+  pinMode(HARDWARE::CAMERA_VIDEO_EN, OUTPUT);
+
   pinMode(HARDWARE::LED_13, OUTPUT);
   pinMode(HARDWARE::LED_RED, OUTPUT);
   pinMode(HARDWARE::LED_BLUE, OUTPUT);
@@ -131,6 +138,8 @@ void setup_hardware() {
   digitalWrite(HARDWARE::LED_13, LOW);
   digitalWrite(HARDWARE::MOTOR_LIFT_EN, HIGH);
   digitalWrite(HARDWARE::MOTOR_TILT_EN, HIGH);
+
+  digitalWrite(HARDWARE::CAMERA_VIDEO_EN, HIGH);
 
   // Change motor PWM frequency so it's not in the audible range
   analogWriteFrequency(HARDWARE::MOTOR_LIFT_PWM, 25000);

@@ -14,9 +14,9 @@ import paramiko
 #####################################
 THREAD_HERTZ = 5
 
-IP = "192.168.1.127"
-USER = "caperren"
-PASS = "ult1m2t3!"
+IP = "192.168.1.10"
+USER = "nvidia"
+PASS = "nvidia"
 
 
 #####################################
@@ -81,6 +81,8 @@ class BashConsole(QtCore.QThread):
                 self.ssh_client.connect(IP, username=USER, password=PASS, compress=True)
             except:
                 print "No connection"
+                if not self.run_thread_flag:
+                    return
                 self.ssh_client = None
                 self.msleep(1000)
 

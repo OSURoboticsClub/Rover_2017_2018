@@ -20,6 +20,13 @@ RDF_DATA_TOPIC = "/rover_science/rdf/data"
 THREAD_HERTZ = 5
 
 
+COLOR_GREEN = "background-color:darkgreen;"
+COLOR_RED = "background-color:darkred;"
+
+
+ALLOWED_RDF_VARIANCE = 0.15
+
+
 #####################################
 # UbiquitiRadioSettings Class Definition
 #####################################
@@ -27,6 +34,9 @@ class RDF(QtCore.QThread):
 
     rssi_lcd_number_update_ready__signal = QtCore.pyqtSignal(int)
     beacon_lcd_number_update_ready__signal = QtCore.pyqtSignal(float)
+
+    beacon_valid_text_change_ready__signal = QtCore.pyqtSignal(str)
+    beacon_valid_stylesheet_change_ready__signal = QtCore.pyqtSignal(str)
 
     def __init__(self, shared_objects):
         super(RDF, self).__init__()
@@ -37,6 +47,7 @@ class RDF(QtCore.QThread):
 
         self.rssi_lcdnumber = self.left_screen.rssi_lcdnumber  # type:QtWidgets.QLCDNumber
         self.beacon_frequency_lcd_number = self.left_screen.beacon_frequency_lcd_number  # type:QtWidgets.QLCDNumber
+        self.beacon_frequency_valid_label = self.left_screen.beacon_frequency_valid_label  # type:QtWidgets.QLCDNumber
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -57,6 +68,9 @@ class RDF(QtCore.QThread):
         self.raw_data = numpy.array([])
         self.raw_data_timestamps = numpy.array([])
         self.data_window_size = 200
+
+        self.previous_frequencies = []
+        self.num_previous_frequencies = 3
 
     def run(self):
         self.logger.debug("Starting RDF Thread")
@@ -92,9 +106,30 @@ class RDF(QtCore.QThread):
 
                     max_index = numpy.argmax(numpy.abs(yf))
                     freq = xf[max_index]
+
+                    if len(self.previous_frequencies) == self.num_previous_frequencies:
+                        del self.previous_frequencies[0]
+
+                    self.previous_frequencies.append(freq)
+
+                    if len(self.previous_frequencies) == self.num_previous_frequencies:
+                        variance_too_large = False
+
+                        if abs(self.previous_frequencies[0] - self.previous_frequencies[1]) > ALLOWED_RDF_VARIANCE:
+                            variance_too_large = True
+
+                        if abs(self.previous_frequencies[0] - self.previous_frequencies[2]) > ALLOWED_RDF_VARIANCE:
+                            variance_too_large = True
+
+                        if abs(self.previous_frequencies[1] - self.previous_frequencies[2]) > ALLOWED_RDF_VARIANCE:
+                            variance_too_large = True
+
+                        self.beacon_valid_stylesheet_change_ready__signal.emit(COLOR_GREEN if not variance_too_large else COLOR_RED)
+                        self.beacon_valid_text_change_ready__signal.emit("Yes" if not variance_too_large else "No")
+
                     self.beacon_lcd_number_update_ready__signal.emit(freq)
-                except:
-                    pass
+                except Exception, e:
+                    print e
 
                 self.raw_data = numpy.array([])
                 self.raw_data_timestamps = numpy.array([])
@@ -118,6 +153,9 @@ class RDF(QtCore.QThread):
     def connect_signals_and_slots(self):
         self.rssi_lcd_number_update_ready__signal.connect(self.rssi_lcdnumber.display)
         self.beacon_lcd_number_update_ready__signal.connect(self.beacon_frequency_lcd_number.display)
+
+        self.beacon_valid_text_change_ready__signal.connect(self.beacon_frequency_valid_label.setText)
+        self.beacon_valid_stylesheet_change_ready__signal.connect(self.beacon_frequency_valid_label.setStyleSheet)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)

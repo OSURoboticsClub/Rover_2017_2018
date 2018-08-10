@@ -1390,14 +1390,14 @@ N/A</string>
          </size>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_5">
          <attribute name="title">
           <string>RDF</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_16">
-          <item row="1" column="0">
+          <item row="2" column="0">
            <spacer name="verticalSpacer_6">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -1441,7 +1441,27 @@ N/A</string>
              </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_22">
+             <layout class="QVBoxLayout" name="verticalLayout_22"/>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_19">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_20">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_23">
               <item>
                <widget class="QLabel" name="label_32">
                 <property name="font">
@@ -1468,20 +1488,56 @@ N/A</string>
               </item>
              </layout>
             </item>
+            <item>
+             <widget class="Line" name="line_12">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_24">
+              <item>
+               <widget class="QLabel" name="label_33">
+                <property name="font">
+                 <font>
+                  <pointsize>16</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Frequency Valid</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="beacon_frequency_valid_label">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>150</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>24</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color:darkred;</string>
+                </property>
+                <property name="text">
+                 <string>No</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_19">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
@@ -1527,6 +1583,9 @@ N/A</string>
                  <layout class="QGridLayout" name="gridLayout_13">
                   <item row="3" column="0">
                    <widget class="QPushButton" name="arm_control_upright_zeroed_button">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: darkred;</string>
+                    </property>
                     <property name="text">
                      <string>Upright Zeroed</string>
                     </property>
@@ -1534,6 +1593,9 @@ N/A</string>
                   </item>
                   <item row="0" column="0">
                    <widget class="QPushButton" name="arm_controls_stow_arm_button">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: darkred;</string>
+                    </property>
                     <property name="text">
                      <string>Stow Arm</string>
                     </property>
@@ -1541,6 +1603,9 @@ N/A</string>
                   </item>
                   <item row="1" column="0">
                    <widget class="QPushButton" name="arm_controls_unstow_arm_button">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: darkred;</string>
+                    </property>
                     <property name="text">
                      <string>Unstow Arm</string>
                     </property>

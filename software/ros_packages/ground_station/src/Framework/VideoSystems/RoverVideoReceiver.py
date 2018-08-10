@@ -146,6 +146,8 @@ class RoverVideoReceiver(QtCore.QThread):
                 self.current_resolution_index = min(self.current_resolution_index + 1, self.max_resolution_index)
             elif current_fps <= MIN_FRAMERATE_BEFORE_ADJUST:
                 self.current_resolution_index = max(self.current_resolution_index - 1, 0)
+            else:
+                self.current_resolution_index = min(self.current_resolution_index, self.max_resolution_index)
 
             if self.last_resolution_index != self.current_resolution_index:
                 self.camera_control_publisher.publish(
