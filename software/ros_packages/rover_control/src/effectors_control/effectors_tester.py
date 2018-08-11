@@ -2,20 +2,18 @@
 import rospy
 import time
 
-from rover_control.msg import GripperControlMessage
+from rover_control.msg import CameraControlMessage
 
-TOPIC = "/gripper/control"
+TOPIC = "/rover_control/camera/control"
 
 rospy.init_node("effectors_tester")
 
-publisher = rospy.Publisher(TOPIC, GripperControlMessage, queue_size=1)
+publisher = rospy.Publisher(TOPIC, CameraControlMessage, queue_size=1)
 
 time.sleep(2)
 
-message = GripperControlMessage()
-message.gripper_mode = 1
-message.gripper_position = 0
-message.should_home = 0
+message = CameraControlMessage()
+message.camera_mode = 2
 
 publisher.publish(message)
 

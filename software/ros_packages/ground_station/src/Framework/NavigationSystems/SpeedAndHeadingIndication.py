@@ -34,6 +34,9 @@ class SpeedAndHeadingIndication(QtCore.QThread):
     heading_text_update_ready__signal = QtCore.pyqtSignal(str)
     new_speed_update_ready__signal = QtCore.pyqtSignal(str)
 
+    pitch_update_ready__signal = QtCore.pyqtSignal(float)
+    roll_update_ready__signal = QtCore.pyqtSignal(float)
+
     def __init__(self, shared_objects):
         super(SpeedAndHeadingIndication, self).__init__()
 
@@ -45,6 +48,9 @@ class SpeedAndHeadingIndication(QtCore.QThread):
         self.heading_text_label = self.right_screen.current_heading_label  # type: QtWidgets.QLabel
         self.next_goal_label = self.right_screen.next_goal_label  # type: QtWidgets.QLabel
         self.current_speed_label = self.right_screen.current_speed_label  # type: QtWidgets.QLabel
+
+        self.imu_pitch_lcd_number = self.right_screen.imu_pitch_lcd_number  # type: QtWidgets.QLCDNumber
+        self.imu_roll_lcd_number = self.right_screen.imu_roll_lcd_number  # type: QtWidgets.QLCDNumber
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -110,6 +116,9 @@ class SpeedAndHeadingIndication(QtCore.QThread):
         self.roll, self.pitch, self.yaw = transformations.euler_from_quaternion(quat)
         self.current_heading = (self.euler_interpolator(self.yaw) + MappingSettings.DECLINATION_OFFSET) % 360
 
+        self.pitch_update_ready__signal.emit(self.pitch)
+        self.roll_update_ready__signal.emit(self.roll)
+
     def rotate_compass_if_needed(self):
 
         self.current_heading_shown_rotation_angle = int(self.current_heading)
@@ -160,6 +169,9 @@ class SpeedAndHeadingIndication(QtCore.QThread):
         self.new_speed_update_ready__signal.connect(self.current_speed_label.setText)
 
         self.heading_compass_label.mousePressEvent = self.__on_heading_clicked__slot
+
+        self.pitch_update_ready__signal.connect(self.imu_pitch_lcd_number.display)
+        self.roll_update_ready__signal.connect(self.imu_roll_lcd_number.display)
 
     def setup_signals(self, start_signal, signals_and_slots_signal, kill_signal):
         start_signal.connect(self.start)

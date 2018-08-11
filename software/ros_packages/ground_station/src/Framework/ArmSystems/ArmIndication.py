@@ -63,6 +63,14 @@ FAULT_TO_STRING = {
     15: "HOST COMM ERROR"
 }
 
+GRIPPER_MODES = {
+    0: "No Change",
+    1: "Normal",
+    2: "Pinch",
+    3: "Wide ",
+    4: "Scissor"
+}
+
 
 #####################################
 # Controller Class Definition
@@ -106,6 +114,7 @@ class ArmIndication(QtCore.QObject):
     thumb_current_updated__signal = QtCore.pyqtSignal(int)
     middlefinger_current_updated__signal = QtCore.pyqtSignal(int)
 
+    gripper_reported_mode_updated__signal = QtCore.pyqtSignal(str)
     gripper_reported_setpoint_updated__signal = QtCore.pyqtSignal(int)
 
     def __init__(self, shared_objects):
@@ -155,6 +164,7 @@ class ArmIndication(QtCore.QObject):
         self.arm_controls_wrist_roll_status_label = self.right_screen.arm_controls_wrist_roll_status_label  # type:QtWidgets.QLabel
         self.arm_controls_wrist_roll_faults_label = self.right_screen.arm_controls_wrist_roll_faults_label  # type:QtWidgets.QLabel
 
+        self.gripper_reported_mode_label = self.right_screen.gripper_reported_mode_label  # type:QtWidgets.QLabel
         self.gripper_reported_setpoint_lcd_number = self.right_screen.gripper_reported_setpoint_lcd_number  # type: QtWidgets.QLCDNumber
 
         # ########## Get the settings instance ##########
@@ -209,6 +219,7 @@ class ArmIndication(QtCore.QObject):
         self.thumb_current_updated__signal.connect(self.thumb_current_lcd_number.display)
         self.middlefinger_current_updated__signal.connect(self.middlefinger_current_lcd_number.display)
 
+        self.gripper_reported_mode_updated__signal.connect(self.gripper_reported_mode_label.setText)
         self.gripper_reported_setpoint_updated__signal.connect(self.gripper_reported_setpoint_lcd_number.display)
 
     def on_arm_status_update_received__callback(self, data):
@@ -254,6 +265,7 @@ class ArmIndication(QtCore.QObject):
         self.thumb_current_updated__signal.emit(data.thumb_current)
         self.middlefinger_current_updated__signal.emit(data.middlefinger_current)
 
+        self.gripper_reported_mode_updated__signal.emit(GRIPPER_MODES[data.current_mode])
         self.gripper_reported_setpoint_updated__signal.emit(data.current_finger_position)
 
     @staticmethod

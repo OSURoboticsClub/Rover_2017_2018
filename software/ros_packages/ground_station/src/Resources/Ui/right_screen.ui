@@ -1604,7 +1604,7 @@ Position</string>
                           </font>
                          </property>
                          <property name="styleSheet">
-                          <string notr="true">background-color:darkgreen; border: 1px solid black;</string>
+                          <string notr="true">border: 1px solid black;</string>
                          </property>
                          <property name="text">
                           <string>Normal</string>
@@ -1634,7 +1634,7 @@ Position</string>
                           </font>
                          </property>
                          <property name="styleSheet">
-                          <string notr="true">border: 1px solid black;</string>
+                          <string notr="true">border: 1px solid black; background-color:darkgreen;</string>
                          </property>
                          <property name="text">
                           <string>Pinch</string>
@@ -1811,6 +1811,49 @@ Position</string>
                     </spacer>
                    </item>
                    <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_6">
+                     <property name="rightMargin">
+                      <number>6</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="label_102">
+                       <property name="font">
+                        <font>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Reported Mode</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="gripper_reported_mode_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">border: 1px solid grey;</string>
+                       </property>
+                       <property name="text">
+                        <string>-------</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
                     <layout class="QVBoxLayout" name="verticalLayout_68">
                      <item>
                       <widget class="QLabel" name="label_101">
@@ -1823,6 +1866,9 @@ Position</string>
                        </property>
                        <property name="text">
                         <string>Reported Setpoint</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2512,16 +2558,6 @@ Position</string>
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QDial" name="dial_3">
-                       <property name="minimum">
-                        <number>-100</number>
-                       </property>
-                       <property name="maximum">
-                        <number>100</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
                       <widget class="QLabel" name="label">
                        <property name="font">
                         <font>
@@ -2537,6 +2573,16 @@ Position</string>
                        </property>
                       </widget>
                      </item>
+                     <item>
+                      <widget class="QLCDNumber" name="imu_pitch_lcd_number">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </item>
                    <item>
@@ -2545,23 +2591,7 @@ Position</string>
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QDial" name="dial_4">
-                       <property name="minimum">
-                        <number>-100</number>
-                       </property>
-                       <property name="maximum">
-                        <number>100</number>
-                       </property>
-                       <property name="invertedAppearance">
-                        <bool>false</bool>
-                       </property>
-                       <property name="wrapping">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_15">
+                      <widget class="QLabel" name="imu_pitch_lcd_number_2">
                        <property name="font">
                         <font>
                          <weight>75</weight>
@@ -2573,6 +2603,16 @@ Position</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLCDNumber" name="imu_roll_lcd_number">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>50</height>
+                        </size>
                        </property>
                       </widget>
                      </item>

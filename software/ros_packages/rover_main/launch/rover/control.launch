@@ -35,8 +35,11 @@
 
         <node name="chassis_pan_tilt" pkg="rover_control" type="chassis_pan_tilt_control.py" respawn="true" output="screen"/>
 
-        <!--<node name="effectors" pkg="rover_control" type="effectors_control.py" respawn="true" output="screen">-->
+        <node name="effectors" pkg="rover_control" type="effectors_control.py" respawn="true" output="screen">
                 <!--<param name="port" value="/dev/rover/ttyARM"/>-->
-        <!--</node>-->
+        </node>
+
+        <node name="scale" pkg="rover_control" type="emergency_scale.py" respawn="true" output="screen">
+        </node>
     </group>
 </launch>

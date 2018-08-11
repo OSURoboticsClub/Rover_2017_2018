@@ -381,7 +381,7 @@ class RoverVideoCoordinator(QtCore.QThread):
             self.low_res_button_text_update_ready__signal.emit("DISABLED")
             self.low_res_button_stylesheet_update_ready__signal.emit(COLOR_GREEN)
         else:
-            self.in_low_res_mode = False
+            self.in_low_res_mode = True
             self.set_max_resolutions_flag = True
 
             self.low_res_button_text_update_ready__signal.emit("ENABLED")

@@ -143,7 +143,11 @@ class SystemStatuses:
             self.GPS_msg.num_satellites = int(self.Nmea_Message.num_sats)
             self.GPS_msg.horizontal_dilution = float(self.Nmea_Message.horizontal_dil)
         if self.Nmea_Message.sentence_type == 'VTG':
-            self.GPS_msg.kmph = float(self.Nmea_Message.spd_over_grnd_kmph)
+            try:
+                self.GPS_msg.kmph = float(self.Nmea_Message.spd_over_grnd_kmph)
+            except:
+                pass
+
             if self.Nmea_Message.true_track is not None:
                 self.GPS_msg.gps_heading = float(self.Nmea_Message.true_track)
             else:

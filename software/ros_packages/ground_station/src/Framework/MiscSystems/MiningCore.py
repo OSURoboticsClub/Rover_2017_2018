@@ -7,8 +7,9 @@ from PyQt5 import QtCore, QtWidgets
 import logging
 import rospy
 
-from rover_control.msg import MiningStatusMessage, MiningControlMessage
+from rover_control.msg import MiningStatusMessage, MiningControlMessage, CameraControlMessage
 from rover_science.msg import SoilSensorStatusMessage
+from std_msgs.msg import Float64
 
 #####################################
 # Global Variables
@@ -16,7 +17,11 @@ from rover_science.msg import SoilSensorStatusMessage
 MINING_STATUS_TOPIC = "/rover_control/mining/status"
 MINING_CONTROL_TOPIC = "/rover_control/mining/control"
 
+SCALE_MEASUREMENT_TOPIC = "/rover_control/scale/measurement"
+
 SOIL_PROBE_TOPIC = "/rover_science/soil_probe/data"
+
+CAMERA_CONTROL_TOPIC = "/rover_control/camera/control"
 
 TRAVEL_POSITION_LIFT = 110
 TRAVEL_POSITION_TILT = 1023
@@ -71,6 +76,17 @@ class Mining(QtCore.QObject):
         self.science_real_dielectric_lcd_number = self.left_screen.science_real_dielectric_lcd_number  # type:QtWidgets.QLCDNumber
         self.science_imaginary_dielectric_lcd_number = self.left_screen.science_imaginary_dielectric_lcd_number  # type:QtWidgets.QLCDNumber
 
+        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
+        self.cam_network_output_button = self.left_screen.cam_network_output_button  # type:QtWidgets.QPushButton
+
+        self.cam_zoom_in_button = self.left_screen.cam_zoom_in_button  # type:QtWidgets.QPushButton
+        self.cam_zoom_out_button = self.left_screen.cam_zoom_out_button  # type:QtWidgets.QPushButton
+        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
+        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
+
+        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
+        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
+
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
 
@@ -85,8 +101,10 @@ class Mining(QtCore.QObject):
                                                          self.mining_status_message_received__callback)
 
         self.soil_probe_subscriber = rospy.Subscriber(SOIL_PROBE_TOPIC, SoilSensorStatusMessage, self.on_soil_probe_message_received__callback)
+        self.scale_measurement_subscriber = rospy.Subscriber(SCALE_MEASUREMENT_TOPIC, Float64, self.on_scale_measurement_received__callback)
 
         self.mining_control_publisher = rospy.Publisher(MINING_CONTROL_TOPIC, MiningControlMessage, queue_size=1)
+        self.camera_control_publisher = rospy.Publisher(CAMERA_CONTROL_TOPIC, CameraControlMessage, queue_size=1)
 
         self.connect_signals_and_slots()
 
@@ -110,6 +128,9 @@ class Mining(QtCore.QObject):
         self.electrical_conductivity_update_ready__signal.connect(self.science_electrical_conductivity_lcd_number.display)
         self.real_dielectric_update_ready__signal.connect(self.science_real_dielectric_lcd_number.display)
         self.imaginary_dielectric_update_ready__signal.connect(self.science_imaginary_dielectric_lcd_number.display)
+
+        self.cam_lcd_output_button.clicked.connect(self.on_cam_lcd_button_clicked__slot)
+        self.cam_network_output_button.clicked.connect(self.on_cam_network_button_clicked__slot)
 
     def on_mining_set_cal_factor_clicked__slot(self):
         message = MiningControlMessage()
@@ -162,11 +183,21 @@ class Mining(QtCore.QObject):
 
         self.mining_control_publisher.publish(message)
 
+    def on_cam_lcd_button_clicked__slot(self):
+        message = CameraControlMessage()
+        message.camera_mode = 1
+        self.camera_control_publisher.publish(message)
+
+    def on_cam_network_button_clicked__slot(self):
+        message = CameraControlMessage()
+        message.camera_mode = 2
+        self.camera_control_publisher.publish(message)
+
     def mining_status_message_received__callback(self, status):
         status = status  # type:MiningStatusMessage
         self.tilt_position_update_ready__signal.emit(status.tilt_position)
         self.lift_position_update_ready__signal.emit(status.lift_position)
-        self.weight_measurement_update_ready__signal.emit(status.measured_weight)
+        # self.weight_measurement_update_ready__signal.emit(status.measured_weight)
 
     def on_soil_probe_message_received__callback(self, data):
         self.temp_update_ready__signal.emit(data.temp_c)
@@ -175,3 +206,6 @@ class Mining(QtCore.QObject):
         self.electrical_conductivity_update_ready__signal.emit(data.soil_electrical_conductivity)
         self.real_dielectric_update_ready__signal.emit(data.real_dielectric_permittivity)
         self.imaginary_dielectric_update_ready__signal.emit(data.imaginary_dielectric_permittivity)
+
+    def on_scale_measurement_received__callback(self, data):
+        self.weight_measurement_update_ready__signal.emit(data.data * 1000)

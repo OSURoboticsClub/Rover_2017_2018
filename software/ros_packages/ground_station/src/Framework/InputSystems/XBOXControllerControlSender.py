@@ -226,7 +226,7 @@ class XBOXControllerControlSender(QtCore.QThread):
         self.last_right_bumper_state = 0
         self.last_back_button_state = 0
 
-        self.gripper_control_mode = 0
+        self.gripper_control_mode = 1
         self.gripper_control_mode_just_changed = False
         self.send_new_gripper_mode = False
 
@@ -257,7 +257,7 @@ class XBOXControllerControlSender(QtCore.QThread):
                 "UNSET": [self.gripper_mode_pinch_stylesheet_update_ready__signal,
                           self.gripper_mode_wide_stylesheet_update_ready__signal,
                           self.gripper_mode_normal_stylesheet_update_ready__signal],
-                "ABS_MOVE": self.PINCH_MODE_ABSOLUTE_SET_POSITION
+                # "ABS_MOVE": self.PINCH_MODE_ABSOLUTE_SET_POSITION
             }
         }
 
@@ -314,15 +314,14 @@ class XBOXControllerControlSender(QtCore.QThread):
 
         if self.xbox_current_control_state == self.XBOX_CONTROL_STATES.index("ARM"):
             if self.last_left_bumper_state == 0 and left_bumper_state == 1:
-                self.gripper_control_mode = ((self.gripper_control_mode - 1) % len(self.GRIPPER_CONTROL_MODES))
-                self.gripper_control_mode_just_changed = True
+                # self.gripper_control_mode = ((self.gripper_control_mode - 1) % len(self.GRIPPER_CONTROL_MODES))
+                # self.gripper_control_mode_just_changed = True
                 self.last_left_bumper_state = 1
             elif self.last_left_bumper_state == 1 and left_bumper_state == 0:
                 self.last_left_bumper_state = 0
-
             if self.last_right_bumper_state == 0 and right_bumper_state == 1:
-                self.gripper_control_mode = ((self.gripper_control_mode + 1) % len(self.GRIPPER_CONTROL_MODES))
-                self.gripper_control_mode_just_changed = True
+                # self.gripper_control_mode = ((self.gripper_control_mode + 1) % len(self.GRIPPER_CONTROL_MODES))
+                # self.gripper_control_mode_just_changed = True
                 self.last_right_bumper_state = 1
             elif self.last_right_bumper_state == 1 and right_bumper_state == 0:
                 self.last_right_bumper_state = 0
@@ -390,7 +389,7 @@ class XBOXControllerControlSender(QtCore.QThread):
             should_publish_arm = True
             should_publish_gripper = True
 
-            arm_control_message.wrist_roll = ((right_x_axis / THUMB_STICK_MAX) * WRIST_ROLL_SCALAR) * right_trigger_ratio
+            arm_control_message.wrist_roll = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * right_trigger_ratio
             arm_control_message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * right_trigger_ratio
 
             gripper_control_message.gripper_position_relative = (-(right_y_axis / THUMB_STICK_MAX) * GRIPPER_MOVEMENT_SCALAR) * right_trigger_ratio
@@ -408,7 +407,7 @@ class XBOXControllerControlSender(QtCore.QThread):
 
         if self.last_back_button_state == 0 and back_state == 1:
             gripper_control_message.should_home = True
-            gripper_control_message.gripper_mode = 1
+            gripper_control_message.gripper_mode = self.gripper_control_mode + 1
             self.gripper_control_publisher.publish(gripper_control_message)
             self.last_back_button_state = 1
         elif self.last_back_button_state == 1 and back_state == 0:

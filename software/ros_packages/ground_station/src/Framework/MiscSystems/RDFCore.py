@@ -98,7 +98,7 @@ class RDF(QtCore.QThread):
                     valid_range = []
 
                     for n in range(0, len(xf)):
-                        if (xf[n] > 0.5) and (xf[n] < 5.0):
+                        if (xf[n] > 0.5) and (xf[n] <= 5.0):
                             valid_range.append(n)
 
                     yf = numpy.take(yf, valid_range)

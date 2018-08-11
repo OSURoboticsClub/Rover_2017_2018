@@ -63,4 +63,4 @@ LAST_SELECTION = "Graf Hall"
 LAST_ZOOM_LEVEL = MAPPING_LOCATIONS[LAST_SELECTION]["default_zoom"]
 
 # ##### This is the offset from magnetic north to true north
-DECLINATION_OFFSET = 15
+DECLINATION_OFFSET = 0  # We set this to 0 so we can use a phone to calibrate

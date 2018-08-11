@@ -41,6 +41,13 @@ enum MOTORS {
   TILT = 1,
 };
 
+// void shoot();
+// void slowZoomIn();
+// void slowZoomOut();
+// void fullZoomIn();
+// void fullZoomOut();
+// void focus();
+
 enum MODBUS_REGISTERS {
     // Inputs
     SET_POSITION_LIFT_POSITIVE = 0,
@@ -53,10 +60,24 @@ enum MODBUS_REGISTERS {
     TARE = 7,
     CALIBRATION_FACTOR = 8,
 
+    CHANGE_VIEW_MODE = 9,
+    ZOOM_IN = 10,
+    ZOOM_OUT = 11,
+    FULL_ZOOM_IN = 12,
+    FULL_ZOOM_OUT = 13,
+    FOCUS = 14,
+    SHOOT = 15,
+
     // Outputs
-    CURRENT_POSITION_LIFT = 9,
-    CURRENT_POSITION_TILT = 10,
-    MEASURED_WEIGHT = 11
+    CURRENT_POSITION_LIFT = 16,
+    CURRENT_POSITION_TILT = 17,
+    MEASURED_WEIGHT = 18
+};
+
+enum CAMERA_VIEW_MODES {
+        NO_CHANGE = 0,
+        LCD = 1,
+        NETWORK = 2
 };
 
 ////////// Global Variables //////////
@@ -71,7 +92,7 @@ float last_calibration_factor = -120000; //for the scale
 // modbus stuff
 const uint8_t node_id = 2;
 const uint8_t mobus_serial_port_number = 2;
-uint16_t modbus_data[] = {0, 0, 0, 0, 9999, 9999, 0, 0, 972, 0, 0, 0};
+uint16_t modbus_data[] = {0, 0, 0, 0, 9999, 9999, 0, 0, 895, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8_t num_modbus_registers = 0;
 int8_t poll_state = 0;
 bool communication_good = false;
@@ -89,7 +110,7 @@ Modbus slave(node_id, mobus_serial_port_number, HARDWARE::RS485_EN);
 
 void setup() {
   Serial.begin(9600); // debug
-  // while(!Serial);
+  while(!Serial);
 
   setup_hardware();
   num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
@@ -103,6 +124,7 @@ void loop() {
   set_motors();
   set_scale();
   poll_scale();
+  apply_camera_commands();
 }
 
 void setup_hardware() {
@@ -139,7 +161,7 @@ void setup_hardware() {
   digitalWrite(HARDWARE::MOTOR_LIFT_EN, HIGH);
   digitalWrite(HARDWARE::MOTOR_TILT_EN, HIGH);
 
-  digitalWrite(HARDWARE::CAMERA_VIDEO_EN, HIGH);
+  digitalWrite(HARDWARE::CAMERA_VIDEO_EN, LOW);
 
   // Change motor PWM frequency so it's not in the audible range
   analogWriteFrequency(HARDWARE::MOTOR_LIFT_PWM, 25000);
@@ -152,7 +174,7 @@ void setup_hardware() {
   current_position_tilt = analogRead(HARDWARE::MOTOR_TILT_FB);
 
   // setup scale
-  scale.set_scale(last_calibration_factor);
+  scale.set_scale();
   scale.tare();	//Reset the scale to 0
 }
 
@@ -233,7 +255,7 @@ void set_motors() {
 }
 
 void set_scale(){
-    float cal_factor = modbus_data[MODBUS_REGISTERS::CALIBRATION_FACTOR] * -100;
+    float cal_factor = modbus_data[MODBUS_REGISTERS::CALIBRATION_FACTOR] * 100;
     if(cal_factor != last_calibration_factor){
         scale.set_scale(cal_factor);
         last_calibration_factor = cal_factor;
@@ -247,10 +269,55 @@ void set_scale(){
 
 void poll_scale(){
     if(modbus_data[MODBUS_REGISTERS::MEASURE] == 1){
-        // Serial.println(scale.get_units()*-1000);
+        Serial.println(scale.get_units()*-1000);
         modbus_data[MODBUS_REGISTERS::MEASURED_WEIGHT] = scale.get_units()*-1000;
         modbus_data[MODBUS_REGISTERS::MEASURE] = 0;
     }
+}
+
+void apply_camera_commands(){
+    ///// Camea video output control /////
+    switch (modbus_data[MODBUS_REGISTERS::CHANGE_VIEW_MODE]) {
+        case CAMERA_VIEW_MODES::LCD:
+            digitalWrite(HARDWARE::CAMERA_VIDEO_EN, HIGH);
+            break;
+        case CAMERA_VIEW_MODES::NETWORK:
+            digitalWrite(HARDWARE::CAMERA_VIDEO_EN, LOW);
+            break;
+        default:
+            break;
+    }
+    modbus_data[MODBUS_REGISTERS::CHANGE_VIEW_MODE] = CAMERA_VIEW_MODES::NO_CHANGE;
+
+    ////// Zoom controls, process all, even if conflicting ///////
+    if(modbus_data[MODBUS_REGISTERS::ZOOM_IN]){
+        Serial.println("ZOOM IN");
+        modbus_data[MODBUS_REGISTERS::ZOOM_IN] = 0;
+    }else if(modbus_data[MODBUS_REGISTERS::ZOOM_OUT]){
+        Serial.println("ZOOM OUT");
+        modbus_data[MODBUS_REGISTERS::ZOOM_OUT] = 0;
+    }else if(modbus_data[MODBUS_REGISTERS::FULL_ZOOM_IN]){
+        Serial.println("FULL ZOOM IN");
+        modbus_data[MODBUS_REGISTERS::FULL_ZOOM_IN] = 0;
+    }
+
+    if(modbus_data[MODBUS_REGISTERS::FULL_ZOOM_OUT]){
+        Serial.println("FULL ZOOM OUT");
+        modbus_data[MODBUS_REGISTERS::FULL_ZOOM_OUT] = 0;
+    }
+
+    ////// Focus and shoot controls ///////
+    if(modbus_data[MODBUS_REGISTERS::FOCUS]){
+        Serial.println("FOCUS");
+        modbus_data[MODBUS_REGISTERS::FOCUS] = 0;
+    }
+
+    if(modbus_data[MODBUS_REGISTERS::SHOOT]){
+        Serial.println("SHOOT");
+        modbus_data[MODBUS_REGISTERS::SHOOT] = 0;
+    }
+    ///// camera process here
+
 }
 
 //---Set Motor Output---//

@@ -12,7 +12,7 @@ import minimalmodbus
 # from std_msgs.msg import UInt8, UInt16
 
 # Custom Imports
-from rover_control.msg import MiningControlMessage, MiningStatusMessage, GripperControlMessage, GripperStatusMessage
+from rover_control.msg import MiningControlMessage, MiningStatusMessage, GripperControlMessage, GripperStatusMessage, CameraControlMessage
 
 #####################################
 # Global Variables
@@ -44,6 +44,8 @@ GRIPPER_STATUS_PUBLISHER_TOPIC = "gripper/status"
 
 MINING_CONTROL_SUBSCRIBER_TOPIC = "mining/control"
 MINING_STATUS_PUBLISHER_TOPIC = "mining/status"
+
+CAMERA_CONTROL_SUBSCRIBER_TOPIC = "camera/control"
 
 # ##### Gripper Defines #####
 GRIPPER_MODBUS_REGISTERS = {
@@ -94,9 +96,17 @@ MINING_MODBUS_REGISTERS = {
     "TARE": 7,
     "CAL_FACTOR": 8,
 
-    "LIFT_POSITION": 9,
-    "TILT_POSITION": 10,
-    "MEASURED_WEIGHT": 11
+    "CHANGE_VIEW_MODE": 9,
+    "ZOOM_IN": 10,
+    "ZOOM_OUT": 11,
+    "FULL_ZOOM_IN": 12,
+    "FULL_ZOOM_OUT": 13,
+    "FOCUS": 14,
+    "SHOOT": 15,
+
+    "CURRENT_POSITION_LIFT": 16,
+    "CURRENT_POSITION_TILT": 17,
+    "MEASURED_WEIGHT": 18
 }
 
 
@@ -139,6 +149,9 @@ class EffectorsControl(object):
         self.mining_status_publisher_topic = rospy.get_param("~mining_status_publisher_topic",
                                                              MINING_STATUS_PUBLISHER_TOPIC)
 
+        self.camera_control_subscriber_topic = rospy.get_param("~camera_control_subscriber_topic",
+                                                               CAMERA_CONTROL_SUBSCRIBER_TOPIC)
+
         self.wait_time = 1.0 / rospy.get_param("~hertz", DEFAULT_HERTZ)
 
         self.gripper_node = None  # type:minimalmodbus.Instrument
@@ -153,14 +166,14 @@ class EffectorsControl(object):
         # ##### Subscribers #####
         self.gripper_control_subscriber = rospy.Subscriber(self.gripper_control_subscriber_topic, GripperControlMessage, self.gripper_control_message_received__callback)
 
-        self.mining_control_subscriber = rospy.Subscriber(self.mining_control_subscriber_topic, MiningControlMessage,
-                                                          self.mining_control_message_received__callback)
+        self.mining_control_subscriber = rospy.Subscriber(self.mining_control_subscriber_topic, MiningControlMessage, self.mining_control_message_received__callback)
+
+        self.camera_control_subscriber = rospy.Subscriber(self.camera_control_subscriber_topic, CameraControlMessage, self.camera_control_message_received__callback)
 
         # ##### Publishers #####
         self.gripper_status_publisher = rospy.Publisher(self.gripper_status_publisher_topic, GripperStatusMessage, queue_size=1)
 
-        self.mining_status_publisher = rospy.Publisher(self.mining_status_publisher_topic, MiningStatusMessage,
-                                                       queue_size=1)
+        self.mining_status_publisher = rospy.Publisher(self.mining_status_publisher_topic, MiningStatusMessage, queue_size=1)
 
         # ##### Misc #####
         self.modbus_nodes_seen_time = time()
@@ -174,6 +187,9 @@ class EffectorsControl(object):
 
         self.gripper_control_message = None
         self.new_gripper_control_message = False
+
+        self.camera_control_message = None  # type: CameraControlMessage
+        self.new_camera_control_message = False
 
         self.failed_gripper_modbus_count = 0
         self.failed_mining_modbus_count = 0
@@ -210,7 +226,8 @@ class EffectorsControl(object):
                 try:
                     self.run_mining()
                     self.failed_mining_modbus_count = 0
-                except:
+                except Exception, e:
+                    print e
                     self.failed_mining_modbus_count += 1
 
                 if self.failed_mining_modbus_count == FAILED_MINING_MODBUS_LIMIMT:
@@ -224,6 +241,7 @@ class EffectorsControl(object):
     def run_mining(self):
         self.process_mining_control_message()
         self.send_mining_status_message()
+        self.process_camera_control_message()
 
     def connect_to_nodes(self):
         self.gripper_node = minimalmodbus.Instrument(self.port, int(self.gripper_node_id))
@@ -268,13 +286,39 @@ class EffectorsControl(object):
             self.modbus_nodes_seen_time = time()
             self.new_mining_control_message = False
 
+    def process_camera_control_message(self):
+        if self.new_camera_control_message:
+            print self.camera_control_message
+            self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_SET_ABSOLUTE"]] = 1024
+            self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_SET_POSITIVE"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_SET_NEGATIVE"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET_ABSOLUTE"]] = 1024
+            self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET_POSITIVE"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["TILT_SET_NEGATIVE"]] = 0
+
+            self.mining_registers[MINING_MODBUS_REGISTERS["MEASURE"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["TARE"]] = 0
+
+            self.mining_registers[MINING_MODBUS_REGISTERS["CHANGE_VIEW_MODE"]] = self.camera_control_message.camera_mode
+            self.mining_registers[MINING_MODBUS_REGISTERS["ZOOM_IN"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["ZOOM_OUT"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["FULL_ZOOM_IN"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["FULL_ZOOM_OUT"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["FOCUS"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["SHOOT"]] = 0
+
+            self.mining_node.write_registers(0, self.mining_registers)
+            self.modbus_nodes_seen_time = time()
+
+            self.new_camera_control_message = False
+
     def send_mining_status_message(self):
         if self.mining_node_present:
             self.mining_registers = self.mining_node.read_registers(0, len(MINING_MODBUS_REGISTERS))
 
             message = MiningStatusMessage()
-            message.lift_position = self.mining_registers[MINING_MODBUS_REGISTERS["LIFT_POSITION"]]
-            message.tilt_position = self.mining_registers[MINING_MODBUS_REGISTERS["TILT_POSITION"]]
+            message.lift_position = self.mining_registers[MINING_MODBUS_REGISTERS["CURRENT_POSITION_LIFT"]]
+            message.tilt_position = self.mining_registers[MINING_MODBUS_REGISTERS["CURRENT_POSITION_TILT"]]
             message.measured_weight = self.mining_registers[MINING_MODBUS_REGISTERS["MEASURED_WEIGHT"]]
 
             self.mining_status_publisher.publish(message)
@@ -296,16 +340,17 @@ class EffectorsControl(object):
                 homing_complete = False
 
                 while not homing_complete:
-                    registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
-                    # print registers
+                    self.gripper_registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
+                    self.send_gripper_status_message()
 
-                    if registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION_OUTPUT"]] == 0:
+                    if self.gripper_registers[GRIPPER_MODBUS_REGISTERS["FINGER_POSITION_OUTPUT"]] == 0:
                         homing_complete = True
                         self.gripper_registers = None
 
             else:
                 if self.gripper_control_message.toggle_light:
-                    self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]] = not self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]]
+                    self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]] = 0 if self.gripper_registers[GRIPPER_MODBUS_REGISTERS["LIGHT_STATE"]] else 1
+                    self.gripper_control_message.toggle_light = False
 
                 gripper_absolute = self.gripper_control_message.gripper_position_absolute
                 gripper_relative = self.gripper_control_message.gripper_position_relative
@@ -320,7 +365,8 @@ class EffectorsControl(object):
 
                 self.gripper_node.write_registers(0, DEFAULT_GRIPPER_REGISTERS)
 
-            self.new_gripper_control_message = False
+        self.gripper_control_message = None
+        self.new_gripper_control_message = False
 
     def send_gripper_status_message(self):
         registers = self.gripper_node.read_registers(0, len(GRIPPER_MODBUS_REGISTERS))
@@ -347,6 +393,10 @@ class EffectorsControl(object):
     def mining_control_message_received__callback(self, control_message):
         self.mining_control_message = control_message
         self.new_mining_control_message = True
+
+    def camera_control_message_received__callback(self, control_message):
+        self.camera_control_message = control_message
+        self.new_camera_control_message = True
 
 
 if __name__ == "__main__":

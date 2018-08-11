@@ -29,6 +29,6 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{seria
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="AH05K2Y8", SYMLINK+="rover/ttyARM"
 
 ##### Mappings from OMSI / EXPO driving with individual adapters
-# SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="AH05K2Y8", SYMLINK+="rover/ttyLEFT"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", ATTRS{serial}=="DA01OM1N", SYMLINK+="rover/ttyScale"
 # SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A906H89E", SYMLINK+="rover/ttyRIGHT"
 # SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A906H7P0", SYMLINK+="rover/ttyREAR"
