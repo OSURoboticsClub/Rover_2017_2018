@@ -159,7 +159,7 @@ class XBOXController(QtCore.QThread):
 #####################################
 # Controller Class Definition
 #####################################
-class XBOXControllerControlSender(QtCore.QThread):
+class EffectorsAndArmControlSender(QtCore.QThread):
     xbox_control_arm_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
     xbox_control_mining_stylesheet_update_ready__signal = QtCore.pyqtSignal(str)
 
@@ -183,7 +183,7 @@ class XBOXControllerControlSender(QtCore.QThread):
     PINCH_MODE_ABSOLUTE_SET_POSITION = 57740
 
     def __init__(self, shared_objects):
-        super(XBOXControllerControlSender, self).__init__()
+        super(EffectorsAndArmControlSender, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects
@@ -390,7 +390,11 @@ class XBOXControllerControlSender(QtCore.QThread):
             should_publish_gripper = True
 
             arm_control_message.wrist_roll = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * right_trigger_ratio
-            arm_control_message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * right_trigger_ratio
+
+            # ##### FIXME #####
+            # Remove this once the arm is fixed
+            # arm_control_message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * right_trigger_ratio
+            # #################
 
             gripper_control_message.gripper_position_relative = (-(right_y_axis / THUMB_STICK_MAX) * GRIPPER_MOVEMENT_SCALAR) * right_trigger_ratio
 

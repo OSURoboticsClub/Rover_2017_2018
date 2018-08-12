@@ -67,6 +67,12 @@ class MiscArm(QtCore.QThread):
         self.arm_controls_stow_arm_button = self.left_screen.arm_controls_stow_arm_button  # type:QtWidgets.QPushButton
         self.arm_controls_unstow_arm_button = self.left_screen.arm_controls_unstow_arm_button  # type:QtWidgets.QPushButton
 
+        # ##### FIXME #####
+        # Remove these once the arm is fixed
+        self.arm_controls_stow_arm_button.setEnabled(False)
+        self.arm_controls_unstow_arm_button.setEnabled(False)
+        # #################
+
         self.arm_controls_calibration_button = self.left_screen.arm_controls_calibration_button  # type:QtWidgets.QPushButton
         self.arm_controls_clear_faults_button = self.left_screen.arm_controls_clear_faults_button  # type:QtWidgets.QPushButton
         self.arm_controls_reset_motor_drivers_button = self.left_screen.arm_controls_reset_motor_drivers_button  # type:QtWidgets.QPushButton

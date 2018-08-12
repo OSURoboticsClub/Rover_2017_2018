@@ -13,7 +13,7 @@ from rover_control.msg import DriveCommandMessage, TowerPanTiltControlMessage
 #####################################
 # Global Variables
 #####################################
-GAME_CONTROLLER_NAME = "Logitech Logitech Dual Action"
+GAME_CONTROLLER_NAME = "Microsoft X-Box One S pad"
 
 DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
 DEFAULT_TOWER_PAN_TILT_COMMAND_TOPIC = "/rover_control/tower/pan_tilt/control"
@@ -21,10 +21,10 @@ DEFAULT_CHASSIS_PAN_TILT_COMMAND_TOPIC = "/rover_control/chassis/pan_tilt/contro
 
 DRIVE_COMMAND_HERTZ = 20
 
-STICK_DEADBAND = 8
+STICK_DEADBAND = 3500
 
-STICK_MAX = 128.0
-STICK_OFFSET = 127
+STICK_MAX = 32768.0
+STICK_OFFSET = 0
 
 THROTTLE_MIN = 0.05
 
@@ -58,10 +58,10 @@ class LogitechJoystick(QtCore.QThread):
         self.gamepad = None  # type: GamePad
 
         self.controller_states = {
-            "left_x_axis": 127,
-            "left_y_axis": 127,
-            "right_x_axis": 127,
-            "right_y_axis": 127,
+            "left_x_axis": 0,
+            "left_y_axis": 0,
+            "right_x_axis": 0,
+            "right_y_axis": 0,
 
             "left_trigger": 0,
             "right_trigger": 0,
@@ -87,28 +87,28 @@ class LogitechJoystick(QtCore.QThread):
         self.raw_mapping_to_class_mapping = {
             "ABS_X": "left_x_axis",
             "ABS_Y": "left_y_axis",
-            "ABS_Z": "right_x_axis",
-            "ABS_RZ": "right_y_axis",
+            "ABS_RX": "right_x_axis",
+            "ABS_RY": "right_y_axis",
 
-            "BTN_BASE": "left_trigger",
-            "BTN_BASE2": "right_trigger",
+            "ABS_Z": "left_trigger",
+            "ABS_RZ": "right_trigger",
 
-            "BTN_BASE5": "left_stick",
-            "BTN_BASE6": "right_right",
+            "BTN_THUMBL": "left_stick",
+            "BTN_THUMBR": "right_right",
 
-            "BTN_TOP2": "left_bumper",
-            "BTN_PINKIE": "right_bumper",
+            "BTN_TL": "left_bumper",
+            "BTN_TR": "right_bumper",
 
             "ABS_HAT0X": "d_pad_x",
             "ABS_HAT0Y": "d_pad_y",
 
-            "BTN_BASE3": "back",
-            "BTN_BASE4": "start",
+            "BTN_SELECT": "back",
+            "BTN_START": "start",
 
-            "BTN_THUMB": "a",
-            "BTN_TRIGGER": "x",
-            "BTN_TOP": "y",
-            "BTN_THUMB2": "b",
+            "BTN_SOUTH": "a",
+            "BTN_NORTH": "x",
+            "BTN_WEST": "y",
+            "BTN_EAST": "b",
         }
 
         self.ready = False
@@ -148,7 +148,7 @@ class LogitechJoystick(QtCore.QThread):
 #####################################
 # Controller Class Definition
 #####################################
-class LogitechControllerControlSender(QtCore.QThread):
+class DriveAndCameraControlSender(QtCore.QThread):
     set_speed_limit__signal = QtCore.pyqtSignal(int)
     set_left_drive_output__signal = QtCore.pyqtSignal(int)
     set_right_drive_output__signal = QtCore.pyqtSignal(int)
@@ -158,7 +158,7 @@ class LogitechControllerControlSender(QtCore.QThread):
     toggle_selected_gui_camera__signal = QtCore.pyqtSignal()
 
     def __init__(self, shared_objects):
-        super(LogitechControllerControlSender, self).__init__()
+        super(DriveAndCameraControlSender, self).__init__()
 
         # ########## Reference to class init variables ##########
         self.shared_objects = shared_objects

@@ -39,7 +39,7 @@
                 <!--<param name="port" value="/dev/rover/ttyARM"/>-->
         </node>
 
-        <node name="scale" pkg="rover_control" type="emergency_scale.py" respawn="true" output="screen">
-        </node>
+        <!--<node name="scale" pkg="rover_control" type="emergency_scale.py" respawn="true" output="screen">-->
+        <!--</node>-->
     </group>
 </launch>
