@@ -49,7 +49,6 @@ class EmergencyScale(object):
                 message = Float64()
                 message.data = float(value)
                 self.publisher.publish(message)
-                print
             except:
                 print "No data"
 

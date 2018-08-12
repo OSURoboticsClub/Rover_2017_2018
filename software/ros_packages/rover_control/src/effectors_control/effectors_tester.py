@@ -12,10 +12,16 @@ publisher = rospy.Publisher(TOPIC, CameraControlMessage, queue_size=1)
 
 time.sleep(2)
 
-message = CameraControlMessage()
-message.camera_mode = 2
+# message = CameraControlMessage()
+# message.full_zoom_in = 1
+# publisher.publish(message)
 
+time.sleep(2)
+
+message = CameraControlMessage()
+message.shoot = 1
 publisher.publish(message)
+
 
 time.sleep(5)
 

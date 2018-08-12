@@ -101,12 +101,11 @@ MINING_MODBUS_REGISTERS = {
     "ZOOM_OUT": 11,
     "FULL_ZOOM_IN": 12,
     "FULL_ZOOM_OUT": 13,
-    "FOCUS": 14,
-    "SHOOT": 15,
+    "SHOOT": 14,
 
-    "CURRENT_POSITION_LIFT": 16,
-    "CURRENT_POSITION_TILT": 17,
-    "MEASURED_WEIGHT": 18
+    "CURRENT_POSITION_LIFT": 15,
+    "CURRENT_POSITION_TILT": 16,
+    "MEASURED_WEIGHT": 17
 }
 
 
@@ -300,12 +299,11 @@ class EffectorsControl(object):
             self.mining_registers[MINING_MODBUS_REGISTERS["TARE"]] = 0
 
             self.mining_registers[MINING_MODBUS_REGISTERS["CHANGE_VIEW_MODE"]] = self.camera_control_message.camera_mode
-            self.mining_registers[MINING_MODBUS_REGISTERS["ZOOM_IN"]] = 0
-            self.mining_registers[MINING_MODBUS_REGISTERS["ZOOM_OUT"]] = 0
-            self.mining_registers[MINING_MODBUS_REGISTERS["FULL_ZOOM_IN"]] = 0
-            self.mining_registers[MINING_MODBUS_REGISTERS["FULL_ZOOM_OUT"]] = 0
-            self.mining_registers[MINING_MODBUS_REGISTERS["FOCUS"]] = 0
-            self.mining_registers[MINING_MODBUS_REGISTERS["SHOOT"]] = 0
+            self.mining_registers[MINING_MODBUS_REGISTERS["ZOOM_IN"]] = self.camera_control_message.zoom_in
+            self.mining_registers[MINING_MODBUS_REGISTERS["ZOOM_OUT"]] = self.camera_control_message.zoom_out
+            self.mining_registers[MINING_MODBUS_REGISTERS["FULL_ZOOM_IN"]] = self.camera_control_message.full_zoom_in
+            self.mining_registers[MINING_MODBUS_REGISTERS["FULL_ZOOM_OUT"]] = self.camera_control_message.full_zoom_out
+            self.mining_registers[MINING_MODBUS_REGISTERS["SHOOT"]] = self.camera_control_message.shoot
 
             self.mining_node.write_registers(0, self.mining_registers)
             self.modbus_nodes_seen_time = time()

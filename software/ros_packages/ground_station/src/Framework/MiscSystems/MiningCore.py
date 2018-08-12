@@ -32,6 +32,15 @@ MEASURE_POSITION_TILT = 1023
 SCOOP_POSITION_LIFT = 228
 SCOOP_POSITION_TILT = 215
 
+PANORAMA_POSITION_LIFT = 535
+PANORAMA_POSITION_TILT = 995
+
+SAMPLE_POSITION_LIFT = 220
+SAMPLE_POSITION_TILT = 240
+
+PROBE_POSITION_LIFT = 950
+PROBE_POSITION_TILT = 440
+
 
 #####################################
 # UbiquitiRadioSettings Class Definition
@@ -58,16 +67,17 @@ class Mining(QtCore.QObject):
         self.left_screen = self.shared_objects["screens"]["left_screen"]
 
         self.mining_qlcdnumber = self.left_screen.mining_qlcdnumber  # type:QtWidgets.QLCDNumber
-        self.mining_tare_button = self.left_screen.mining_tare_button  # type:QtWidgets.QPushButton
-        self.mining_measure_button = self.left_screen.mining_measure_button  # type:QtWidgets.QPushButton
-        self.mining_cal_factor_spinbox = self.left_screen.mining_cal_factor_spinbox  # type:QtWidgets.QSpinBox
-        self.mining_set_cal_factor_button = self.left_screen.mining_set_cal_factor_button  # type:QtWidgets.QPushButton
+        self.mining_zero_button = self.left_screen.mining_zero_button  # type:QtWidgets.QPushButton
         self.lift_position_progress_bar = self.left_screen.lift_position_progress_bar  # type:QtWidgets.QProgressBar
         self.tilt_position_progress_bar = self.left_screen.tilt_position_progress_bar  # type:QtWidgets.QProgressBar
 
         self.mining_measure_move_button = self.left_screen.mining_measure_move_button  # type:QtWidgets.QPushButton
         self.mining_transport_move_button = self.left_screen.mining_transport_move_button  # type:QtWidgets.QPushButton
         self.mining_scoop_move_button = self.left_screen.mining_scoop_move_button  # type:QtWidgets.QPushButton
+
+        self.mining_panorama_button = self.left_screen.mining_panorama_button  # type:QtWidgets.QPushButton
+        self.mining_sample_button = self.left_screen.mining_sample_button  # type:QtWidgets.QPushButton
+        self.mining_probe_button = self.left_screen.mining_probe_button  # type:QtWidgets.QPushButton
 
         self.science_temp_lcd_number = self.left_screen.science_temp_lcd_number  # type:QtWidgets.QLCDNumber
         self.science_moisture_lcd_number = self.left_screen.science_moisture_lcd_number  # type:QtWidgets.QLCDNumber
@@ -81,11 +91,10 @@ class Mining(QtCore.QObject):
 
         self.cam_zoom_in_button = self.left_screen.cam_zoom_in_button  # type:QtWidgets.QPushButton
         self.cam_zoom_out_button = self.left_screen.cam_zoom_out_button  # type:QtWidgets.QPushButton
-        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
-        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
+        self.cam_full_zoom_in_button = self.left_screen.cam_full_zoom_in_button  # type:QtWidgets.QPushButton
+        self.cam_full_zoom_out_button = self.left_screen.cam_full_zoom_out_button  # type:QtWidgets.QPushButton
 
-        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
-        self.cam_lcd_output_button = self.left_screen.cam_lcd_output_button  # type:QtWidgets.QPushButton
+        self.cam_shoot_button = self.left_screen.cam_shoot_button  # type:QtWidgets.QPushButton
 
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
@@ -106,16 +115,21 @@ class Mining(QtCore.QObject):
         self.mining_control_publisher = rospy.Publisher(MINING_CONTROL_TOPIC, MiningControlMessage, queue_size=1)
         self.camera_control_publisher = rospy.Publisher(CAMERA_CONTROL_TOPIC, CameraControlMessage, queue_size=1)
 
+        self.current_scale_measurement = 0
+        self.scale_zero_offset = 0
+
         self.connect_signals_and_slots()
 
     def connect_signals_and_slots(self):
-        self.mining_set_cal_factor_button.clicked.connect(self.on_mining_set_cal_factor_clicked__slot)
-        self.mining_tare_button.clicked.connect(self.on_mining_tare_clicked__slot)
-        self.mining_measure_button.clicked.connect(self.on_mining_measure_clicked__slot)
+        self.mining_zero_button.clicked.connect(self.on_mining_zero_clicked__slot)
 
         self.mining_measure_move_button.clicked.connect(self.on_mining_move_measure_clicked__slot)
         self.mining_transport_move_button.clicked.connect(self.on_mining_move_transport_clicked__slot)
         self.mining_scoop_move_button.clicked.connect(self.on_mining_move_scoop_clicked__slot)
+
+        self.mining_panorama_button.clicked.connect(self.on_mining_move_panorama_clicked__slot)
+        self.mining_sample_button.clicked.connect(self.on_mining_move_sample_clicked__slot)
+        self.mining_probe_button.clicked.connect(self.on_mining_move_probe_clicked__slot)
 
         self.tilt_position_update_ready__signal.connect(self.tilt_position_progress_bar.setValue)
         self.lift_position_update_ready__signal.connect(self.lift_position_progress_bar.setValue)
@@ -132,32 +146,14 @@ class Mining(QtCore.QObject):
         self.cam_lcd_output_button.clicked.connect(self.on_cam_lcd_button_clicked__slot)
         self.cam_network_output_button.clicked.connect(self.on_cam_network_button_clicked__slot)
 
-    def on_mining_set_cal_factor_clicked__slot(self):
-        message = MiningControlMessage()
+        self.cam_zoom_in_button.clicked.connect(self.on_cam_zoom_in_button_clicked__slot)
+        self.cam_zoom_out_button.clicked.connect(self.on_cam_zoom_out_button_clicked__slot)
+        self.cam_full_zoom_in_button.clicked.connect(self.on_cam_full_zoom_in_button_clicked__slot)
+        self.cam_full_zoom_out_button.clicked.connect(self.on_cam_full_zoom_out_button_clicked__slot)
+        self.cam_shoot_button.clicked.connect(self.on_cam_shoot_button_clicked__slot)
 
-        message.tilt_set_absolute = 1024
-        message.lift_set_absolute = 1024
-        message.cal_factor = self.mining_cal_factor_spinbox.value()
-
-        self.mining_control_publisher.publish(message)
-
-    def on_mining_tare_clicked__slot(self):
-        message = MiningControlMessage()
-        message.tilt_set_absolute = 1024
-        message.lift_set_absolute = 1024
-        message.cal_factor = -1
-        message.tare = 1
-
-        self.mining_control_publisher.publish(message)
-
-    def on_mining_measure_clicked__slot(self):
-        message = MiningControlMessage()
-        message.tilt_set_absolute = 1024
-        message.lift_set_absolute = 1024
-        message.cal_factor = -1
-        message.measure = True
-
-        self.mining_control_publisher.publish(message)
+    def on_mining_zero_clicked__slot(self):
+        self.scale_zero_offset = -self.current_scale_measurement
 
     def on_mining_move_transport_clicked__slot(self):
         message = MiningControlMessage()
@@ -183,6 +179,30 @@ class Mining(QtCore.QObject):
 
         self.mining_control_publisher.publish(message)
 
+    def on_mining_move_panorama_clicked__slot(self):
+        message = MiningControlMessage()
+        message.tilt_set_absolute = PANORAMA_POSITION_TILT
+        message.lift_set_absolute = PANORAMA_POSITION_LIFT
+        message.cal_factor = -1
+
+        self.mining_control_publisher.publish(message)
+
+    def on_mining_move_sample_clicked__slot(self):
+        message = MiningControlMessage()
+        message.tilt_set_absolute = SAMPLE_POSITION_TILT
+        message.lift_set_absolute = SAMPLE_POSITION_LIFT
+        message.cal_factor = -1
+
+        self.mining_control_publisher.publish(message)
+
+    def on_mining_move_probe_clicked__slot(self):
+        message = MiningControlMessage()
+        message.tilt_set_absolute = PROBE_POSITION_TILT
+        message.lift_set_absolute = PROBE_POSITION_LIFT
+        message.cal_factor = -1
+
+        self.mining_control_publisher.publish(message)
+
     def on_cam_lcd_button_clicked__slot(self):
         message = CameraControlMessage()
         message.camera_mode = 1
@@ -193,11 +213,35 @@ class Mining(QtCore.QObject):
         message.camera_mode = 2
         self.camera_control_publisher.publish(message)
 
+    def on_cam_zoom_in_button_clicked__slot(self):
+        message = CameraControlMessage()
+        message.zoom_in = 1
+        self.camera_control_publisher.publish(message)
+
+    def on_cam_zoom_out_button_clicked__slot(self):
+        message = CameraControlMessage()
+        message.zoom_out = 1
+        self.camera_control_publisher.publish(message)
+
+    def on_cam_full_zoom_in_button_clicked__slot(self):
+        message = CameraControlMessage()
+        message.full_zoom_in = 1
+        self.camera_control_publisher.publish(message)
+
+    def on_cam_full_zoom_out_button_clicked__slot(self):
+        message = CameraControlMessage()
+        message.full_zoom_out = 1
+        self.camera_control_publisher.publish(message)
+
+    def on_cam_shoot_button_clicked__slot(self):
+        message = CameraControlMessage()
+        message.shoot = 1
+        self.camera_control_publisher.publish(message)
+
     def mining_status_message_received__callback(self, status):
         status = status  # type:MiningStatusMessage
         self.tilt_position_update_ready__signal.emit(status.tilt_position)
         self.lift_position_update_ready__signal.emit(status.lift_position)
-        # self.weight_measurement_update_ready__signal.emit(status.measured_weight)
 
     def on_soil_probe_message_received__callback(self, data):
         self.temp_update_ready__signal.emit(data.temp_c)
@@ -208,4 +252,6 @@ class Mining(QtCore.QObject):
         self.imaginary_dielectric_update_ready__signal.emit(data.imaginary_dielectric_permittivity)
 
     def on_scale_measurement_received__callback(self, data):
-        self.weight_measurement_update_ready__signal.emit(data.data * 1000)
+        grams = data.data * 1000
+        self.current_scale_measurement = grams
+        self.weight_measurement_update_ready__signal.emit(grams + self.scale_zero_offset)

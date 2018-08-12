@@ -1,6 +1,7 @@
 ////////// Includes //////////
 #include "HX711.h"
 #include <ModbusRtu.h>
+#include <camera.h>
 
 ////////// Hardware / Data Enumerations //////////
 enum HARDWARE {
@@ -65,13 +66,12 @@ enum MODBUS_REGISTERS {
     ZOOM_OUT = 11,
     FULL_ZOOM_IN = 12,
     FULL_ZOOM_OUT = 13,
-    FOCUS = 14,
-    SHOOT = 15,
+    SHOOT = 14,
 
     // Outputs
-    CURRENT_POSITION_LIFT = 16,
-    CURRENT_POSITION_TILT = 17,
-    MEASURED_WEIGHT = 18
+    CURRENT_POSITION_LIFT = 15,
+    CURRENT_POSITION_TILT = 16,
+    MEASURED_WEIGHT = 17
 };
 
 enum CAMERA_VIEW_MODES {
@@ -92,7 +92,7 @@ float last_calibration_factor = -120000; //for the scale
 // modbus stuff
 const uint8_t node_id = 2;
 const uint8_t mobus_serial_port_number = 2;
-uint16_t modbus_data[] = {0, 0, 0, 0, 9999, 9999, 0, 0, 895, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint16_t modbus_data[] = {0, 0, 0, 0, 9999, 9999, 0, 0, 895, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8_t num_modbus_registers = 0;
 int8_t poll_state = 0;
 bool communication_good = false;
@@ -107,10 +107,11 @@ uint8_t message_count = 0;
 ////////// Class Instantiations //////////
 HX711 scale(HARDWARE::SCALE_DOUT, HARDWARE::SCALE_CLK);
 Modbus slave(node_id, mobus_serial_port_number, HARDWARE::RS485_EN);
+camera science_camera(HARDWARE::CAMERA_CONTROL);
 
 void setup() {
   Serial.begin(9600); // debug
-  while(!Serial);
+  // while(!Serial);
 
   setup_hardware();
   num_modbus_registers = sizeof(modbus_data) / sizeof(modbus_data[0]);
@@ -291,33 +292,23 @@ void apply_camera_commands(){
 
     ////// Zoom controls, process all, even if conflicting ///////
     if(modbus_data[MODBUS_REGISTERS::ZOOM_IN]){
-        Serial.println("ZOOM IN");
+        science_camera.slowZoomIn();
         modbus_data[MODBUS_REGISTERS::ZOOM_IN] = 0;
     }else if(modbus_data[MODBUS_REGISTERS::ZOOM_OUT]){
-        Serial.println("ZOOM OUT");
+        science_camera.slowZoomOut();
         modbus_data[MODBUS_REGISTERS::ZOOM_OUT] = 0;
     }else if(modbus_data[MODBUS_REGISTERS::FULL_ZOOM_IN]){
-        Serial.println("FULL ZOOM IN");
+        science_camera.fullZoomIn();
         modbus_data[MODBUS_REGISTERS::FULL_ZOOM_IN] = 0;
-    }
-
-    if(modbus_data[MODBUS_REGISTERS::FULL_ZOOM_OUT]){
-        Serial.println("FULL ZOOM OUT");
+    }else if(modbus_data[MODBUS_REGISTERS::FULL_ZOOM_OUT]){
+        science_camera.fullZoomOut();
         modbus_data[MODBUS_REGISTERS::FULL_ZOOM_OUT] = 0;
-    }
-
-    ////// Focus and shoot controls ///////
-    if(modbus_data[MODBUS_REGISTERS::FOCUS]){
-        Serial.println("FOCUS");
-        modbus_data[MODBUS_REGISTERS::FOCUS] = 0;
-    }
-
-    if(modbus_data[MODBUS_REGISTERS::SHOOT]){
-        Serial.println("SHOOT");
+    } else if(modbus_data[MODBUS_REGISTERS::SHOOT]){
+        science_camera.shoot();
         modbus_data[MODBUS_REGISTERS::SHOOT] = 0;
     }
     ///// camera process here
-
+    science_camera.update();
 }
 
 //---Set Motor Output---//
