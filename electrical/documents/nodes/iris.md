@@ -55,3 +55,4 @@ https://docs.google.com/spreadsheets/d/1TkVeK_GaS78QLqv8NcE_QGGE-NSj-3agn10lKnIS
 #### Version 2
 - U8_7 pin 1 silkscreen dot not visible 
 - R1 silkscreen not visible
+- There is an as-yet undiagnosed issue where IRIS would entirely cut out after a varying amount of time (anything from 15 minutes to hours). We do not know what causes this issue, but the software has been written to recover from the issue. We suspect it might be heat dependent, because it happened more often when the lab was hotter.
