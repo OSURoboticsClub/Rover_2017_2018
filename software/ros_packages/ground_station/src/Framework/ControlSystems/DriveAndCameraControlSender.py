@@ -13,8 +13,8 @@ from rover_control.msg import DriveCommandMessage, TowerPanTiltControlMessage
 #####################################
 # Global Variables
 #####################################
-GAME_CONTROLLER_NAME = "Microsoft X-Box One S pad"
-
+#GAME_CONTROLLER_NAME = "Microsoft X-Box One S pad"  <-- This was the actual xbox controller that Dylan had to buy at CIRC 2018
+GAME_CONTROLLER_NAME = "PowerA Xbox One wired controller"
 DEFAULT_DRIVE_COMMAND_TOPIC = "/rover_control/command_control/ground_station_drive"
 DEFAULT_TOWER_PAN_TILT_COMMAND_TOPIC = "/rover_control/tower/pan_tilt/control"
 DEFAULT_CHASSIS_PAN_TILT_COMMAND_TOPIC = "/rover_control/chassis/pan_tilt/control"

@@ -197,6 +197,8 @@ class EffectorsAndArmControlSender(QtCore.QThread):
         self.gripper_mode_wide_label = self.right_screen.gripper_mode_wide_label  # type: QtWidgets.QLabel
         self.gripper_mode_scissor_label = self.right_screen.gripper_mode_scissor_label  # type: QtWidgets.QLabel
 
+        self.arm_speed_limit_slider = self.right_screen.arm_speed_limit_slider  # type: QtWidgets.QSlider
+
         # ########## Get the settings instance ##########
         self.settings = QtCore.QSettings()
 
@@ -373,30 +375,27 @@ class EffectorsAndArmControlSender(QtCore.QThread):
         right_x_axis = self.controller.controller_states["right_x_axis"] if abs(self.controller.controller_states[
                                                                                     "right_x_axis"]) > RIGHT_X_AXIS_DEADZONE else 0
 
-        # print left_x_axis, ":", left_y_axis, ":", right_x_axis, ":", right_y_axis
-
-        left_trigger_ratio = left_trigger / 255.0
-        right_trigger_ratio = right_trigger / 255.0
+        speed_limit = self.arm_speed_limit_slider.value() / 100.0
 
         if left_trigger > 0:
             should_publish_arm = True
-            arm_control_message.base = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * left_trigger_ratio
-            arm_control_message.shoulder = ((left_y_axis / THUMB_STICK_MAX) * SHOULDER_SCALAR) * left_trigger_ratio
-            arm_control_message.elbow = (-(right_y_axis / THUMB_STICK_MAX) * ELBOW_SCALAR) * left_trigger_ratio
-            arm_control_message.roll = (-(right_x_axis / THUMB_STICK_MAX) * ROLL_SCALAR) * left_trigger_ratio
+            arm_control_message.base = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * speed_limit
+            arm_control_message.shoulder = ((left_y_axis / THUMB_STICK_MAX) * SHOULDER_SCALAR) * speed_limit
+            arm_control_message.elbow = (-(right_y_axis / THUMB_STICK_MAX) * ELBOW_SCALAR) * speed_limit
+            arm_control_message.roll = (-(right_x_axis / THUMB_STICK_MAX) * ROLL_SCALAR) * speed_limit
 
         elif right_trigger > 0:
             should_publish_arm = True
             should_publish_gripper = True
 
-            arm_control_message.wrist_roll = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * right_trigger_ratio
+            arm_control_message.wrist_roll = ((left_x_axis / THUMB_STICK_MAX) * BASE_SCALAR) * speed_limit
 
             # ##### FIXME #####
             # Remove this once the arm is fixed
-            # arm_control_message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * right_trigger_ratio
+            # arm_control_message.wrist_pitch = (-(left_y_axis / THUMB_STICK_MAX) * WRIST_PITCH_SCALAR) * speed_limit
             # #################
 
-            gripper_control_message.gripper_position_relative = (-(right_y_axis / THUMB_STICK_MAX) * GRIPPER_MOVEMENT_SCALAR) * right_trigger_ratio
+            gripper_control_message.gripper_position_relative = (-(right_y_axis / THUMB_STICK_MAX) * GRIPPER_MOVEMENT_SCALAR)
 
         if should_publish_arm:
             self.relative_arm_control_publisher.publish(arm_control_message)

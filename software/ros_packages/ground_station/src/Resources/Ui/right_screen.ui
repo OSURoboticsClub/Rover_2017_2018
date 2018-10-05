@@ -2217,7 +2217,7 @@ Position</string>
                 <widget class="QLabel" name="label_9">
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>12</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -2308,7 +2308,7 @@ Position</string>
                       <widget class="QLabel" name="label_5">
                        <property name="font">
                         <font>
-                         <pointsize>14</pointsize>
+                         <pointsize>12</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -2378,13 +2378,13 @@ Position</string>
                     <widget class="QLabel" name="label_3">
                      <property name="font">
                       <font>
-                       <pointsize>14</pointsize>
+                       <pointsize>12</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Speed Limit</string>
+                      <string>Rover Speed Limit</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -2420,10 +2420,70 @@ Position</string>
                   </spacer>
                  </item>
                  <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_16">
+                   <item>
+                    <spacer name="verticalSpacer_8">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_11">
+                     <property name="font">
+                      <font>
+                       <pointsize>12</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Arm Speed Limit</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSlider" name="arm_speed_limit_slider">
+                     <property name="maximum">
+                      <number>100</number>
+                     </property>
+                     <property name="value">
+                      <number>50</number>
+                     </property>
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_9">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
                   <widget class="QLabel" name="label_6">
                    <property name="font">
                     <font>
-                     <pointsize>14</pointsize>
+                     <pointsize>12</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -2534,7 +2594,7 @@ Position</string>
                   <widget class="QLabel" name="label_4">
                    <property name="font">
                     <font>
-                     <pointsize>14</pointsize>
+                     <pointsize>12</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -2578,7 +2638,13 @@ Position</string>
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
-                         <height>50</height>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
                         </size>
                        </property>
                       </widget>
@@ -2611,7 +2677,13 @@ Position</string>
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
-                         <height>50</height>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
                         </size>
                        </property>
                       </widget>
